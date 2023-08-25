@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class PrintData {
+import 'print_data.dart';
+
+class SpaReceiptData extends PrintData {
   final BuildContext context;
   final String shopName;
   final String shopIcon;
@@ -22,7 +24,7 @@ class PrintData {
   final List<Map<String, String>> services;
   final List<Map<String, dynamic>> payments;
 
-  PrintData({
+  SpaReceiptData({
     required this.context,
     required this.shopName,
     required this.shopIcon,
@@ -33,7 +35,7 @@ class PrintData {
     required this.issuedDate,
     required this.cashierName,
     required this.staffName,
-    required this.masseurName,
+     this.masseurName,
     required this.mobile,
     required this.roomName,
     required this.location,
