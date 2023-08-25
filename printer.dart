@@ -258,15 +258,7 @@ class PrintReceipt {
               startPrint(context, printData);
             }
           });
-      switch (printData.runtimeType) {
-        case SpaReceiptData:
-          SpaReceiptData spaReceiptData = printData as SpaReceiptData;
-          starPrinter.print(printData: spaReceiptData);
-          break;
-        case SpaWorkSlipData:
-          SpaWorkSlipData spaWorkSlipData = printData as SpaWorkSlipData;
-          starPrinter.print(printData: spaWorkSlipData);
-      }
+      starPrinter.print(printData: printData);
     }
     // starPrinterPrint(context, printerPort, printerModel);
 
@@ -281,16 +273,7 @@ class PrintReceipt {
               startPrint(context, printData);
             }
           });
-      switch (printData.runtimeType) {
-        case SpaReceiptData:
-          SpaReceiptData spaReceiptData = printData as SpaReceiptData;
-          localPrint.print(printData: spaReceiptData);
-          break;
-        case SpaWorkSlipData:
-          SpaWorkSlipData spaWorkSlipData = printData as SpaWorkSlipData;
-          localPrint.print(printData: spaWorkSlipData);
-          break;
-      }
+      localPrint.print(printData: printData);
     }
     if (printerType == 'xbt') {
       try {
@@ -315,6 +298,7 @@ class PrintReceipt {
                   startPrint(context, printData);
                 }
               });
+
           switch (printData.runtimeType) {
             case SpaReceiptData:
               SpaReceiptData spaReceiptData = printData as SpaReceiptData;
