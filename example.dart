@@ -14,22 +14,21 @@ ios/Runner/Info.plist
   <array>
     <string>jp.star-m.starpro</string>
   </array>
+<key>NSBluetoothAlwaysUsageDescription</key>  
+<string>Need BLE permission</string>  
+<key>NSBluetoothPeripheralUsageDescription</key>  
+<string>Need BLE permission</string>  
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>  
+<string>Need Location permission</string>  
+<key>NSLocationAlwaysUsageDescription</key>  
+<string>Need Location permission</string>  
+<key>NSLocationWhenInUseUsageDescription</key>  
+<string>Need Location permission</string>
 
 android/app/src/AndroidManifest.xml
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
-
-<dict>  
-	    <key>NSBluetoothAlwaysUsageDescription</key>  
-	    <string>Need BLE permission</string>  
-	    <key>NSBluetoothPeripheralUsageDescription</key>  
-	    <string>Need BLE permission</string>  
-	    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>  
-	    <string>Need Location permission</string>  
-	    <key>NSLocationAlwaysUsageDescription</key>  
-	    <string>Need Location permission</string>  
-	    <key>NSLocationWhenInUseUsageDescription</key>  
-	    <string>Need Location permission</string>
+	    
 */
 
 /*
@@ -129,7 +128,7 @@ printer.startPrint(context, carReceiptData);
 //Example Data
 /*
 List of Services
-services : [{name: Spa, price: 200.00, discount: 0.00, amount: 200.00, quantity: 1}]
+services : [{'name': 'Spa', 'price': '200.00', 'discount': '0.00', 'amount': '200.00', 'quantity': '1'}]
 List of Payments
-payments : [{paymentMethod: cash, amount: 100.00}, {paymentMethod: debit card, amount: 100.00}]
+payments : [{'paymentMethod': 'cash', 'amount': '100.00'}, {'paymentMethod': 'debit card', 'amount': '100.00'}]
 */
