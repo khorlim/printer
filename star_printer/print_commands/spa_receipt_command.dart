@@ -1,6 +1,6 @@
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
-import 'package:spa_app/printer/data_models/car_receipt.dart';
 
+import '../../data_models/car_receipt.dart';
 import '../../data_models/spa_receipt.dart';
 import '../../printer_utils/utils.dart';
 

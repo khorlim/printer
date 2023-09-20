@@ -2,10 +2,9 @@
   flutter_star_prnt: ^2.4.1
   esc_pos_printer: ^4.1.0
   esc_pos_utils: ^1.1.0
-  cupertino_icons: ^1.0.2
   network_discovery: ^1.0.0
-  shared_preferences: ^2.2.0
   bluetooth_print: ^4.3.0
+  flutter_blue_plus: ^1.14.7
 */
 
 /* Prerequisite

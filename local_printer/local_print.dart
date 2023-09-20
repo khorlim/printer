@@ -1,11 +1,11 @@
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:esc_pos_printer/esc_pos_printer.dart';
-import 'package:spa_app/printer/data_models/spa_receipt.dart';
-import 'package:spa_app/printer/data_models/spa_workslip.dart';
 
 import '../data_models/car_receipt.dart';
 import '../data_models/print_data.dart';
+import '../data_models/spa_receipt.dart';
+import '../data_models/spa_workslip.dart';
 import 'print_commands/spa_print_command.dart';
 import 'print_commands/spa_workslip_command.dart';
 

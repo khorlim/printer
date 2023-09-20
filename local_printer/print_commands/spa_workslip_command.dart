@@ -5,9 +5,8 @@ import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
-import 'package:spa_app/printer/data_models/spa_receipt.dart';
-import 'package:spa_app/printer/data_models/spa_workslip.dart';
 
+import '../../data_models/spa_workslip.dart';
 import '../../printer_utils/dialogs.dart';
 
 Future<void> spaWorkSlip(

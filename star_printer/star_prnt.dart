@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
-import 'package:spa_app/printer/data_models/car_receipt.dart';
 
+import '../data_models/car_receipt.dart';
 import '../data_models/print_data.dart';
 import '../data_models/spa_receipt.dart';
 import '../data_models/spa_workslip.dart';
