@@ -16,6 +16,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 import 'package:spa_app/printer/bluetooth_printer/bluetooth_print.dart';
+import 'package:spa_app/printer/data_models/car_receipt.dart';
 import 'package:spa_app/printer/data_models/spa_receipt.dart';
 import 'package:spa_app/printer/data_models/spa_workslip.dart';
 import 'package:spa_app/printer/local_printer/local_print.dart';
@@ -258,7 +259,7 @@ class PrintReceipt {
               startPrint(context, printData);
             }
           });
-      starPrinter.print(printData: printData);
+      starPrinter.startPrint(printData: printData);
     }
     // starPrinterPrint(context, printerPort, printerModel);
 
@@ -307,6 +308,10 @@ class PrintReceipt {
             case SpaWorkSlipData:
               SpaWorkSlipData spaWorkSlipData = printData as SpaWorkSlipData;
               btPrint.spaWorkSlipPrint(spaWorkSlipData);
+              break;
+            case CarReceiptData:
+              CarReceiptData carReceiptData = printData as CarReceiptData;
+              btPrint.carReceiptPrint(carReceiptData);
               break;
           }
         }

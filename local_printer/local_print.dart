@@ -4,6 +4,7 @@ import 'package:esc_pos_printer/esc_pos_printer.dart';
 import 'package:spa_app/printer/data_models/spa_receipt.dart';
 import 'package:spa_app/printer/data_models/spa_workslip.dart';
 
+import '../data_models/car_receipt.dart';
 import '../data_models/print_data.dart';
 import 'print_commands/spa_print_command.dart';
 import 'print_commands/spa_workslip_command.dart';
@@ -34,6 +35,9 @@ class LocalPrint {
         case SpaWorkSlipData:
           SpaWorkSlipData spaWorkSlipData = printData as SpaWorkSlipData;
           await spaWorkSlip(context, printer, spaWorkSlipData);
+          break;
+        case CarReceiptData:
+          await carReceipt(context, printer, printData as CarReceiptData);
           break;
       }
       printer.disconnect();

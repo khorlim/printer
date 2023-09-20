@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
+import 'package:spa_app/printer/data_models/car_receipt.dart';
 
 import '../data_models/print_data.dart';
 import '../data_models/spa_receipt.dart';
@@ -22,23 +23,36 @@ class StarPrinter {
     required this.searchAndStartPrint,
   });
 
-  Future<void> print({required PrintData printData}) async {
+  Future<void> startPrint({required PrintData printData}) async {
     bool format58mm = modelName.contains('POP10');
     try {
       showLoadingDialog(context, 'Printing');
       PrintCommands? commands;
 
-      if (printData is SpaReceiptData) {
-        commands = spaReceipt(
-            format58mm: format58mm, printData: printData as SpaReceiptData);
-      } else if (printData is SpaWorkSlipData) {
-        commands = spaWorkSlip(
-            format58mm: format58mm, printData: printData as SpaWorkSlipData);
+      switch (printData.runtimeType) {
+        case SpaReceiptData:
+          commands = spaReceipt(
+              format58mm: format58mm, printData: printData as SpaReceiptData);
+          break;
+        case SpaWorkSlipData:
+          commands = spaWorkSlip(
+              format58mm: format58mm, printData: printData as SpaWorkSlipData);
+          break;
+        case CarReceiptData:
+          commands = carReceipt(
+              format58mm: format58mm, printData: printData as CarReceiptData);
+          break;
       }
+
+      if (commands == null) {
+        print('star printer commands is null, return');
+        return;
+      }
+      
       PrinterResponseStatus responseStatus = await StarPrnt.sendCommands(
         portName: portName,
         emulation: emulationFor(modelName),
-        printCommands: commands!,
+        printCommands: commands,
       );
 
       if (responseStatus.isSuccess) {

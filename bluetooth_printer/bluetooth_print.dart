@@ -1,6 +1,7 @@
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:spa_app/printer/data_models/car_receipt.dart';
 import 'package:spa_app/printer/data_models/spa_receipt.dart';
 
 import '../data_models/spa_workslip.dart';
@@ -149,6 +150,145 @@ class BluetoothPrint {
     //       styles: PosStyles(align: PosAlign.right)),
     // ]));
     // printer.add(gen.hr(linesAfter: 1));
+
+    for (int i = 0; i < printData.payments.length; i++) {
+      String paymentName = printData.payments[i]['paymentMethod']!;
+      String amount = printData.payments[i]['amount']!;
+      bool bold = printData.payments[i]['bold'] ?? false;
+      bool linebreak = printData.payments[i]['linebreak'] ?? false;
+
+      bool isLastRow = i == printData.payments.length - 1;
+
+      if (isLastRow) {
+        printer.add(gen.row([
+          PosColumn(text: '', width: 6),
+          PosColumn(
+              text: paymentName,
+              width: 3,
+              styles: PosStyles(align: PosAlign.left, bold: bold)),
+          PosColumn(
+              text: amount, width: 3, styles: PosStyles(align: PosAlign.right)),
+        ]));
+        printer.add(gen.hr(linesAfter: 2));
+      } else {
+        printer.add(gen.row([
+          PosColumn(text: '', width: 6),
+          PosColumn(
+              text: paymentName,
+              width: 3,
+              styles: PosStyles(align: PosAlign.left, bold: bold)),
+          PosColumn(
+              text: amount, width: 3, styles: PosStyles(align: PosAlign.right)),
+        ]));
+        if (linebreak) {
+          printer.add(gen.hr());
+        }
+      }
+    }
+    printer.add(gen.text(
+        "Thank you\nPlease come Again\nRemain This Receipt To Get\n10\$ Discount for Next Visit",
+        styles: PosStyles(align: PosAlign.center)));
+    printer.add(gen.feed(2));
+    printer.add(gen.cut());
+
+    try {
+      await printer.printData(device);
+    } catch (e) {
+      hideLoadingDialog(context);
+
+      searchAndStartPrint();
+    }
+    hideLoadingDialog(context);
+  }
+
+  Future<void> carReceiptPrint(CarReceiptData printData) async {
+    showLoadingDialog(context, 'Printing');
+    // Get the negotiated MTU value
+    final negotiatedMTU = await device.mtu.first;
+
+    //print('Negotiated MTU: $negotiatedMTU');
+
+    final gen = Generator(PaperSize.mm80, await CapabilityProfile.load());
+    final printer = BluePrint(chunkLen: 182);
+
+    img.Image? image;
+    final response = await http.get(Uri.parse(printData.shopIcon));
+
+    if (response.statusCode == 200) {
+      image = img.decodeImage(response.bodyBytes);
+    } else {
+      hideLoadingDialog(context);
+      print('Failed to load image');
+    }
+    printer.add(gen.image(image!));
+
+    printer.add(gen.feed(1));
+
+    printer.add(gen.text('${printData.shopName}',
+        linesAfter: 1,
+        styles: PosStyles(
+          align: PosAlign.center,
+        )));
+    printer.add(gen.text('${printData.address}',
+        linesAfter: 1,
+        styles: PosStyles(
+          align: PosAlign.center,
+        )));
+    printer.add(gen.text('Ticket #${printData.receiptID}\nINVOICE',
+        linesAfter: 2,
+        styles: PosStyles(
+          align: PosAlign.center,
+          height: PosTextSize.size2,
+          width: PosTextSize.size2,
+        )));
+    printer.add(gen.text('INV No : ${printData.invNo}',
+        styles: PosStyles(align: PosAlign.left)));
+    printer.add(gen.text('Sales Date : ${printData.salesDate}',
+        styles: PosStyles(align: PosAlign.left)));
+    printer.add(gen.text('Issued Date : ${printData.issuedDate}',
+        styles: PosStyles(align: PosAlign.left)));
+    printer.add(gen.hr());
+    printer.add(gen.text('Name : ${printData.staffName}',
+        styles: PosStyles(align: PosAlign.left)));
+    printer.add(gen.text('Mobile : ${printData.mobile}',
+        styles: PosStyles(align: PosAlign.left)));
+    printer.add(gen.text('Car Plate : ${printData.carPlate}',
+        styles: PosStyles(align: PosAlign.left)));
+    printer.add(gen.text('Car Model : ${printData.carModel}',
+        styles: PosStyles(align: PosAlign.left)));
+    printer.add(gen.text('Location : ${printData.location}',
+        styles: PosStyles(align: PosAlign.left)));
+    printer.add(gen.text('Cashier : ${printData.cashierName}',
+        styles: PosStyles(align: PosAlign.left)));
+    
+    printer.add(gen.feed(1));
+    printer.add(gen.hr());
+
+    String descriptionHeader = "Description      ";
+    String priceHeader = "Price";
+    String discountHeader = "    Discount";
+    String quantityHeader = "   Qty";
+    String amountHeader = "  Amount";
+    String serviceHeaders =
+        "$descriptionHeader$priceHeader$discountHeader$quantityHeader$amountHeader";
+    printer.add(gen.text(serviceHeaders));
+    printer.add(gen.hr());
+    for (var item in printData.services) {
+      String serviceName = item["name"]!;
+      String price = item["price"]!;
+      String discount = item["discount"]!;
+      String quantity = item["quantity"]!;
+      String amount = item["amount"]!;
+      String servicesLabel =
+          "${price.padLeft(descriptionHeader.length + priceHeader.length)}${discount.padLeft(discountHeader.length)}${quantity.padLeft(quantityHeader.length)}${amount.padLeft(amountHeader.length)}";
+      printer.add(gen.text(serviceName,
+          containsChinese: true,
+          linesAfter: 1,
+          styles: PosStyles(align: PosAlign.left)));
+
+      printer.add(gen.text(servicesLabel, linesAfter: 1));
+    }
+    printer.add(gen.hr());
 
     for (int i = 0; i < printData.payments.length; i++) {
       String paymentName = printData.payments[i]['paymentMethod']!;
