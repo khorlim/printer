@@ -267,6 +267,7 @@ PrintCommands carReceipt(
   String mobileLabel =   "Mobile      : ${printData.mobile}";
   String carPlateLabel = "Car Plate   : ${printData.carPlate}";
   String carModelLabel = "Car Model   : ${printData.carModel}";
+                         
 
   // int spaceBetween = length - cashierLine.length -1;
   String header = "\n${alignCenter(printData.shopName, length)}\n"
@@ -295,7 +296,7 @@ PrintCommands carReceipt(
       "$mobileLabel\n"
       "$carPlateLabel\n"
       "$carModelLabel\n"
-      "Location : ${printData.location}\n";
+      "Location    : ${printData.location}\n";
 
   if (cashierLabel.isNotEmpty) {
     info += "$cashierLabel\n";
