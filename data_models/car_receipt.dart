@@ -6,11 +6,11 @@ class CarReceiptData extends PrintData {
   final String shopName;
   final String shopIcon;
   final String address;
-  final String receiptID;
-  final String invNo;
+  final String? receiptID;
+  final String? invNo;
   final String salesDate;
   final String issuedDate;
-  final String cashierName;
+  final String? cashierName;
   final String staffName;
   final String mobile;
   final String location;
@@ -27,11 +27,11 @@ class CarReceiptData extends PrintData {
     required this.shopName,
     required this.shopIcon,
     required this.address,
-    required this.receiptID,
-    required this.invNo,
+    this.receiptID,
+    this.invNo,
     required this.salesDate,
     required this.issuedDate,
-    required this.cashierName,
+    this.cashierName,
     required this.staffName,
     required this.mobile,
     required this.location,

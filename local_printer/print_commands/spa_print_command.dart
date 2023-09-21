@@ -343,15 +343,25 @@ Future<void> carReceipt(BuildContext context, NetworkPrinter printer,
       styles: PosStyles(
         align: PosAlign.center,
       ));
-  printer.text('Ticket #${printData.receiptID}\nINVOICE',
+  if (printData.receiptID != null) {
+    printer.text('Ticket #${printData.receiptID}',
+        styles: PosStyles(
+          align: PosAlign.center,
+          height: PosTextSize.size2,
+          width: PosTextSize.size2,
+        ));
+  }
+  printer.text('INVOICE',
       linesAfter: 2,
       styles: PosStyles(
         align: PosAlign.center,
         height: PosTextSize.size2,
         width: PosTextSize.size2,
       ));
-  printer.text('INV No : ${printData.invNo}',
-      styles: PosStyles(align: PosAlign.left));
+  if (printData.invNo != null) {
+    printer.text('INV No : ${printData.invNo}',
+        styles: PosStyles(align: PosAlign.left));
+  }
   printer.text('Sales Date : ${printData.salesDate}',
       styles: PosStyles(align: PosAlign.left));
   printer.text('Issued Date : ${printData.issuedDate}',
@@ -369,8 +379,10 @@ Future<void> carReceipt(BuildContext context, NetworkPrinter printer,
       styles: PosStyles(align: PosAlign.left));
   printer.text('Location : ${printData.location}',
       styles: PosStyles(align: PosAlign.left));
-  printer.text('Cashier : ${printData.cashierName}',
-      styles: PosStyles(align: PosAlign.left));
+  if (printData.cashierName != null) {
+    printer.text('Cashier : ${printData.cashierName}',
+        styles: PosStyles(align: PosAlign.left));
+  }
 
   printer.feed(1);
   printer.hr();

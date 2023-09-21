@@ -234,15 +234,25 @@ class BluetoothPrint {
         styles: PosStyles(
           align: PosAlign.center,
         )));
-    printer.add(gen.text('Ticket #${printData.receiptID}\nINVOICE',
+    if (printData.receiptID != null) {
+      printer.add(gen.text('Ticket #${printData.receiptID}',
+          styles: PosStyles(
+            align: PosAlign.center,
+            height: PosTextSize.size2,
+            width: PosTextSize.size2,
+          )));
+    }
+    printer.add(gen.text('INVOICE',
         linesAfter: 2,
         styles: PosStyles(
           align: PosAlign.center,
           height: PosTextSize.size2,
           width: PosTextSize.size2,
         )));
-    printer.add(gen.text('INV No : ${printData.invNo}',
-        styles: PosStyles(align: PosAlign.left)));
+    if (printData.invNo != null) {
+      printer.add(gen.text('INV No : ${printData.invNo}',
+          styles: PosStyles(align: PosAlign.left)));
+    }
     printer.add(gen.text('Sales Date : ${printData.salesDate}',
         styles: PosStyles(align: PosAlign.left)));
     printer.add(gen.text('Issued Date : ${printData.issuedDate}',
@@ -258,9 +268,11 @@ class BluetoothPrint {
         styles: PosStyles(align: PosAlign.left)));
     printer.add(gen.text('Location : ${printData.location}',
         styles: PosStyles(align: PosAlign.left)));
-    printer.add(gen.text('Cashier : ${printData.cashierName}',
-        styles: PosStyles(align: PosAlign.left)));
-    
+    if (printData.cashierName != null) {
+      printer.add(gen.text('Cashier : ${printData.cashierName}',
+          styles: PosStyles(align: PosAlign.left)));
+    }
+
     printer.add(gen.feed(1));
     printer.add(gen.hr());
 

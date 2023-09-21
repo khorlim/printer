@@ -258,8 +258,10 @@ PrintCommands carReceipt(
   int size12Length = fontSize12Length.length;
   int length = receiptLength.length;
 
-  String invNumberLabel = "INV No       : ${printData.invNo}";
-  String cashierLabel = "Cashier: ${printData.cashierName}";
+  String invNumberLabel =
+      printData.invNo == null ? '' : "INV No       : ${printData.invNo}";
+  String cashierLabel =
+      printData.cashierName == null ? '' : "Cashier: ${printData.cashierName}";
   String staffLabel = "Name     : ${printData.staffName}";
   String mobileLabel = "Mobile   : ${printData.mobile}";
   String carPlateLabel = "Car Plate   : ${printData.carPlate}";
@@ -269,20 +271,32 @@ PrintCommands carReceipt(
   String header = "\n${alignCenter(printData.shopName, length)}\n"
       "${alignCenter(printData.address, length)}\n";
 
-  String title =
-      "${alignCenter("Ticket #${printData.receiptID}", size12Length)}\n"
-      "${alignCenter("INVOICE", size12Length)}\n";
+  String title = '';
 
-  String info = "$invNumberLabel\n"
-      "Sales Date   : ${printData.salesDate}\n"
+  if (printData.receiptID != null) {
+    title += "${alignCenter("Ticket #${printData.receiptID}", size12Length)}\n";
+  }
+
+  title += "${alignCenter("INVOICE", size12Length)}\n";
+
+  String info = '';
+
+  if (invNumberLabel.isNotEmpty) {
+    info += "$invNumberLabel\n";
+  }
+
+  info += "Sales Date   : ${printData.salesDate}\n"
       "Issued Date  : ${printData.issuedDate}\n"
       ".....................................................\n"
       "$staffLabel\n"
       "$mobileLabel\n"
       "$carPlateLabel\n"
       "$carModelLabel\n"
-      "Location : ${printData.location}\n"
-      "$cashierLabel\n";
+      "Location : ${printData.location}\n";
+
+  if (cashierLabel.isNotEmpty) {
+    info += "$cashierLabel\n";
+  }
 
   String separateLine =
       "-----------------------------------------------------\n";
