@@ -261,9 +261,10 @@ PrintCommands carReceipt(
   String invNumberLabel =
       printData.invNo == null ? '' : "INV No       : ${printData.invNo}";
   String cashierLabel =
-      printData.cashierName == null ? '' : "Cashier: ${printData.cashierName}";
-  String staffLabel = "Name     : ${printData.staffName}";
-  String mobileLabel = "Mobile   : ${printData.mobile}";
+      printData.cashierName == null ? '' : 
+                         "Cashier     : ${printData.cashierName}";
+  String staffLabel =    "Name        : ${printData.staffName}";
+  String mobileLabel =   "Mobile      : ${printData.mobile}";
   String carPlateLabel = "Car Plate   : ${printData.carPlate}";
   String carModelLabel = "Car Model   : ${printData.carModel}";
 
@@ -285,7 +286,9 @@ PrintCommands carReceipt(
     info += "$invNumberLabel\n";
   }
 
-  info += "Sales Date   : ${printData.salesDate}\n"
+  info += 
+  
+      "Sales Date   : ${printData.salesDate}\n"
       "Issued Date  : ${printData.issuedDate}\n"
       ".....................................................\n"
       "$staffLabel\n"

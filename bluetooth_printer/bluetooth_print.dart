@@ -250,26 +250,28 @@ class BluetoothPrint {
           width: PosTextSize.size2,
         )));
     if (printData.invNo != null) {
-      printer.add(gen.text('INV No : ${printData.invNo}',
+      printer.add(gen.text(
+                         'INV No      : ${printData.invNo}',
           styles: PosStyles(align: PosAlign.left)));
     }
-    printer.add(gen.text('Sales Date : ${printData.salesDate}',
+    printer.add(gen.text('Sales Date  : ${printData.salesDate}',
         styles: PosStyles(align: PosAlign.left)));
     printer.add(gen.text('Issued Date : ${printData.issuedDate}',
         styles: PosStyles(align: PosAlign.left)));
     printer.add(gen.hr());
-    printer.add(gen.text('Name : ${printData.staffName}',
+    printer.add(gen.text('Name      : ${printData.staffName}',
         styles: PosStyles(align: PosAlign.left)));
-    printer.add(gen.text('Mobile : ${printData.mobile}',
+    printer.add(gen.text('Mobile    : ${printData.mobile}',
         styles: PosStyles(align: PosAlign.left)));
     printer.add(gen.text('Car Plate : ${printData.carPlate}',
         styles: PosStyles(align: PosAlign.left)));
     printer.add(gen.text('Car Model : ${printData.carModel}',
         styles: PosStyles(align: PosAlign.left)));
-    printer.add(gen.text('Location : ${printData.location}',
+    printer.add(gen.text('Location  : ${printData.location}',
         styles: PosStyles(align: PosAlign.left)));
     if (printData.cashierName != null) {
-      printer.add(gen.text('Cashier : ${printData.cashierName}',
+      printer.add(gen.text(
+                         'Cashier   : ${printData.cashierName}',
           styles: PosStyles(align: PosAlign.left)));
     }
 

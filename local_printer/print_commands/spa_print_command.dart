@@ -359,28 +359,28 @@ Future<void> carReceipt(BuildContext context, NetworkPrinter printer,
         width: PosTextSize.size2,
       ));
   if (printData.invNo != null) {
-    printer.text('INV No : ${printData.invNo}',
+    printer.text('INV No      : ${printData.invNo}',
         styles: PosStyles(align: PosAlign.left));
   }
-  printer.text('Sales Date : ${printData.salesDate}',
+  printer.text('Sales Date  : ${printData.salesDate}',
       styles: PosStyles(align: PosAlign.left));
   printer.text('Issued Date : ${printData.issuedDate}',
       styles: PosStyles(align: PosAlign.left));
   printer.hr();
 
-  printer.text('Name : ${printData.staffName}',
+  printer.text('Name      : ${printData.staffName}',
       styles: PosStyles(align: PosAlign.left));
 
-  printer.text('Mobile : ${printData.mobile}',
+  printer.text('Mobile    : ${printData.mobile}',
       styles: PosStyles(align: PosAlign.left));
   printer.text('Car Plate : ${printData.carPlate}',
       styles: PosStyles(align: PosAlign.left));
   printer.text('Car Model : ${printData.carModel}',
       styles: PosStyles(align: PosAlign.left));
-  printer.text('Location : ${printData.location}',
+  printer.text('Location  : ${printData.location}',
       styles: PosStyles(align: PosAlign.left));
   if (printData.cashierName != null) {
-    printer.text('Cashier : ${printData.cashierName}',
+    printer.text('Cashier   : ${printData.cashierName}',
         styles: PosStyles(align: PosAlign.left));
   }
 
