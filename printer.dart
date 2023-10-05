@@ -259,7 +259,11 @@ class PrintReceipt {
               startPrint(context, printData);
             }
           });
-      starPrinter.startPrint(printData: printData);
+      try {
+        starPrinter.startPrint(printData: printData);
+      } catch (e) {
+        print('failed to print with star printer: $e');
+      }
     }
     // starPrinterPrint(context, printerPort, printerModel);
 
@@ -274,7 +278,11 @@ class PrintReceipt {
               startPrint(context, printData);
             }
           });
-      localPrint.print(printData: printData);
+      try {
+        localPrint.print(printData: printData);
+      } catch (e) {
+        print(e);
+      }
     }
     if (printerType == 'xbt') {
       try {
