@@ -278,11 +278,7 @@ class PrintReceipt {
               startPrint(context, printData);
             }
           });
-      try {
         localPrint.print(printData: printData);
-      } catch (e) {
-        print(e);
-      }
     }
     if (printerType == 'xbt') {
       try {
@@ -330,13 +326,15 @@ class PrintReceipt {
   }
 
   Future<void> findLanPrinterThroughPort() async {
-    const List<int> ports = [9100];
-    final stream = NetworkDiscovery.discoverMultiplePorts('192.168.0', ports);
+    print('finding printer through port');
+    const List<int> ports = [9100, 6001];
+    final stream = NetworkDiscovery.discoverMultiplePorts('192.168.0', ports, timeout: Duration(seconds: 2));
     final completer = Completer<void>();
     int found = 0;
     stream.listen((
       NetworkAddress addr,
     ) {
+    
       found++;
       foundLanXPrinter.add("${addr.ip}");
       print('Found device: ${addr.ip}:${addr.openPorts}');
