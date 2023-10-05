@@ -250,8 +250,7 @@ class BluetoothPrint {
           width: PosTextSize.size2,
         )));
     if (printData.invNo != null) {
-      printer.add(gen.text(
-                         'INV No      : ${printData.invNo}',
+      printer.add(gen.text('INV No      : ${printData.invNo}',
           styles: PosStyles(align: PosAlign.left)));
     }
     printer.add(gen.text('Sales Date  : ${printData.salesDate}',
@@ -270,8 +269,7 @@ class BluetoothPrint {
     printer.add(gen.text('Location  : ${printData.location}',
         styles: PosStyles(align: PosAlign.left)));
     if (printData.cashierName != null) {
-      printer.add(gen.text(
-                         'Cashier   : ${printData.cashierName}',
+      printer.add(gen.text('Cashier   : ${printData.cashierName}',
           styles: PosStyles(align: PosAlign.left)));
     }
 
@@ -338,9 +336,10 @@ class BluetoothPrint {
         }
       }
     }
-    printer.add(gen.text(
-        "Thank you\nPlease come Again\nRemain This Receipt To Get\n10\$ Discount for Next Visit",
-        styles: PosStyles(align: PosAlign.center)));
+    if (printData.footer != null) {
+      printer.add(gen.text(printData.footer!,
+          styles: PosStyles(align: PosAlign.center)));
+    }
     printer.add(gen.feed(2));
     printer.add(gen.cut());
 

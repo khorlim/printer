@@ -360,10 +360,12 @@ PrintCommands carReceipt(
     pay += " ";
   }
 
-  String footer = "${alignCenter("Thank you", length)}\n"
-      "${alignCenter("Please Come Again", length)}\n"
-      "${alignCenter("Remain This Receipt To Get", length)}\n"
-      "${alignCenter("10\$ Discount for Next Visit", length)}\n";
+  String footer = printData.footer == null ? '' : "${alignCenter(printData.footer!, length)}\n";
+
+  // String footer = "${alignCenter("Thank you", length)}\n"
+  //     "${alignCenter("Please Come Again", length)}\n"
+  //     "${alignCenter("Remain This Receipt To Get", length)}\n"
+  //     "${alignCenter("10\$ Discount for Next Visit", length)}\n";
 
   int imageWidth = format58mm ? (576 / 1.8).ceil() : (576 / 2.6).ceil();
   commands.appendBitmap(
@@ -384,6 +386,7 @@ PrintCommands carReceipt(
   commands.appendBitmapText(text: service, fontSize: 9);
   commands.appendBitmapText(text: total, fontSize: 9);
   commands.appendBitmapText(text: pay, fontSize: 9);
+  
   commands.appendBitmapText(text: footer, fontSize: 9);
   commands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
 

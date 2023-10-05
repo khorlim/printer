@@ -450,10 +450,11 @@ Future<void> carReceipt(BuildContext context, NetworkPrinter printer,
       }
     }
   }
-
-  printer.text(
-      "Thank you\nPlease come Again\nRemain This Receipt To Get\n10\$ Discount for Next Visit",
-      styles: PosStyles(align: PosAlign.center));
+  if (printData.footer != null) {
+    printer.text(
+        printData.footer!,
+        styles: PosStyles(align: PosAlign.center));
+  }
   printer.feed(2);
   printer.cut();
   hideLoadingDialog(context);

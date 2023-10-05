@@ -16,6 +16,7 @@ class CarReceiptData extends PrintData {
   final String location;
   final String carPlate;
   final String carModel;
+  final String? footer;
   // final String subtotal;
   // final String outstanding;
   // final String rounding;
@@ -37,6 +38,7 @@ class CarReceiptData extends PrintData {
     required this.location,
     required this.carPlate,
     required this.carModel,
+    this.footer,
     // required this.subtotal,
     // required this.outstanding,
     // required this.rounding,
