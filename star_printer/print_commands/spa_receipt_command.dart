@@ -260,14 +260,13 @@ PrintCommands carReceipt(
 
   String invNumberLabel =
       printData.invNo == null ? '' : "INV No       : ${printData.invNo}";
-  String cashierLabel =
-      printData.cashierName == null ? '' : 
-                         "Cashier     : ${printData.cashierName}";
-  String staffLabel =    "Name        : ${printData.staffName}";
-  String mobileLabel =   "Mobile      : ${printData.mobile}";
+  String cashierLabel = printData.cashierName == null
+      ? ''
+      : "Cashier     : ${printData.cashierName}";
+  String staffLabel = "Name        : ${printData.staffName}";
+  String mobileLabel = "Mobile      : ${printData.mobile}";
   String carPlateLabel = "Car Plate   : ${printData.carPlate}";
   String carModelLabel = "Car Model   : ${printData.carModel}";
-                         
 
   // int spaceBetween = length - cashierLine.length -1;
   String header = "\n${alignCenter(printData.shopName, length)}\n"
@@ -287,9 +286,7 @@ PrintCommands carReceipt(
     info += "$invNumberLabel\n";
   }
 
-  info += 
-  
-      "Sales Date   : ${printData.salesDate}\n"
+  info += "Sales Date   : ${printData.salesDate}\n"
       "Issued Date  : ${printData.issuedDate}\n"
       ".....................................................\n"
       "$staffLabel\n"
@@ -360,8 +357,6 @@ PrintCommands carReceipt(
     pay += " ";
   }
 
-  String footer = printData.footer == null ? '' : "${alignCenter(printData.footer!, length)}\n";
-
   // String footer = "${alignCenter("Thank you", length)}\n"
   //     "${alignCenter("Please Come Again", length)}\n"
   //     "${alignCenter("Remain This Receipt To Get", length)}\n"
@@ -386,8 +381,10 @@ PrintCommands carReceipt(
   commands.appendBitmapText(text: service, fontSize: 9);
   commands.appendBitmapText(text: total, fontSize: 9);
   commands.appendBitmapText(text: pay, fontSize: 9);
-  
-  commands.appendBitmapText(text: footer, fontSize: 9);
+
+  if (printData.footer != null) {
+    commands.appendBitmapText(text: printData.footer!, fontSize: 9);
+  }
   commands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
 
   return commands;

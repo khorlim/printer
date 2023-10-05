@@ -24,7 +24,8 @@ class StarPrinter {
   });
 
   Future<void> startPrint({required PrintData printData}) async {
-    bool format58mm = modelName.contains('POP10');
+    bool format58mm = false;
+   // modelName.contains('POP10');
     try {
       showLoadingDialog(context, 'Printing');
       PrintCommands? commands;
