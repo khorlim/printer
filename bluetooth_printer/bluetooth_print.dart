@@ -21,7 +21,6 @@ class BluetoothPrint {
       required this.searchAndStartPrint});
 
   Future<void> spaReceiptPrint(SpaReceiptData printData) async {
-    showLoadingDialog(context, 'Printing');
     // Get the negotiated MTU value
     final negotiatedMTU = await device.mtu.first;
 
@@ -36,7 +35,6 @@ class BluetoothPrint {
     if (response.statusCode == 200) {
       image = img.decodeImage(response.bodyBytes);
     } else {
-      hideLoadingDialog(context);
       print('Failed to load image');
     }
     printer.add(gen.image(image!));
@@ -194,15 +192,11 @@ class BluetoothPrint {
     try {
       await printer.printData(device);
     } catch (e) {
-      hideLoadingDialog(context);
-
       searchAndStartPrint();
     }
-    hideLoadingDialog(context);
   }
 
   Future<void> carReceiptPrint(CarReceiptData printData) async {
-    showLoadingDialog(context, 'Printing');
     // Get the negotiated MTU value
     final negotiatedMTU = await device.mtu.first;
 
@@ -217,7 +211,6 @@ class BluetoothPrint {
     if (response.statusCode == 200) {
       image = img.decodeImage(response.bodyBytes);
     } else {
-      hideLoadingDialog(context);
       print('Failed to load image');
     }
     printer.add(gen.image(image!));
@@ -346,15 +339,11 @@ class BluetoothPrint {
     try {
       await printer.printData(device);
     } catch (e) {
-      hideLoadingDialog(context);
-
       searchAndStartPrint();
     }
-    hideLoadingDialog(context);
   }
 
   Future<void> spaWorkSlipPrint(SpaWorkSlipData printData) async {
-    showLoadingDialog(context, 'Printing');
     // Get the negotiated MTU value
     final negotiatedMTU = await device.mtu.first;
 
@@ -415,10 +404,7 @@ class BluetoothPrint {
 
     try {
       await printer.printData(device);
-      hideLoadingDialog(context);
     } catch (e) {
-      hideLoadingDialog(context);
-
       searchAndStartPrint();
     }
   }

@@ -16,6 +16,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 
+import '../tunai_sharecode/widget/dialog/double_confirm_dialog.dart';
 import 'bluetooth_printer/blueprint.dart';
 import 'bluetooth_printer/bluetooth_print.dart';
 import 'data_models/car_receipt.dart';
@@ -123,79 +124,90 @@ class PrintReceipt {
   }
 
   Future<bool> findAnyPrinter(BuildContext context) async {
-    showLoadingDialog(context, 'Finding printer...');
     await loadPrinterSettings();
     print(
         'stored printer type: ${printerType.isEmpty ? 'Empty' : printerType}');
-    //if no printer type store in local then search for new printer
     if (printerType == '') {
-      print('finding printer.....');
-      await findStarPrinter();
-      if (foundStarPrinter.isEmpty) {
-        await findLanPrinterThroughPort();
-      }
+      bool confirm = await showDoubleConfirmDialog(
+          context: context,
+          title: 'Findy nearby printer ?',
+          message:
+              'There are no printer connection found, do you want to find nearby printer ?',
+          action: 'Confirm');
 
-      if (foundStarPrinter.isEmpty && foundLanXPrinter.isEmpty) {
-        await findConnectedBtPrinter();
-      }
+      if (confirm) {
+        showLoadingDialog(context, 'Finding printer...');
+        print('finding printer.....');
+        // await findStarPrinter();
+        // if (foundStarPrinter.isEmpty) {
+        //   await findLanPrinterThroughPort();
+        // }
 
-      print('stopped finding printer.....');
-      print('found printer : $printerFound');
-      hideLoadingDialog(context);
-      if (!printerFound) {
-        // showAlertDialog(
-        //     context, 'No Printer Found', 'Unable to locate any printer');
+        // if (foundStarPrinter.isEmpty && foundLanXPrinter.isEmpty) {
+        //   await findConnectedBtPrinter();
+        // }
 
-        await performBluetoothScan(context);
+        await Future.wait([
+          findStarPrinter(),
+          findLanPrinterThroughPort(),
+          findConnectedBtPrinter()
+        ]);
 
-        if (scanResult != null) {
-          // ignore: use_build_context_synchronously
-          await showDialog(
-            context: context,
-            builder: (BuildContext ctxt) {
-              return AlertDialog(
-                title: Text('Bluetooth Devices'),
-                content: Container(
-                  width: double.maxFinite,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: scanResult!.length,
-                    itemBuilder: (BuildContext ctxt, int index) {
-                      final result = scanResult![index];
-                      return ListTile(
-                        title:
-                            Text(result.device.localName ?? 'Unknown Device'),
-                        subtitle: Text(result.device.remoteId.toString()),
-                        onTap: () async {
-                          printerFound = true;
-                          await result.device.connect();
-                          foundBTPrinter = result.device;
-                          await savePrinterSettings('xbt', '', '');
-                          Navigator.pop(ctxt);
-                        },
-                      );
-                    },
+        print('stopped finding printer.....');
+        print('found printer : $printerFound');
+        hideLoadingDialog(context);
+        if (!printerFound) {
+          // showAlertDialog(
+          //     context, 'No Printer Found', 'Unable to locate any printer');
+
+          await performBluetoothScan(context);
+
+          if (scanResult != null) {
+            // ignore: use_build_context_synchronously
+            await showDialog(
+              context: context,
+              builder: (BuildContext ctxt) {
+                return AlertDialog(
+                  title: Text('Bluetooth Devices'),
+                  content: Container(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: scanResult!.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        final result = scanResult![index];
+                        return ListTile(
+                          title:
+                              Text(result.device.localName ?? 'Unknown Device'),
+                          subtitle: Text(result.device.remoteId.toString()),
+                          onTap: () async {
+                            printerFound = true;
+                            await result.device.connect();
+                            foundBTPrinter = result.device;
+                            await savePrinterSettings('xbt', '', '');
+                            Navigator.pop(ctxt);
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Close'),
-                  ),
-                ],
-              );
-            },
-          );
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Close'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         }
       }
-      return printerFound;
-    } else {
-      printerFound = true;
-      hideLoadingDialog(context);
-      return printerFound;
     }
+
+    return printerFound;
   }
 
   Future<void> performBluetoothScan(BuildContext context) async {
@@ -244,78 +256,58 @@ class PrintReceipt {
   }
 
   Future<void> startPrint(BuildContext context, PrintData printData) async {
-    //showLoadingDialog(context);
+    showLoadingDialog(context, 'Printing');
+    await loadPrinterSettings();
     print(
-        'Printing through printer : ${printerType.isEmpty ? 'Null' : printerType}');
+        'Printing through printer : ${printerType.isEmpty ? 'Null' : printerType}, printerPort: $printerPort');
     if (printerType == 'star') {
       StarPrinter starPrinter = StarPrinter(
           context: context,
           portName: printerPort,
           modelName: printerModel,
           searchAndStartPrint: () async {
-            await clearPrinterSettings();
-            await findAnyPrinter(context);
-            if (printerFound) {
-              startPrint(context, printData);
-            }
+            findPrinterAndStartPrintAgain(context, printData);
           });
       try {
-        starPrinter.startPrint(printData: printData);
+        await starPrinter.startPrint(printData: printData);
       } catch (e) {
         print('failed to print with star printer: $e');
       }
-    }
-    // starPrinterPrint(context, printerPort, printerModel);
-
-    if (printerType == 'xlan') {
+    } else if (printerType == 'xlan') {
       LocalPrint localPrint = LocalPrint(
           context: context,
           addr: printerPort,
           searchAndStartPrint: () async {
-            await clearPrinterSettings();
-            await findAnyPrinter(context);
-            if (printerFound) {
-              startPrint(context, printData);
-            }
+            findPrinterAndStartPrintAgain(context, printData);
           });
-        localPrint.print(printData: printData);
-    }
-    if (printerType == 'xbt') {
+      await localPrint.startPrint(printData: printData);
+    } else if (printerType == 'xbt') {
       try {
         if (foundBTPrinter == null) {
           await findConnectedBtPrinter();
         }
         if (foundBTPrinter == null) {
-          print('no printer connection found');
-          clearPrinterSettings();
-          await findAnyPrinter(context);
-          if (printerFound) {
-            startPrint(context, printData);
-          }
+          findPrinterAndStartPrintAgain(context, printData);
         } else {
           BluetoothPrint btPrint = BluetoothPrint(
               context: context,
               device: foundBTPrinter!,
               searchAndStartPrint: () async {
-                await clearPrinterSettings();
-                await findAnyPrinter(context);
-                if (printerFound) {
-                  startPrint(context, printData);
-                }
+                findPrinterAndStartPrintAgain(context, printData);
               });
 
           switch (printData.runtimeType) {
             case SpaReceiptData:
               SpaReceiptData spaReceiptData = printData as SpaReceiptData;
-              btPrint.spaReceiptPrint(spaReceiptData);
+              await btPrint.spaReceiptPrint(spaReceiptData);
               break;
             case SpaWorkSlipData:
               SpaWorkSlipData spaWorkSlipData = printData as SpaWorkSlipData;
-              btPrint.spaWorkSlipPrint(spaWorkSlipData);
+              await btPrint.spaWorkSlipPrint(spaWorkSlipData);
               break;
             case CarReceiptData:
               CarReceiptData carReceiptData = printData as CarReceiptData;
-              btPrint.carReceiptPrint(carReceiptData);
+              await btPrint.carReceiptPrint(carReceiptData);
               break;
           }
         }
@@ -323,18 +315,28 @@ class PrintReceipt {
         print('failed to print with bt printer: $e');
       }
     }
+    hideLoadingDialog(context);
+  }
+
+  Future<void> findPrinterAndStartPrintAgain(
+      BuildContext context, PrintData printData) async {
+    await clearPrinterSettings();
+    await findAnyPrinter(context);
+    if (printerFound) {
+      startPrint(context, printData);
+    }
   }
 
   Future<void> findLanPrinterThroughPort() async {
     print('finding printer through port');
     const List<int> ports = [9100, 6001];
-    final stream = NetworkDiscovery.discoverMultiplePorts('192.168.0', ports, timeout: Duration(seconds: 2));
+    final stream = NetworkDiscovery.discoverMultiplePorts('192.168.0', ports,
+        timeout: Duration(seconds: 2));
     final completer = Completer<void>();
     int found = 0;
     stream.listen((
       NetworkAddress addr,
     ) {
-    
       found++;
       foundLanXPrinter.add("${addr.ip}");
       print('Found device: ${addr.ip}:${addr.openPorts}');
@@ -344,18 +346,15 @@ class PrintReceipt {
     });
 
     // Wait for the completer to complete before proceeding
-    try {
-      await completer.future;
-      if (foundLanXPrinter.isNotEmpty) {
-        savePrinterSettings('xlan', '${foundLanXPrinter[0]}', '');
 
-        printerFound = true;
-      }
-      // print('complete');
-      // Now you can continue with your further code execution
-    } catch (error) {
-      print('An error occurred: $error');
+    await completer.future;
+    if (foundLanXPrinter.isNotEmpty) {
+      await savePrinterSettings('xlan', foundLanXPrinter.first, '');
+
+      printerFound = true;
     }
+    // print('complete');
+    // Now you can continue with your further code execution
   }
 
   Future<void> findStarPrinter() async {

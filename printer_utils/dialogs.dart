@@ -1,30 +1,31 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void showAlertDialog(BuildContext context, String title, String message) {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+Future<void> showAlertDialog(
+    BuildContext context, String title, String message) async {
+  await showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: <Widget>[
+          CupertinoDialogAction(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
 class CupertinoLoadingDialog extends StatelessWidget {
   final String title;
 
-  const CupertinoLoadingDialog({super.key,  this.title = "Loading"});
+  const CupertinoLoadingDialog({super.key, this.title = "Loading"});
   @override
   Widget build(BuildContext context) {
     return CupertinoAlertDialog(
@@ -43,11 +44,13 @@ class CupertinoLoadingDialog extends StatelessWidget {
 // Example of using the CupertinoLoadingDialog:
 
 void showLoadingDialog(BuildContext context, String? title) {
-  showDialog(
+  showCupertinoDialog(
     context: context,
     barrierDismissible: false, // Prevent dismissing the dialog on tap outside
     builder: (BuildContext context) {
-      return CupertinoLoadingDialog(title: title!,);
+      return CupertinoLoadingDialog(
+        title: title!,
+      );
     },
   );
 }

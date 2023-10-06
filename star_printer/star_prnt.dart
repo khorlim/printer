@@ -25,9 +25,8 @@ class StarPrinter {
 
   Future<void> startPrint({required PrintData printData}) async {
     bool format58mm = false;
-   // modelName.contains('POP10');
+    // modelName.contains('POP10');
     try {
-      showLoadingDialog(context, 'Printing');
       PrintCommands? commands;
 
       switch (printData.runtimeType) {
@@ -49,7 +48,7 @@ class StarPrinter {
         print('star printer commands is null, return');
         return;
       }
-      
+
       PrinterResponseStatus responseStatus = await StarPrnt.sendCommands(
         portName: portName,
         emulation: emulationFor(modelName),
@@ -57,15 +56,8 @@ class StarPrinter {
       );
 
       if (responseStatus.isSuccess) {
-        hideLoadingDialog(context);
-        showAlertDialog(context, 'Success', 'Print successful');
-      } else {
-        hideLoadingDialog(context);
-        showAlertDialog(context, 'Failed',
-            'Print failed with status: ${responseStatus.toString()}');
-      }
+      } else {}
     } catch (e) {
-      hideLoadingDialog(context);
       searchAndStartPrint();
     }
   }

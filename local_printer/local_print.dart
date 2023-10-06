@@ -1,6 +1,7 @@
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:spa_app/printer/printer_utils/dialogs.dart';
 
 import '../data_models/car_receipt.dart';
 import '../data_models/print_data.dart';
@@ -19,13 +20,12 @@ class LocalPrint {
       required this.addr,
       required this.searchAndStartPrint});
 
-  Future<void> print({required PrintData printData}) async {
+  Future<void> startPrint({required PrintData printData}) async {
     const PaperSize paper = PaperSize.mm80;
     final profile = await CapabilityProfile.load();
     final printer = NetworkPrinter(paper, profile);
 
     final PosPrintResult res = await printer.connect(addr, port: 9100);
-
     if (res == PosPrintResult.success) {
       switch (printData.runtimeType) {
         case SpaReceiptData:
@@ -42,6 +42,9 @@ class LocalPrint {
       }
       printer.disconnect();
     } else {
+      print('failed to connect to lan printer :$addr[9100]');
+      await showAlertDialog(context, 'Failed to connect',
+          'Lan printer has been found but failed to connect, please try again later.');
       searchAndStartPrint();
     }
   }
