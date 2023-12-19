@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 import 'package:printer_test/bluetooth_print_page.dart';
+import 'package:printer_test/printer/print_command_adapter.dart';
 import 'package:printer_test/printer/printer_managers/bt_print_manager.dart';
 import 'package:printer_test/printer/model/custom_printer_model.dart';
 import 'package:printer_test/printer/printer_managers/network_print_manager.dart';
 import 'package:printer_test/printer/printer_managers/star_print_manager.dart';
+import 'package:printer_test/printer/receipt_commands/receipt_manager.dart';
+import 'package:printer_test/printer/utils/bit_map_text_helper.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/src/capability_profile.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/src/enums.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/src/generator.dart';
@@ -146,42 +151,26 @@ class SuperPrinter {
       print('No connected printer');
       return false;
     }
-    final profile = await CapabilityProfile.load();
-    final generator = Generator(PaperSize.mm58, profile);
-    List<int> bytes = [];
 
-    bytes += generator.text('Test Print',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text('Product 1');
-    bytes += generator.text('Product 2');
-    bytes += generator.feed(2);
-    bytes += generator.cut();
+    PrintCommandAdapter printCommand = await ReceiptManager.getReceipt(
+        ReceiptType.beauty,
+        printerType: PType.btPrinter);
 
-    PrintCommands commands = PrintCommands();
-    BitmapTextHelper bitmapTextHelper = BitmapTextHelper();
-
-    String raster = bitmapTextHelper.alignText('Thank you', Alignment.Center) +
-        bitmapTextHelper.rowWithCustomSpaces(
-            ['Total', 'Discount', 'Amount'], [39 ~/ 3, 39 ~/ 3, 39 ~/ 3],
-            alignment: Alignment.Center) +
-        bitmapTextHelper.rowWithCustomSpaces(
-            ['100 :', '200', '1'], [39 ~/ 3, 39 ~/ 3, 39 ~/ 3]) +
-        bitmapTextHelper.rowWithCustomSpaces(
-            ['10 :', '8000', '900'], [39 ~/ 3, 39 ~/ 3, 39 ~/ 3]);
-    commands.appendBitmapText(text: raster);
-    commands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
     bool printSuccess = false;
     try {
       switch (_selectedPrinter!.printerType) {
         case PType.btPrinter:
-          printSuccess = await _bluePrintManager.sendPrintCommand(bytes);
+          printSuccess =
+              await _bluePrintManager.sendPrintCommand(printCommand.bytes);
           break;
         case PType.networkPrinter:
-          printSuccess = await _networkPrintManager.sendPrintCommand(bytes);
+          printSuccess =
+              await _networkPrintManager.sendPrintCommand(printCommand.bytes);
           break;
         case PType.starPrinter:
           printSuccess = await _starPrintManager.sendPrintCommand(
-              printer: _selectedPrinter!, commands: commands);
+              printer: _selectedPrinter!,
+              commands: printCommand.starPrintCommands);
           break;
       }
     } catch (e) {
