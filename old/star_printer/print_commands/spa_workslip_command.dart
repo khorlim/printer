@@ -28,14 +28,15 @@ PrintCommands spaWorkSlip(
 
   String issuedDateLabel = "Issued Date : ${printData.issuedDate}";
 
-  String info = "$memberLabel${staffLabel.padLeft(length - memberLabel.length)}\n"
+  String info =
+      "$memberLabel${staffLabel.padLeft(length - memberLabel.length)}\n"
       "$memberMobileLabel${roomLabel.padLeft(length - memberMobileLabel.length)}\n\n"
       "$issuedDateLabel\n";
 
   info += '$separateLine';
 
   String service = '';
-  for(String serviceText in printData.services) {
+  for (String serviceText in printData.services) {
     service += '$serviceText\n';
   }
   service += separateLine;
