@@ -25,6 +25,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   late final StreamSubscription<List<CustomPrinter>> starDeviceSubs;
   late final StreamSubscription<List<CustomPrinter>> networkDeviceSubs;
 
+  bool isSearching = false;
   @override
   void initState() {
     super.initState();
@@ -162,10 +163,23 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                   }),
             ),
             CupertinoButton(
-                child: Text('Search for printer'),
-                onPressed: () {
-                  superPrinter.searchPrinter();
-                }),
+                child: Column(
+                  children: [
+                    Text('Search for printer'),
+                    if (isSearching) CupertinoActivityIndicator()
+                  ],
+                ),
+                onPressed: isSearching
+                    ? null
+                    : () async {
+                        setState(() {
+                          isSearching = true;
+                        });
+                        await superPrinter.searchPrinter();
+                        setState(() {
+                          isSearching = false;
+                        });
+                      }),
             Expanded(
               child: AnimatedList(
                 key: _listKey,

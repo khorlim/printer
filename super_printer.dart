@@ -129,14 +129,27 @@ class SuperPrinter {
   Future<void> searchPrinter() async {
     _bluePrintManager.searchPrinter();
 
+    try {
+      await _starPrintManager.searchPrinter().then((starPList) {
+        _starPrinterList =
+            starPList.map((port) => CustomPrinter.fromPortInfo(port)).toList();
+        _starPrinterListController.add(_starPrinterList);
+      });
+    } catch (e) {
+      debugPrint('-----Failed to search star printer. $e-----');
+    }
+
     RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
-    final List<CustomPrinter> starPrinterList = await Isolate.run(
-      () => _searchStarPrinter(rootIsolateToken),
-    );
-    _starPrinterList = starPrinterList;
-    _starPrinterListController.add(_starPrinterList);
+
+    // final List<CustomPrinter> starPrinterList = await Isolate.run(
+    //   () => _searchStarPrinter(rootIsolateToken),
+    // );
+    // _starPrinterList = starPrinterList;
+    // _starPrinterListController.add(_starPrinterList);
 
     _networkPrintManager.searchPrinter();
+
+    return;
   }
 
   Future<void> connect(CustomPrinter printer) async {
@@ -178,13 +191,13 @@ class SuperPrinter {
   }
 
   Future<bool> checkStatus() async {
-    _status = PStatus.connecting;
-    _printerStatusController.add(_status);
-
     if (_selectedPrinter == null) {
       debugPrint('----- No Selected Printer.');
       return false;
     }
+    _status = PStatus.connecting;
+    _printerStatusController.add(_status);
+
     _selectedPrinterController.add(_selectedPrinter!);
     bool status = false;
     switch (_selectedPrinter!.printerType) {
