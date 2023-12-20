@@ -28,6 +28,10 @@ class BitmapTextHelper {
     return formatText + ('\n' * linesAfter);
   }
 
+  String line() {
+    return '-' * _maxWidth;
+  }
+
   String _centerText(String text) {
     if (text.length > _maxWidth) {
       List<String> dividedLines = _divideTextIntoLines(text);

@@ -8,7 +8,13 @@ class BeautyReceipt {
       {PType printerType = PType.btPrinter}) async {
     PrintCommandAdapter printCommand =
         PrintCommandAdapter(printerType: printerType);
-    await printCommand.loadProfile();
+
+    final imagePath =
+        "https://img.tunai.io/image/s3-f1d9b5f1-e780-4127-a397-a72e6cfdc1ab.jpeg";
+
+    await printCommand.initialize(imagePath: imagePath);
+
+    printCommand.addImage(imagePath);
     printCommand.addTextLine(
         'XSpakjdlksjflkdsjflksdjflksdjlfkjsldfkjsdlkfjslkfjlksdlksjflkdsj',
         alignment: PosAlign.center,
@@ -16,6 +22,7 @@ class BeautyReceipt {
     printCommand.addTextLine('RECEIPT',
         fontSizeType: FontSizeType.big,
         alignment: PosAlign.center,
+        bold: true,
         linesAfter: 1);
     printCommand.addTextLine(
       'Name : Adam',
@@ -35,6 +42,7 @@ class BeautyReceipt {
     printCommand.addTextLine(
       'Date : 19/12/2023 5:28 sdjlfjdslkfjslkdjflskdjflksjflkjsdlkfjsldkjflskdjflksjdflkjsdlkfjlsk (Tue)',
     );
+    printCommand.addLine();
     printCommand.addTextRow([
       TextColumn(
         text: 'Item Price',
@@ -50,6 +58,7 @@ class BeautyReceipt {
       ),
       TextColumn(text: 'Total', ratio: 1, alignment: PosAlign.right),
     ]);
+    printCommand.addLine();
     printCommand.addTextRow([
       TextColumn(text: 'Item name', ratio: 1),
       TextColumn(text: 'Item name', ratio: 1, alignment: PosAlign.right)

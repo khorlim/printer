@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
@@ -5,16 +7,22 @@ import 'package:printer_test/printer/model/custom_printer_model.dart';
 import 'package:printer_test/printer/utils/bit_map_text_helper.dart';
 import 'package:printer_test/printer/utils/text_column.dart';
 
+import 'package:image/image.dart' as img;
+import 'package:http/http.dart' as http;
+
 enum FontSizeType { normal, big }
 
 class PrintCommandAdapter {
   final PType printerType;
   PrintCommandAdapter({required this.printerType}) {}
 
-  Future<void> loadProfile() async {
+  Future<void> initialize({String? imagePath}) async {
     try {
       _profile = await CapabilityProfile.load();
       _generator = Generator(_paperSize, _profile!);
+      if (imagePath != null) {
+        _image = await _getImageFromUrl(imagePath);
+      }
     } catch (e) {
       debugPrintStack();
       throw Exception('Failed to load profile. $e');
@@ -22,11 +30,12 @@ class PrintCommandAdapter {
   }
 
   final PaperSize _paperSize = PaperSize.mm80;
-  late final BitmapTextHelper _textHelper =
-      BitmapTextHelper(printerType: printerType);
-  late Future _loadProfileFuture;
   CapabilityProfile? _profile;
   Generator? _generator;
+  img.Image? _image;
+
+  late final BitmapTextHelper _textHelper =
+      BitmapTextHelper(printerType: printerType);
 
   PrintCommands _printCommands = PrintCommands();
   String _bitMapText = '';
@@ -41,6 +50,25 @@ class PrintCommandAdapter {
   PrintCommands get starPrintCommands {
     _printCommands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
     return _printCommands;
+  }
+
+  void addImage(String imagePath) async {
+    if (_generator == null) {
+      throw Exception('Profile must be loaded before using the class.');
+    }
+
+    if (_image == null) {
+      throw Exception('Image must be initialized before this function.');
+    }
+
+    _printCommands.appendBitmap(
+      path: imagePath,
+      width: 576 ~/ 2,
+      absolutePosition: (576 ~/ 2) ~/ 2,
+      bothScale: true,
+    );
+
+    _bytes += _generator!.image(_image!);
   }
 
   void addTextLine(String text,
@@ -69,6 +97,16 @@ class PrintCommandAdapter {
         linesAfter: linesAfter);
   }
 
+  void addLine() {
+    if (_generator == null) {
+      throw Exception('Profile must be loaded before using the class.');
+    }
+
+    _printCommands.appendBitmapText(text: _textHelper.line());
+
+    _bytes += _generator!.text(_textHelper.line());
+  }
+
   void addTextRow(
     List<TextColumn> textList, {
     int linesAfter = 0,
@@ -90,6 +128,24 @@ class PrintCommandAdapter {
     _bytes += _generator!.text(
       _textHelper.row(textList),
     );
+  }
+
+  Future<img.Image> _getImageFromUrl(String path) async {
+    try {
+      img.Image? image;
+      final response = await http.get(Uri.parse(path));
+
+      if (response.statusCode == 200) {
+        image = img.decodeImage(Uint8List.fromList(response.bodyBytes));
+      } else {
+        debugPrint('-----Failed to load image from url.');
+      }
+
+      return image!;
+    } catch (e) {
+      debugPrint('-----Failed to get image from url. $e.');
+      rethrow;
+    }
   }
 
   int _getFontSize(FontSizeType fontSizeType) {

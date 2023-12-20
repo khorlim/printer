@@ -12,7 +12,7 @@ class BluetoothPrintManager {
   static BluetoothPrintManager get instance => _instance;
 
   final PrinterManager _printerManager = PrinterManager.instance;
-  BTStatus _currentStatus = BTStatus.none;
+  BTStatus _btStatus = BTStatus.none;
   StreamSubscription<BTStatus>? _subscriptionBtStatus;
   StreamSubscription<PrinterDevice>? _searchSubscription;
 
@@ -23,29 +23,13 @@ class BluetoothPrintManager {
   Stream<List<PrinterDevice>> get btDeviceStream => _btDevicesController.stream;
 
   BluetoothPrintManager() {
-    _subscriptionBtStatus = _printerManager.stateBluetooth.listen((status) {
-      log(' ----------------- status bt $status ------------------ ');
-      _currentStatus = status;
-      if (status == BTStatus.connected) {}
-      if (status == BTStatus.none) {}
-      // if (status == BTStatus.connected && pendingTask != null) {
-      //   if (Platform.isAndroid) {
-      //     Future.delayed(const Duration(milliseconds: 1000), () {
-      //       PrinterManager.instance
-      //           .send(type: PrinterType.bluetooth, bytes: pendingTask!);
-      //       pendingTask = null;
-      //     });
-      //   } else if (Platform.isIOS) {
-      //     PrinterManager.instance
-      //         .send(type: PrinterType.bluetooth, bytes: pendingTask!);
-      //     pendingTask = null;
-      //   }
-      // }
+    _printerManager.stateBluetooth.listen((btStatus) {
+      _btStatus = btStatus;
     });
   }
 
   BTStatus getStatus() {
-    return _currentStatus;
+    return _btStatus;
   }
 
   void searchPrinter() {
@@ -65,14 +49,14 @@ class BluetoothPrintManager {
       bool connected = await PrinterManager.instance.connect(
           type: PrinterType.bluetooth,
           model: BluetoothPrinterInput(
-              name: selectedPrinter.name,
-              address: selectedPrinter.address!,
-              isBle: false,
-              autoConnect: true));
-      return connected;
+            name: selectedPrinter.name,
+            address: selectedPrinter.address!,
+          ));
+      await Future.delayed(Duration(milliseconds: 500));
+      return _btStatus == BTStatus.connected;
     } catch (e) {
-      debugPrintStack();
-      throw Exception('Failed to connect to bluetooth device. $e');
+      return false;
+      //   throw Exception('Failed to connect to bluetooth device. $e');
     }
   }
 

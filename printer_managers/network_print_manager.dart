@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:printer_test/printer/utils/port_scanner.dart';
@@ -12,33 +13,29 @@ class NetworkPrintManager {
     return _instance;
   }
 
-  NetworkPrintManager._internal() {
-    //  PrinterManager.instance.stateUSB is only supports on Android
-    _subscriptionTCPStatus = PrinterManager.instance.stateTCP.listen((status) {
-      log(' ----------------- status tcp $status ------------------ ');
-      _currentTCPStatus = status;
-    });
-  }
+  NetworkPrintManager._internal() {}
 
-  final PrinterManager _printerManager = PrinterManager.instance;
-  TCPStatus _currentTCPStatus = TCPStatus.none;
-  StreamSubscription<TCPStatus>? _subscriptionTCPStatus;
-  StreamSubscription<PrinterDevice>? _searchSubscription;
-  String _ipAddress = '';
-  String _port = '9100';
-  String _subnet = '192.168.0';
-
-  StreamController<List<PrinterDevice>> _networkDevicesController =
-      StreamController<List<PrinterDevice>>();
-
-  Stream<TCPStatus> get statusStream => PrinterManager.instance.stateTCP;
+  Stream<TCPStatus> get statusStream => _networkDeviceStatusController.stream;
   Stream<List<PrinterDevice>> get networkDevicesStream =>
       _networkDevicesController.stream;
 
+  TCPStatus _tCPStatus = TCPStatus.none;
+
+  String _ipAddress = '';
+  int _port = 9100;
+  final String _subnet = '192.168.0';
+  final Duration _timeout = const Duration(seconds: 5);
+  Socket? _socket;
+
+  StreamController<List<PrinterDevice>> _networkDevicesController =
+      StreamController<List<PrinterDevice>>();
+  StreamController<TCPStatus> _networkDeviceStatusController =
+      StreamController<TCPStatus>();
+
   void searchPrinter() {
     List<PrinterDevice> networkDevicesList = [];
-    final stream = PortScanner.discover(_subnet, int.parse(_port),
-        timeout: Duration(seconds: 7));
+    final stream =
+        PortScanner.discover(_subnet, _port, timeout: Duration(seconds: 7));
     stream.listen((networkAddress) {
       networkDevicesList.add(PrinterDevice(
           name: 'Local device (${networkAddress.ip} : $_port)',
@@ -56,34 +53,62 @@ class NetworkPrintManager {
     // });
   }
 
-  Future<bool> connectPrinter(PrinterDevice selectedPrinter) async {
-    print('Connecting to address : ${selectedPrinter.address}');
+  bool checkStatus() {
+    if (_socket == null) {
+      return false;
+    }
     try {
-      bool connectedTCP = await _printerManager.connect(
-          type: PrinterType.network,
-          model: TcpPrinterInput(ipAddress: selectedPrinter.address!));
-
-      if (!connectedTCP) print(' --- please review your connection ---');
-      return connectedTCP;
+      final InternetAddress address = _socket!.remoteAddress;
+      debugPrint('-----> Already Connected to $address');
+      return true;
     } catch (e) {
-      debugPrintStack();
-      throw Exception('Failed to connect to network device. $e');
+      _updateTCPStatus(TCPStatus.none);
+      return false;
+    }
+  }
+
+  Future<bool> connectPrinter(PrinterDevice selectedPrinter) async {
+    bool connected = checkStatus();
+    if (connected) {
+      return true;
+    }
+    debugPrint('-----> Connecting to address : ${selectedPrinter.address}');
+
+    try {
+      _ipAddress = selectedPrinter.address!;
+      _socket = await Socket.connect(_ipAddress, _port, timeout: _timeout);
+      _updateTCPStatus(TCPStatus.connected);
+      debugPrint(
+          '-----> Successfully connected to address : ${selectedPrinter.address}');
+      return true;
+    } catch (e) {
+      debugPrint(
+          '-----> Failed to connect to address : ${selectedPrinter.address}');
+      return false;
     }
   }
 
   Future<bool> sendPrintCommand(List<int> bytes) async {
+    bool connected = checkStatus();
     try {
-      bool sendSuccess =
-          await _printerManager.send(type: PrinterType.network, bytes: bytes);
-      return sendSuccess;
+      if (!connected) {
+        connected = await connectPrinter(
+            PrinterDevice(name: 'Local Device', address: _ipAddress));
+      }
+      if (connected) {
+        _socket!.add(Uint8List.fromList(bytes));
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
       debugPrintStack(maxFrames: 2);
       throw Exception('Failed to send command to printer. $e');
     }
   }
 
-  void dispose() {
-    _subscriptionTCPStatus?.cancel();
-    _searchSubscription?.cancel();
+  void _updateTCPStatus(TCPStatus status) {
+    _tCPStatus = status;
+    _networkDeviceStatusController.add(_tCPStatus);
   }
 }

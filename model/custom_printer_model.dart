@@ -37,4 +37,21 @@ class CustomPrinter {
   PortInfo toPortInfo() {
     return PortInfo({'modelName': name, 'portName': address});
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'address': address,
+      'printerType': printerType.toString(),
+    };
+  }
+
+  factory CustomPrinter.fromJson(Map<String, dynamic> json) {
+    return CustomPrinter(
+      name: json['name'],
+      address: json['address'],
+      printerType:
+          PType.values.firstWhere((e) => e.toString() == json['printerType']),
+    );
+  }
 }
