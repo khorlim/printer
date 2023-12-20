@@ -5,14 +5,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 
 class BluetoothPrintManager {
-  BluetoothPrintManager._();
+  static final BluetoothPrintManager _instance =
+      BluetoothPrintManager._internal();
 
-  static final BluetoothPrintManager _instance = BluetoothPrintManager._();
+  factory BluetoothPrintManager() {
+    return _instance;
+  }
 
-  static BluetoothPrintManager get instance => _instance;
+  BluetoothPrintManager._internal() {
+    _printerManager.stateBluetooth.listen((btStatus) {
+      _btStatus = btStatus;
+    });
+  }
 
   final PrinterManager _printerManager = PrinterManager.instance;
+
   BTStatus _btStatus = BTStatus.none;
+  BTStatus get cuurentStatus => _btStatus;
   StreamSubscription<BTStatus>? _subscriptionBtStatus;
   StreamSubscription<PrinterDevice>? _searchSubscription;
 
@@ -21,16 +30,6 @@ class BluetoothPrintManager {
 
   Stream<BTStatus> get statusStream => _printerManager.stateBluetooth;
   Stream<List<PrinterDevice>> get btDeviceStream => _btDevicesController.stream;
-
-  BluetoothPrintManager() {
-    _printerManager.stateBluetooth.listen((btStatus) {
-      _btStatus = btStatus;
-    });
-  }
-
-  BTStatus getStatus() {
-    return _btStatus;
-  }
 
   void searchPrinter() {
     List<PrinterDevice> btDevicesList = [];

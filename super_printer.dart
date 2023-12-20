@@ -4,12 +4,13 @@ import 'dart:isolate';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:printer_test/printer/print_command_adapter.dart';
-import 'package:printer_test/printer/printer_managers/bt_print_manager.dart';
-import 'package:printer_test/printer/model/custom_printer_model.dart';
-import 'package:printer_test/printer/printer_managers/network_print_manager.dart';
-import 'package:printer_test/printer/printer_managers/star_print_manager.dart';
-import 'package:printer_test/printer/receipt_commands/receipt_manager.dart';
+import 'package:thermal_printer/thermal_printer.dart';
+import 'package:tunaipro/extra_utils/printer/print_command_adapter.dart';
+import 'package:tunaipro/extra_utils/printer/printer_managers/bt_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/printer_managers/network_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/printer_managers/star_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/receipt_commands/receipt_manager.dart';
 import 'package:thermal_printer/printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/thermal_printer.dart';
@@ -32,18 +33,21 @@ class SuperPrinter {
         _selectedPrinter =
             CustomPrinter.fromJson(jsonDecode(savedPrinterJsonString));
         _selectedPrinterController.add(_selectedPrinter!);
-        connect(_selectedPrinter!);
+        bool status = await checkStatus();
+        if (!status) {
+          connect(_selectedPrinter!);
+        }
       }
     }();
 
-    btDeviceSubscription =
+    _btDeviceSubscription =
         _bluePrintManager.btDeviceStream.listen((btDeviceList) {
       _bluePrinterListController.add(btDeviceList
           .map((printer) => CustomPrinter.fromPrinterDevice(printer,
               printerType: PType.btPrinter))
           .toList());
     });
-    networkDeviceSubscription =
+    _networkDeviceSubscription =
         _networkPrintManager.networkDevicesStream.listen((networkDeviceList) {
       List<CustomPrinter> networkDList = networkDeviceList
           .map((printer) => CustomPrinter.fromPrinterDevice(printer,
@@ -57,7 +61,7 @@ class SuperPrinter {
       _networkPrinterListController.add(networkDList);
     });
 
-    btDeviceStatusSubs = _bluePrintManager.statusStream.listen((btStatus) {
+    _btDeviceStatusSubs = _bluePrintManager.statusStream.listen((btStatus) {
       if (btStatus == BTStatus.connected) {
         _status = PStatus.connected;
         _printerStatusController.add(PStatus.connected);
@@ -66,7 +70,7 @@ class SuperPrinter {
         _printerStatusController.add(PStatus.none);
       }
     });
-    networkDeviceStatusSubs =
+    _networkDeviceStatusSubs =
         _networkPrintManager.statusStream.listen((tcpStatus) {
       if (tcpStatus == TCPStatus.connected) {
         _status = PStatus.connected;
@@ -78,12 +82,14 @@ class SuperPrinter {
     });
   }
 
-  late final StreamSubscription<List<PrinterDevice>> btDeviceSubscription;
-  late final StreamSubscription<List<PrinterDevice>> networkDeviceSubscription;
-  late final StreamSubscription<BTStatus> btDeviceStatusSubs;
-  late final StreamSubscription<TCPStatus> networkDeviceStatusSubs;
+  late final StreamSubscription<List<PrinterDevice>> _btDeviceSubscription;
+  late final StreamSubscription<List<PrinterDevice>> _networkDeviceSubscription;
+  late final StreamSubscription<BTStatus> _btDeviceStatusSubs;
+  late final StreamSubscription<TCPStatus> _networkDeviceStatusSubs;
 
   late final SharedPreferences sharedPrefs;
+
+  CustomPrinter? get currentPrinter => _selectedPrinter;
 
   Stream<CustomPrinter> get selectedPrinterStream =>
       _selectedPrinterController.stream;
@@ -170,16 +176,20 @@ class SuperPrinter {
     _printerStatusController.add(_status);
   }
 
-  Future<void> checkStatus() async {
+  Future<bool> checkStatus() async {
     _status = PStatus.connecting;
     _printerStatusController.add(_status);
+
     if (_selectedPrinter == null) {
       debugPrint('----- No Selected Printer.');
-      return;
+      return false;
     }
+    _selectedPrinterController.add(_selectedPrinter!);
     bool status = false;
     switch (_selectedPrinter!.printerType) {
       case PType.btPrinter:
+        BTStatus btStatus = _bluePrintManager.cuurentStatus;
+        status = btStatus == BTStatus.connected;
         break;
       case PType.networkPrinter:
         status = _networkPrintManager.checkStatus();
@@ -193,9 +203,11 @@ class SuperPrinter {
     if (status) {
       _status = PStatus.connected;
       _printerStatusController.add(_status);
+      return true;
     } else {
       _status = PStatus.none;
       _printerStatusController.add(_status);
+      return false;
     }
   }
 
@@ -251,10 +263,10 @@ class SuperPrinter {
 
   void dispose() {
     // Cancel the stream subscriptions to avoid memory leaks
-    btDeviceSubscription.cancel();
-    networkDeviceSubscription.cancel();
-    btDeviceStatusSubs.cancel();
-    networkDeviceStatusSubs.cancel();
+    _btDeviceSubscription.cancel();
+    _networkDeviceSubscription.cancel();
+    _btDeviceStatusSubs.cancel();
+    _networkDeviceStatusSubs.cancel();
   }
 }
 

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
-import 'package:printer_test/printer/utils/port_scanner.dart';
+import 'package:tunaipro/extra_utils/printer/utils/port_scanner.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 
 class NetworkPrintManager {

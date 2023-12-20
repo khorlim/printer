@@ -3,9 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
-import 'package:printer_test/printer/model/custom_printer_model.dart';
-import 'package:printer_test/printer/utils/bit_map_text_helper.dart';
-import 'package:printer_test/printer/utils/text_column.dart';
+import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/utils/bit_map_text_helper.dart';
+import 'package:tunaipro/extra_utils/printer/utils/text_column.dart';
 
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;

@@ -1,7 +1,7 @@
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-import 'package:printer_test/printer/model/custom_printer_model.dart';
-import 'package:printer_test/printer/print_command_adapter.dart';
-import 'package:printer_test/printer/utils/text_column.dart';
+import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/print_command_adapter.dart';
+import 'package:tunaipro/extra_utils/printer/utils/text_column.dart';
 
 class BeautyReceipt {
   static Future<PrintCommandAdapter> getReceipt(

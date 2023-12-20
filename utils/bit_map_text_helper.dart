@@ -1,7 +1,9 @@
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-import 'package:printer_test/printer/model/custom_printer_model.dart';
-import 'package:printer_test/printer/print_command_adapter.dart';
-import 'package:printer_test/printer/utils/text_column.dart';
+import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/print_command_adapter.dart';
+
+import 'text_column.dart';
 
 class BitmapTextHelper {
   final PType printerType;
@@ -26,6 +28,10 @@ class BitmapTextHelper {
         break;
     }
     return formatText + ('\n' * linesAfter);
+  }
+
+  String emptyLine() {
+    return '\n';
   }
 
   String line() {

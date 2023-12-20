@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:printer_test/printer/utils/utils.dart';
+import 'package:tunaipro/extra_utils/printer/utils/utils.dart';
 
 class PortScanner {
   static Stream<NetworkAddress> discover(
