@@ -2,6 +2,7 @@ import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/print_command_adapter.dart';
+import 'package:tunaipro/general_module/order_module/bar_code_listener.dart';
 
 import 'text_column.dart';
 
@@ -27,11 +28,11 @@ class BitmapTextHelper {
         formatText = '${_rightAlignText(text)}';
         break;
     }
-    return formatText + ('\n' * linesAfter);
+    return formatText + ('\n' * (linesAfter - 1));
   }
 
-  String emptyLine() {
-    return '\n';
+  String emptyLine({int line = 1}) {
+    return ' \n' * line;
   }
 
   String line() {
@@ -55,9 +56,8 @@ class BitmapTextHelper {
     return ' ' * leftPadding + text;
   }
 
-  String row(
-    List<TextColumn> textColumns,
-  ) {
+  String row(List<TextColumn> textColumns, {bool bold = false}) {
+    _maxWidth = _getMaxWidth(printerType, bold: bold);
     if (textColumns.isEmpty) {
       return '';
     }
@@ -86,7 +86,7 @@ class BitmapTextHelper {
       }
     }
 
-    return '$row';
+    return '$row' + (bold ? '\n' : '');
   }
 
   List<String> _divideTextIntoLines(String text) {
@@ -111,10 +111,13 @@ class BitmapTextHelper {
   }
 
   int _getMaxWidth(PType printerType,
-      {FontSizeType fontSizeType = FontSizeType.normal}) {
+      {FontSizeType fontSizeType = FontSizeType.normal, bool bold = false}) {
     if (printerType == PType.starPrinter) {
       switch (fontSizeType) {
         case FontSizeType.normal:
+          if (bold) {
+            return 38;
+          }
           return 39;
         case FontSizeType.big:
           return 23;

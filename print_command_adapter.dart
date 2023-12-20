@@ -9,6 +9,7 @@ import 'package:tunaipro/extra_utils/printer/utils/text_column.dart';
 
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
+import 'package:tunaipro/general_module/order_module/bar_code_listener.dart';
 
 enum FontSizeType { normal, big }
 
@@ -71,6 +72,12 @@ class PrintCommandAdapter {
     _bytes += _generator!.image(_image!);
   }
 
+  void addEmptyLine({int line = 1}) {
+    //   _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
+    _printCommands.push({'appendLineFeed': line});
+    _bytes += _generator!.feed(line);
+  }
+
   void addTextLine(String text,
       {PosAlign alignment = PosAlign.left,
       bool bold = false,
@@ -115,7 +122,14 @@ class PrintCommandAdapter {
       throw Exception('Profile must be loaded before using the class.');
     }
 
-    _printCommands.appendBitmapText(text: _textHelper.row(textList));
+    bool bold = textList.any((element) => element.bold);
+
+    if (bold) {
+      _printCommands
+          .push({'appendEmphasis': _textHelper.row(textList, bold: bold)});
+    } else {
+      _printCommands.appendBitmapText(text: _textHelper.row(textList));
+    }
 
     List<PosColumn> posColumnList = textList.map((textColumn) {
       int max = 12;
@@ -125,9 +139,8 @@ class PrintCommandAdapter {
     }).toList();
 
     // _bytes += _generator!.row(posColumnList, multiLine: false);
-    _bytes += _generator!.text(
-      _textHelper.row(textList),
-    );
+    _bytes += _generator!
+        .text(_textHelper.row(textList), styles: PosStyles(bold: bold));
   }
 
   Future<img.Image> _getImageFromUrl(String path) async {

@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:thermal_printer/thermal_printer.dart';
+import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/extra_utils/printer/print_command_adapter.dart';
 import 'package:tunaipro/extra_utils/printer/printer_managers/bt_print_manager.dart';
 import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
@@ -211,7 +212,9 @@ class SuperPrinter {
     }
   }
 
-  Future<bool> startPrint() async {
+  Future<bool> startPrint(
+      {required ReceiptType receiptType,
+      required ReceiptData receiptData}) async {
     if (_selectedPrinter == null) {
       print('No printer selected.');
       return false;
@@ -222,7 +225,8 @@ class SuperPrinter {
     }
 
     PrintCommandAdapter printCommand = await ReceiptManager.getReceipt(
-        ReceiptType.beauty,
+        receiptType: receiptType,
+        receiptData: receiptData,
         printerType: _selectedPrinter!.printerType);
 
     bool printSuccess = false;

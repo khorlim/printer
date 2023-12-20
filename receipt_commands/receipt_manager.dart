@@ -1,12 +1,15 @@
+import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/print_command_adapter.dart';
-import 'package:tunaipro/extra_utils/printer/receipt_commands/beauty_receipts.dart';
+import 'package:tunaipro/extra_utils/printer/receipt_commands/general_receipt.dart';
 
 enum ReceiptType { beauty, car, optic, spa }
 
 class ReceiptManager {
-  static Future<PrintCommandAdapter> getReceipt(ReceiptType receiptType,
-      {PType printerType = PType.btPrinter}) async {
+  static Future<PrintCommandAdapter> getReceipt(
+      {required ReceiptType receiptType,
+      required ReceiptData receiptData,
+      PType printerType = PType.btPrinter}) async {
     switch (receiptType) {
       case ReceiptType.car:
         return PrintCommandAdapter(printerType: printerType);
@@ -18,7 +21,9 @@ class ReceiptManager {
         return PrintCommandAdapter(printerType: printerType);
 
       default:
-        return await BeautyReceipt.getReceipt(printerType: printerType);
+        return await GeneralReceipt(
+                printerType: printerType, receiptData: receiptData)
+            .getReceipt();
     }
   }
 }

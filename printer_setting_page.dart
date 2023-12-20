@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
-import 'package:tunaipro/extra_utils/printer/super_printer.dart';
 import 'package:tunaipro/general_module/order_module/import_path.dart';
 import 'package:tunaipro/share_code/widget/add_space.dart';
 import 'package:tunaipro/share_code/widget/small_widget/close_button.dart';
+
+import 'printer_imports.dart';
 
 class PrinterSettingPage extends StatefulWidget {
   const PrinterSettingPage({super.key});
