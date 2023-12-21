@@ -32,7 +32,7 @@ class BitmapTextHelper {
   }
 
   String emptyLine({int line = 1}) {
-    return ' \n' * line;
+    return '          \n' * line;
   }
 
   String line() {

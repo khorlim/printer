@@ -94,13 +94,13 @@ class NetworkPrintManager {
       if (!connected) {
         connected = await connectPrinter(
             PrinterDevice(name: 'Local Device', address: _ipAddress));
+        if (!connected) {
+          return false;
+        }
       }
-      if (connected) {
-        _socket!.add(Uint8List.fromList(bytes));
-        return true;
-      } else {
-        return false;
-      }
+
+      _socket!.add(Uint8List.fromList(bytes));
+      return true;
     } catch (e) {
       debugPrintStack(maxFrames: 2);
       throw Exception('Failed to send command to printer. $e');

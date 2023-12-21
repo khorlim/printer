@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
@@ -9,7 +11,6 @@ import 'package:tunaipro/extra_utils/printer/utils/text_column.dart';
 
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
-import 'package:tunaipro/general_module/order_module/bar_code_listener.dart';
 
 enum FontSizeType { normal, big }
 
@@ -45,6 +46,7 @@ class PrintCommandAdapter {
 
   List<int> get bytes {
     _bytes += _generator!.cut();
+
     return _bytes;
   }
 
@@ -73,8 +75,7 @@ class PrintCommandAdapter {
   }
 
   void addEmptyLine({int line = 1}) {
-    //   _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
-    _printCommands.push({'appendLineFeed': line});
+    _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
     _bytes += _generator!.feed(line);
   }
 
@@ -95,6 +96,7 @@ class PrintCommandAdapter {
             fontSizeType: fontSizeType));
 
     _bytes += _generator!.text(text,
+        containsChinese: true,
         styles: PosStyles(
           height: _getFontPosTextSize(fontSizeType),
           width: _getFontPosTextSize(fontSizeType),
@@ -111,7 +113,9 @@ class PrintCommandAdapter {
 
     _printCommands.appendBitmapText(text: _textHelper.line());
 
-    _bytes += _generator!.text(_textHelper.line());
+    _bytes += _generator!.text(
+      _textHelper.line(),
+    );
   }
 
   void addTextRow(
@@ -139,17 +143,24 @@ class PrintCommandAdapter {
     }).toList();
 
     // _bytes += _generator!.row(posColumnList, multiLine: false);
-    _bytes += _generator!
-        .text(_textHelper.row(textList), styles: PosStyles(bold: bold));
+    _bytes += _generator!.text(_textHelper.row(textList),
+        styles: PosStyles(bold: bold), containsChinese: true);
   }
 
   Future<img.Image> _getImageFromUrl(String path) async {
     try {
       img.Image? image;
+
       final response = await http.get(Uri.parse(path));
 
       if (response.statusCode == 200) {
-        image = img.decodeImage(Uint8List.fromList(response.bodyBytes));
+        final Uint8List bytes = response.bodyBytes;
+        image = img.decodeImage(Uint8List.fromList(bytes));
+        image = img.copyResize(image!,
+            backgroundColor: img.ColorUint8.rgb(255, 255, 255),
+            width: 558 ~/ 2,
+            maintainAspect: true,
+            interpolation: img.Interpolation.linear);
       } else {
         debugPrint('-----Failed to load image from url.');
       }

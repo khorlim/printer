@@ -21,7 +21,6 @@ class BluetoothPrintManager {
   final PrinterManager _printerManager = PrinterManager.instance;
 
   BTStatus _btStatus = BTStatus.none;
-  BTStatus get cuurentStatus => _btStatus;
   StreamSubscription<BTStatus>? _subscriptionBtStatus;
   StreamSubscription<PrinterDevice>? _searchSubscription;
 
@@ -30,6 +29,15 @@ class BluetoothPrintManager {
 
   Stream<BTStatus> get statusStream => _printerManager.stateBluetooth;
   Stream<List<PrinterDevice>> get btDeviceStream => _btDevicesController.stream;
+
+  Future<bool> getStatus() async {
+    await Future.delayed(Duration(seconds: 1));
+    if (_btStatus == BTStatus.connected) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   void searchPrinter() {
     List<PrinterDevice> btDevicesList = [];
@@ -45,11 +53,15 @@ class BluetoothPrintManager {
 
   Future<bool> connectPrinter(PrinterDevice selectedPrinter) async {
     try {
+      // bool disconnected = await PrinterManager.instance.disconnect(
+      //   type: PrinterType.bluetooth,
+      // );
       bool connected = await PrinterManager.instance.connect(
           type: PrinterType.bluetooth,
           model: BluetoothPrinterInput(
             name: selectedPrinter.name,
             address: selectedPrinter.address!,
+            autoConnect: true,
           ));
       await Future.delayed(Duration(milliseconds: 500));
       return _btStatus == BTStatus.connected;

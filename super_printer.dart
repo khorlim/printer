@@ -35,6 +35,7 @@ class SuperPrinter {
             CustomPrinter.fromJson(jsonDecode(savedPrinterJsonString));
         _selectedPrinterController.add(_selectedPrinter!);
         bool status = await checkStatus();
+        debugPrint('-> Printer Connection Status : $status');
         if (!status) {
           connect(_selectedPrinter!);
         }
@@ -182,9 +183,9 @@ class SuperPrinter {
         break;
     }
     if (connected) {
-      debugPrint('-----> Successfully connected printer. Ready to print.');
+      debugPrint('----> Successfully connected printer. Ready to print.');
     } else {
-      debugPrint('-----> Failed to connect printer.');
+      debugPrint('----> Failed to connect printer.');
     }
     _status = connected ? PStatus.connected : PStatus.none;
     _printerStatusController.add(_status);
@@ -202,8 +203,7 @@ class SuperPrinter {
     bool status = false;
     switch (_selectedPrinter!.printerType) {
       case PType.btPrinter:
-        BTStatus btStatus = _bluePrintManager.cuurentStatus;
-        status = btStatus == BTStatus.connected;
+        status = await _bluePrintManager.getStatus();
         break;
       case PType.networkPrinter:
         status = _networkPrintManager.checkStatus();

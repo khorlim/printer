@@ -24,6 +24,11 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   late final StreamSubscription<List<CustomPrinter>> btDeviceSubs;
   late final StreamSubscription<List<CustomPrinter>> starDeviceSubs;
   late final StreamSubscription<List<CustomPrinter>> networkDeviceSubs;
+  late final StreamSubscription<CustomPrinter> selectedPrinterSubs;
+  late final StreamSubscription<PStatus> printerStatusSubs;
+
+  PStatus? printerStatus;
+  CustomPrinter? selectedPrinter;
 
   bool isSearching = false;
   @override
@@ -44,6 +49,17 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
       PType printerType = PType.networkPrinter;
 
       updatePrinterWidget(printerType, event);
+    });
+
+    selectedPrinterSubs = superPrinter.selectedPrinterStream.listen((event) {
+      setState(() {
+        selectedPrinter = event;
+      });
+    });
+    printerStatusSubs = superPrinter.printerStatusStream.listen((event) {
+      setState(() {
+        printerStatus = event;
+      });
     });
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -103,6 +119,8 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
     btDeviceSubs.cancel();
     starDeviceSubs.cancel();
     networkDeviceSubs.cancel();
+    selectedPrinterSubs.cancel();
+    printerStatusSubs.cancel();
 
     super.dispose();
   }
@@ -113,7 +131,22 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
       appBar: CustomAppBar(
         title: 'Printer',
         leading: CustomCloseButton(),
-        actions: [],
+        actions: [
+          if (printerStatus != null &&
+              selectedPrinter != null &&
+              printerStatus == PStatus.none)
+            CupertinoButton(
+                child: Text(
+                  'Reconnect',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: primaryBlue),
+                ),
+                onPressed: () {
+                  superPrinter.connect(selectedPrinter!);
+                })
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 10.0, right: 10, bottom: 5),
@@ -121,46 +154,31 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           children: [
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: StreamBuilder<CustomPrinter>(
-                  stream: superPrinter.selectedPrinterStream,
-                  builder: (context, snapshot) {
-                    CustomPrinter? selectedPrinter = snapshot.data;
-                    selectedPrinter ??= superPrinter.currentPrinter;
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          selectedPrinter == null
-                              ? 'No Printer'
-                              : '${selectedPrinter.name}',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600),
-                        ),
-                        if (selectedPrinter != null)
-                          StreamBuilder(
-                            stream: superPrinter.printerStatusStream,
-                            builder: (context, snapshot) {
-                              PStatus? status = snapshot.data;
-
-                              return status == null
-                                  ? SizedBox.shrink()
-                                  : status == PStatus.none
-                                      ? Icon(
-                                          CupertinoIcons.xmark,
-                                          color: Colors.red,
-                                        )
-                                      : status == PStatus.connecting
-                                          ? CupertinoActivityIndicator()
-                                          : Icon(
-                                              CupertinoIcons.check_mark,
-                                              color: Colors.green,
-                                            );
-                            },
-                          )
-                      ],
-                    );
-                  }),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    selectedPrinter == null
+                        ? 'No Printer'
+                        : '${selectedPrinter!.name}',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  if (selectedPrinter != null)
+                    printerStatus == null
+                        ? SizedBox.shrink()
+                        : printerStatus == PStatus.none
+                            ? Icon(
+                                CupertinoIcons.xmark,
+                                color: Colors.red,
+                              )
+                            : printerStatus == PStatus.connecting
+                                ? CupertinoActivityIndicator()
+                                : Icon(
+                                    CupertinoIcons.check_mark,
+                                    color: Colors.green,
+                                  ),
+                ],
+              ),
             ),
             CupertinoButton(
                 child: Column(

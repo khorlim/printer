@@ -22,7 +22,7 @@ class GeneralReceipt {
     await printCommand.initialize(imagePath: imagePath);
 
     printCommand.addImage(imagePath);
-    printCommand.addEmptyLine(line: 2);
+    printCommand.addEmptyLine();
     addMultiLine(receiptData.shopAddress, linesAfter: 1);
 
     printCommand.addTextLine(receiptData.title,
@@ -114,10 +114,9 @@ class GeneralReceipt {
   void addPayments(List<RPayment> payments) {
     for (var payment in payments) {
       printCommand.addTextRow([
-        TextColumn(text: '', ratio: 1),
         TextColumn(
             text: payment.text,
-            ratio: 1,
+            ratio: 3,
             alignment: PosAlign.right,
             bold: payment.bold),
         TextColumn(
