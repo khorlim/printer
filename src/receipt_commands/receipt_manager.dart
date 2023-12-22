@@ -1,7 +1,7 @@
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-import 'package:tunaipro/extra_utils/printer/model/custom_printer_model.dart';
-import 'package:tunaipro/extra_utils/printer/print_command_adapter.dart';
-import 'package:tunaipro/extra_utils/printer/receipt_commands/general_receipt.dart';
+import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
+import 'package:tunaipro/extra_utils/printer/src/receipt_commands/general_receipt.dart';
 
 enum ReceiptType { beauty, car, optic, spa }
 

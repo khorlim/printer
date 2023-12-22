@@ -5,7 +5,7 @@ import 'package:tunaipro/general_module/order_module/import_path.dart';
 import 'package:tunaipro/share_code/widget/add_space.dart';
 import 'package:tunaipro/share_code/widget/small_widget/close_button.dart';
 
-import 'printer_imports.dart';
+import 'super_printer.dart';
 
 class PrinterSettingPage extends StatefulWidget {
   const PrinterSettingPage({super.key});
