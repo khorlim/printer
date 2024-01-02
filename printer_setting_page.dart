@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunaipro/general_module/order_module/import_path.dart';
 import 'package:tunaipro/share_code/widget/add_space.dart';
 import 'package:tunaipro/share_code/widget/small_widget/close_button.dart';
@@ -29,6 +31,13 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
 
   PStatus? printerStatus;
   CustomPrinter? selectedPrinter;
+
+  final List<PaperSize> paperSizeList = [
+    PaperSize.mm80,
+    PaperSize.mm58,
+  ];
+
+  late PaperSize selectedPaperSize = paperSizeList.first;
 
   bool isSearching = false;
   @override
@@ -62,8 +71,14 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
       });
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       superPrinter.checkStatus();
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      selectedPaperSize =
+          sharedPreferences.getString('printerPaperSize') == 'mm80'
+              ? PaperSize.mm80
+              : PaperSize.mm58;
     });
   }
 
@@ -180,6 +195,22 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 ],
               ),
             ),
+            DropdownButton(
+                value: selectedPaperSize,
+                items: paperSizeList
+                    .map((paperSize) => DropdownMenuItem(
+                          value: paperSize,
+                          child: Text(
+                              paperSize == PaperSize.mm80 ? 'mm80' : 'mm58'),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedPaperSize = value!;
+                    superPrinter.changePaperSize(selectedPaperSize);
+                  });
+                  storePrinterPaperSize(selectedPaperSize);
+                }),
             CupertinoButton(
                 child: Column(
                   children: [
@@ -264,6 +295,17 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
             superPrinter.connect(printer);
           }),
     );
+  }
+
+  Future<void> storePrinterPaperSize(PaperSize paperSize) async {
+    try {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      String paperSizeString = paperSize == PaperSize.mm80 ? 'mm80' : 'mm58';
+      sharedPreferences.setString('printerPaperSize', paperSizeString);
+    } catch (e) {
+      debugPrint('-----> Failed to store printer paper size to local.');
+    }
   }
 }
 

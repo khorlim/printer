@@ -16,12 +16,14 @@ enum FontSizeType { normal, big }
 
 class PrintCommandAdapter {
   final PType printerType;
-  PrintCommandAdapter({required this.printerType}) {}
+  final PaperSize paperSize;
+  PrintCommandAdapter(
+      {required this.printerType, this.paperSize = PaperSize.mm80}) {}
 
   Future<void> initialize({String? imagePath}) async {
     try {
       _profile = await CapabilityProfile.load();
-      _generator = Generator(_paperSize, _profile!);
+      _generator = Generator(paperSize, _profile!);
       if (imagePath != null) {
         _image = await _getImageFromUrl(imagePath);
       }
@@ -31,13 +33,12 @@ class PrintCommandAdapter {
     }
   }
 
-  final PaperSize _paperSize = PaperSize.mm80;
   CapabilityProfile? _profile;
   Generator? _generator;
   img.Image? _image;
 
   late final BitmapTextHelper _textHelper =
-      BitmapTextHelper(printerType: printerType);
+      BitmapTextHelper(printerType: printerType, paperSize: paperSize);
 
   PrintCommands _printCommands = PrintCommands();
   String _bitMapText = '';

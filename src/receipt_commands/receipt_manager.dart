@@ -1,3 +1,4 @@
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
@@ -9,6 +10,7 @@ class ReceiptManager {
   static Future<PrintCommandAdapter> getReceipt(
       {required ReceiptType receiptType,
       required ReceiptData receiptData,
+      required PaperSize paperSize,
       PType printerType = PType.btPrinter}) async {
     switch (receiptType) {
       case ReceiptType.car:
@@ -22,7 +24,9 @@ class ReceiptManager {
 
       default:
         return await GeneralReceipt(
-                printerType: printerType, receiptData: receiptData)
+                printerType: printerType,
+                receiptData: receiptData,
+                paperSize: paperSize)
             .getReceipt();
     }
   }

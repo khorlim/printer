@@ -4,6 +4,7 @@ import 'dart:isolate';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
@@ -27,6 +28,10 @@ class SuperPrinter {
     () async {
       sharedPrefs = await SharedPreferences.getInstance();
       final String? savedPrinterJsonString = sharedPrefs.getString('printer');
+      _paperSize = sharedPrefs.getString('printerPaperSize') == 'mm58'
+          ? PaperSize.mm58
+          : PaperSize.mm80;
+
       if (savedPrinterJsonString == null) {
         debugPrint('## No printer settings found locally. ##');
       } else {
@@ -120,6 +125,7 @@ class SuperPrinter {
       StreamController<List<CustomPrinter>>.broadcast();
 
   CustomPrinter? _selectedPrinter;
+  PaperSize _paperSize = PaperSize.mm80;
   PStatus _status = PStatus.none;
   PrintStatus? _printStatus;
 
@@ -231,18 +237,21 @@ class SuperPrinter {
       {required ReceiptType receiptType,
       required ReceiptData receiptData}) async {
     if (_selectedPrinter == null) {
-      print('No printer selected.');
+      debugPrint('No printer selected.');
       return false;
     }
     if (_status != PStatus.connected) {
-      print('No connected printer');
+      debugPrint('No connected printer');
       return false;
     }
+
+    debugPrint('Paper Size : ${getPaperSizeString(_paperSize)}');
 
     PrintCommandAdapter printCommand = await ReceiptManager.getReceipt(
         receiptType: receiptType,
         receiptData: receiptData,
-        printerType: _selectedPrinter!.printerType);
+        printerType: _selectedPrinter!.printerType,
+        paperSize: _paperSize);
 
     bool printSuccess = false;
     try {
@@ -271,6 +280,10 @@ class SuperPrinter {
     return printSuccess;
   }
 
+  void changePaperSize(PaperSize paperSize) {
+    _paperSize = paperSize;
+  }
+
   void _savePrinterSetting(CustomPrinter printer) async {
     debugPrint('## Storing printer setting to local. ##');
     try {
@@ -286,6 +299,19 @@ class SuperPrinter {
     _networkDeviceSubscription.cancel();
     _btDeviceStatusSubs.cancel();
     _networkDeviceStatusSubs.cancel();
+  }
+
+  static String getPaperSizeString(PaperSize paperSize) {
+    switch (paperSize) {
+      case PaperSize.mm80:
+        return 'mm80';
+      case PaperSize.mm58:
+        return 'mm58';
+      case PaperSize.mm72:
+        return 'mm72';
+      default:
+        return 'mm80';
+    }
   }
 }
 

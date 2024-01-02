@@ -7,13 +7,14 @@ import 'text_column.dart';
 
 class BitmapTextHelper {
   final PType printerType;
-  late int _maxWidth = _getMaxWidth(printerType);
-  BitmapTextHelper({required this.printerType}) {}
+  final PaperSize paperSize;
+  late int _maxWidth = _getMaxWidth();
+  BitmapTextHelper({required this.printerType, required this.paperSize}) {}
   String text(String text,
       {PosAlign alignment = PosAlign.left,
       int linesAfter = 0,
       FontSizeType fontSizeType = FontSizeType.normal}) {
-    _maxWidth = _getMaxWidth(printerType, fontSizeType: fontSizeType);
+    _maxWidth = _getMaxWidth(fontSizeType: fontSizeType);
 
     String formatText = text;
     switch (alignment) {
@@ -56,7 +57,7 @@ class BitmapTextHelper {
   }
 
   String row(List<TextColumn> textColumns, {bool bold = false}) {
-    _maxWidth = _getMaxWidth(printerType, bold: bold);
+    _maxWidth = _getMaxWidth(bold: bold);
     if (textColumns.isEmpty) {
       return '';
     }
@@ -109,7 +110,7 @@ class BitmapTextHelper {
     return ' ' * ((_maxWidth - line.length) ~/ 2) + line;
   }
 
-  int _getMaxWidth(PType printerType,
+  int _getMaxWidth(
       {FontSizeType fontSizeType = FontSizeType.normal, bool bold = false}) {
     if (printerType == PType.starPrinter) {
       switch (fontSizeType) {
@@ -121,6 +122,8 @@ class BitmapTextHelper {
         case FontSizeType.big:
           return 23;
       }
+    } else if (paperSize == PaperSize.mm58) {
+      return 32;
     } else {
       return 48;
     }

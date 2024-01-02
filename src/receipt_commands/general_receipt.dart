@@ -10,11 +10,15 @@ import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 class GeneralReceipt {
   final PType printerType;
   final ReceiptData receiptData;
+  final PaperSize paperSize;
 
   late final PrintCommandAdapter printCommand =
-      PrintCommandAdapter(printerType: printerType);
+      PrintCommandAdapter(printerType: printerType, paperSize: paperSize);
 
-  GeneralReceipt({required this.printerType, required this.receiptData});
+  GeneralReceipt(
+      {required this.printerType,
+      required this.receiptData,
+      required this.paperSize});
 
   Future<PrintCommandAdapter> getReceipt() async {
     final imagePath = receiptData.icon;
@@ -73,11 +77,11 @@ class GeneralReceipt {
     printCommand.addTextRow([
       TextColumn(
         text: 'Item Price',
-        ratio: 2,
+        ratio: 3,
       ),
       TextColumn(
         text: 'Discount',
-        ratio: 2,
+        ratio: 3,
       ),
       TextColumn(
         text: 'Qty',
@@ -96,11 +100,11 @@ class GeneralReceipt {
       printCommand.addTextRow([
         TextColumn(
           text: item.price,
-          ratio: 2,
+          ratio: 3,
         ),
         TextColumn(
           text: item.discount.toStringAsFixed(2),
-          ratio: 2,
+          ratio: 3,
         ),
         TextColumn(
           text: item.qty.toString(),
