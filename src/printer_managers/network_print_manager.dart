@@ -53,25 +53,38 @@ class NetworkPrintManager {
     // });
   }
 
-  bool checkStatus() {
-    if (_socket == null) {
-      return false;
-    }
+  // bool checkStatus() {
+  //   if (_socket == null) {
+  //     return false;
+  //   }
+  //   try {
+  //     final InternetAddress address = _socket!.remoteAddress;
+  //     debugPrint('-----> Already Connected to $address');
+  //     return true;
+  //   } catch (e) {
+  //     _updateTCPStatus(TCPStatus.none);
+  //     return false;
+  //   }
+  // }
+
+  Future<bool> checkConnection(PrinterDevice selectedPrinter) async {
+    debugPrint('-----> Connecting to address : ${selectedPrinter.address}');
     try {
-      final InternetAddress address = _socket!.remoteAddress;
-      debugPrint('-----> Already Connected to $address');
+      _ipAddress = selectedPrinter.address!;
+      _socket = await Socket.connect(_ipAddress, _port, timeout: _timeout);
+
+      _updateTCPStatus(TCPStatus.connected);
+      await disconnect();
+      debugPrint('-----> Can connect to address : ${selectedPrinter.address}');
       return true;
     } catch (e) {
-      _updateTCPStatus(TCPStatus.none);
+      debugPrint(
+          '-----> Failed to connect to address : ${selectedPrinter.address}');
       return false;
     }
   }
 
-  Future<bool> connectPrinter(PrinterDevice selectedPrinter) async {
-    bool connected = checkStatus();
-    if (connected) {
-      return true;
-    }
+  Future<bool> realConnect(PrinterDevice selectedPrinter) async {
     debugPrint('-----> Connecting to address : ${selectedPrinter.address}');
 
     try {
@@ -89,22 +102,26 @@ class NetworkPrintManager {
   }
 
   Future<bool> sendPrintCommand(List<int> bytes) async {
-    bool connected = checkStatus();
+    // bool connected = checkStatus();
     try {
-      if (!connected) {
-        connected = await connectPrinter(
-            PrinterDevice(name: 'Local Device', address: _ipAddress));
-        if (!connected) {
-          return false;
-        }
-      }
+      bool connected = await realConnect(
+          PrinterDevice(name: 'Local Device', address: _ipAddress));
 
       _socket!.add(Uint8List.fromList(bytes));
+      await disconnect();
+
       return true;
     } catch (e) {
       debugPrintStack(maxFrames: 2);
       throw Exception('Failed to send command to printer. $e');
     }
+  }
+
+  Future<void> disconnect({Duration? timeout}) async {
+    await _socket?.flush();
+    await _socket?.close();
+    _socket = null;
+    return;
   }
 
   void _updateTCPStatus(TCPStatus status) {

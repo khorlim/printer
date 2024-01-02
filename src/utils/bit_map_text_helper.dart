@@ -2,7 +2,6 @@ import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
-import 'package:tunaipro/general_module/order_module/bar_code_listener.dart';
 
 import 'text_column.dart';
 

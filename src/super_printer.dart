@@ -175,7 +175,7 @@ class SuperPrinter {
         break;
       case PType.networkPrinter:
         connected = await _networkPrintManager
-            .connectPrinter(printer.toPrinterDevice());
+            .checkConnection(printer.toPrinterDevice());
         break;
       case PType.starPrinter:
         connected =
@@ -192,6 +192,7 @@ class SuperPrinter {
   }
 
   Future<bool> checkStatus() async {
+    debugPrint('-----> Checking printer status');
     if (_selectedPrinter == null) {
       debugPrint('----- No Selected Printer.');
       return false;
@@ -206,7 +207,8 @@ class SuperPrinter {
         status = await _bluePrintManager.getStatus();
         break;
       case PType.networkPrinter:
-        status = _networkPrintManager.checkStatus();
+        status = await _networkPrintManager
+            .checkConnection(_selectedPrinter!.toPrinterDevice());
         break;
       case PType.starPrinter:
         status = await _starPrintManager
