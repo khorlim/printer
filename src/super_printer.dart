@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:isolate';
-
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
@@ -15,7 +13,6 @@ import 'package:tunaipro/extra_utils/printer/src/printer_managers/star_print_man
 import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_manager.dart';
 import 'package:thermal_printer/printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thermal_printer/thermal_printer.dart';
 
 class SuperPrinter {
   static final SuperPrinter _instance = SuperPrinter._internal();
@@ -127,11 +124,11 @@ class SuperPrinter {
   CustomPrinter? _selectedPrinter;
   PaperSize _paperSize = PaperSize.mm80;
   PStatus _status = PStatus.none;
-  PrintStatus? _printStatus;
 
+  //PrintStatus? _printStatus;
   List<CustomPrinter> _starPrinterList = [];
-  List<CustomPrinter> _btPrinterList = [];
-  List<CustomPrinter> _networkPrinterList = [];
+  // List<CustomPrinter> _btPrinterList = [];
+  // List<CustomPrinter> _networkPrinterList = [];
 
   Future<void> searchPrinter() async {
     _bluePrintManager.searchPrinter();
@@ -146,8 +143,7 @@ class SuperPrinter {
       debugPrint('-----Failed to search star printer. $e-----');
     }
 
-    RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
-
+    // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
     // final List<CustomPrinter> starPrinterList = await Isolate.run(
     //   () => _searchStarPrinter(rootIsolateToken),
     // );

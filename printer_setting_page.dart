@@ -76,9 +76,9 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       selectedPaperSize =
-          sharedPreferences.getString('printerPaperSize') == 'mm80'
-              ? PaperSize.mm80
-              : PaperSize.mm58;
+          sharedPreferences.getString('printerPaperSize') == 'mm58'
+              ? PaperSize.mm58
+              : PaperSize.mm80;
     });
   }
 
