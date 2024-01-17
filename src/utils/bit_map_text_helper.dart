@@ -58,6 +58,7 @@ class BitmapTextHelper {
 
   String row(List<TextColumn> textColumns, {bool bold = false}) {
     _maxWidth = _getMaxWidth(bold: bold);
+
     if (textColumns.isEmpty) {
       return '';
     }
@@ -72,7 +73,7 @@ class BitmapTextHelper {
       String content = textColumns[i].text;
       int addSpace = (textColumn.ratio / totalR * _maxWidth).ceil();
 
-      if (countingSpace + addSpace > _maxWidth) {
+      if (countingSpace + addSpace >= _maxWidth) {
         addSpace = _maxWidth - countingSpace;
       }
       countingSpace += addSpace;
@@ -84,6 +85,10 @@ class BitmapTextHelper {
         int spaceLeft = (addSpace - content.length) ~/ 2;
         row += (' ' * spaceLeft) + content + (' ' * spaceLeft);
       }
+    }
+
+    if (bold) {
+      print(row.length);
     }
 
     return '$row' + (bold ? '\n' : '');
@@ -115,9 +120,10 @@ class BitmapTextHelper {
     if (printerType == PType.starPrinter) {
       switch (fontSizeType) {
         case FontSizeType.normal:
-          if (bold) {
-            return 38;
-          }
+          // if (bold) {
+          //   return 38;
+          // }
+
           return 39;
         case FontSizeType.big:
           return 23;

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/general_module/order_module/import_path.dart';
 import 'package:tunaipro/share_code/widget/add_space.dart';
 import 'package:tunaipro/share_code/widget/small_widget/close_button.dart';
@@ -122,6 +123,10 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   }
 
   void removeListItem(PrinterWidget pWidget) {
+    if (widgetList.isEmpty) {
+      return;
+    }
+
     int index = widgetList
         .indexWhere((element) => element.printerType == pWidget.printerType);
     widgetList.removeAt(index);
@@ -196,22 +201,39 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 ],
               ),
             ),
-            DropdownButton(
-                value: selectedPaperSize,
-                items: paperSizeList
-                    .map((paperSize) => DropdownMenuItem(
-                          value: paperSize,
-                          child: Text(
-                              paperSize == PaperSize.mm80 ? 'mm80' : 'mm58'),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedPaperSize = value!;
-                    superPrinter.changePaperSize(selectedPaperSize);
-                  });
-                  storePrinterPaperSize(selectedPaperSize);
-                }),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     CupertinoButton(
+            //         child: Text('Test Print'),
+            //         onPressed: () {
+            //           ReceiptData fakeReceiptData = ReceiptData(
+            //               voidValue: false,
+            //               salesID: 0,
+            //               icon: globalOutlet?.shopIcon ?? '',
+            //               shopName: globalOutlet?.shopName ?? '',
+            //               templateID: 0,
+            //               customerMobile: 'Mobile',
+            //               customerName: 'Name',
+            //               customerAddress: [],
+            //               remark: [],
+            //               editDate: 'Date',
+            //               shopAddress: [],
+            //               title: 'Test Print',
+            //               field: [],
+            //               items: [],
+            //               payments: [],
+            //               redeems: [],
+            //               customerDetail: null,
+            //               footer: []);
+            //           superPrinter.startPrint(
+            //               receiptData: fakeReceiptData,
+            //               receiptType: ReceiptType.beauty);
+            //         }),
+            //     CupertinoButton(child: Text('Test Drawer'), onPressed: () {}),
+            //   ],
+            // ),
+            buildPaperSizeOption(),
             CupertinoButton(
                 child: Column(
                   children: [
@@ -246,6 +268,42 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Row buildPaperSizeOption() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Paper Size: ',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        DropdownButton(
+            value: selectedPaperSize,
+            items: paperSizeList
+                .map((paperSize) => DropdownMenuItem(
+                      value: paperSize,
+                      child: Text(
+                        paperSize == PaperSize.mm80 ? 'mm80' : 'mm58',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ))
+                .toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedPaperSize = value!;
+                superPrinter.changePaperSize(selectedPaperSize);
+              });
+              storePrinterPaperSize(selectedPaperSize);
+            }),
+      ],
     );
   }
 

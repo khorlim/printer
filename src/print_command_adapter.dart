@@ -27,6 +27,8 @@ class PrintCommandAdapter {
       if (imagePath != null) {
         _image = await _getImageFromUrl(imagePath);
       }
+      _printCommands.push({'enableEmphasis': true});
+      _printCommands.push({'appendFontStyle': 'Menlo'});
     } catch (e) {
       debugPrintStack();
       throw Exception('Failed to load profile. $e');
@@ -146,6 +148,11 @@ class PrintCommandAdapter {
     // _bytes += _generator!.row(posColumnList, multiLine: false);
     _bytes += _generator!.text(_textHelper.row(textList),
         styles: PosStyles(bold: bold), containsChinese: true);
+  }
+
+  void openCashDrawer() {
+    _printCommands.openCashDrawer(1);
+    _bytes += _generator!.drawer();
   }
 
   Future<img.Image> _getImageFromUrl(String path) async {

@@ -35,19 +35,25 @@ class GeneralReceipt {
         bold: true,
         linesAfter: 2);
 
+    printCommand.addTextLine('Name : ${receiptData.customerName}');
+
+    if (receiptData.customerMobile != null) {
+      printCommand.addTextLine('Mobile : ${receiptData.customerMobile!}');
+    }
+
     addFieldLines(receiptData.field);
 
     printCommand.addEmptyLine();
 
     addItemColumn(receiptData.items);
 
-    printCommand.addLine();
-
     addPayments(receiptData.payments);
 
     printCommand.addEmptyLine(line: 2);
 
     addMultiLine(receiptData.footer);
+
+    printCommand.openCashDrawer();
 
     return printCommand;
   }
@@ -97,6 +103,7 @@ class GeneralReceipt {
           printCommand.addTextLine(extra.description);
         }
       }
+      printCommand.addEmptyLine();
       printCommand.addTextRow([
         TextColumn(
           text: item.price,
@@ -112,6 +119,7 @@ class GeneralReceipt {
         ),
         TextColumn(text: item.amount, ratio: 2, alignment: PosAlign.right),
       ]);
+      printCommand.addLine();
     }
   }
 
@@ -119,15 +127,17 @@ class GeneralReceipt {
     for (var payment in payments) {
       printCommand.addTextRow([
         TextColumn(
-            text: payment.text,
-            ratio: 3,
-            alignment: PosAlign.right,
-            bold: payment.bold),
+          text: payment.text,
+          ratio: 3,
+          alignment: PosAlign.right,
+          //bold: payment.bold,
+        ),
         TextColumn(
-            text: payment.amount,
-            ratio: 1,
-            alignment: PosAlign.right,
-            bold: payment.bold)
+          text: payment.amount,
+          ratio: 1,
+          alignment: PosAlign.right,
+          // bold: payment.bold,
+        )
       ]);
       if (payment.linebreak) {
         printCommand.addLine();
