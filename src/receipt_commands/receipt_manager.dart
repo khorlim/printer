@@ -11,23 +11,24 @@ class ReceiptManager {
       {required ReceiptType receiptType,
       required ReceiptData receiptData,
       required PaperSize paperSize,
+      bool openDrawer = false,
       PType printerType = PType.btPrinter}) async {
     switch (receiptType) {
-      case ReceiptType.car:
-        return PrintCommandAdapter(printerType: printerType);
+      // case ReceiptType.car:
+      //   return PrintCommandAdapter(printerType: printerType);
 
-      case ReceiptType.optic:
-        return PrintCommandAdapter(printerType: printerType);
+      // case ReceiptType.optic:
+      //   return PrintCommandAdapter(printerType: printerType);
 
-      case ReceiptType.spa:
-        return PrintCommandAdapter(printerType: printerType);
+      // case ReceiptType.spa:
+      //   return PrintCommandAdapter(printerType: printerType);
 
       default:
         return await GeneralReceipt(
-                printerType: printerType,
-                receiptData: receiptData,
-                paperSize: paperSize)
-            .getReceipt();
+          printerType: printerType,
+          receiptData: receiptData,
+          paperSize: paperSize,
+        ).getReceipt(openDrawer: openDrawer);
     }
   }
 }

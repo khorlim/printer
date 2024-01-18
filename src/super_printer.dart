@@ -231,7 +231,8 @@ class SuperPrinter {
 
   Future<bool> startPrint(
       {required ReceiptType receiptType,
-      required ReceiptData receiptData}) async {
+      required ReceiptData receiptData,
+      bool openDrawer = false}) async {
     if (_selectedPrinter == null) {
       debugPrint('No printer selected.');
       return false;
@@ -247,6 +248,7 @@ class SuperPrinter {
         receiptType: receiptType,
         receiptData: receiptData,
         printerType: _selectedPrinter!.printerType,
+        openDrawer: openDrawer,
         paperSize: _paperSize);
 
     bool printSuccess = false;

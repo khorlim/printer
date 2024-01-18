@@ -20,7 +20,7 @@ class GeneralReceipt {
       required this.receiptData,
       required this.paperSize});
 
-  Future<PrintCommandAdapter> getReceipt() async {
+  Future<PrintCommandAdapter> getReceipt({bool openDrawer = false}) async {
     final imagePath = receiptData.icon;
 
     await printCommand.initialize(imagePath: imagePath);
@@ -43,6 +43,13 @@ class GeneralReceipt {
 
     addFieldLines(receiptData.field);
 
+    if (receiptData.customerDetail != null) {
+      printCommand
+          .addTextLine('Car Model : ${receiptData.customerDetail!.carModel}');
+      printCommand
+          .addTextLine('Car Plate : ${receiptData.customerDetail!.carPlate}');
+    }
+
     printCommand.addEmptyLine();
 
     addItemColumn(receiptData.items);
@@ -53,7 +60,9 @@ class GeneralReceipt {
 
     addMultiLine(receiptData.footer);
 
-    printCommand.openCashDrawer();
+    if (openDrawer) {
+      printCommand.openCashDrawer();
+    }
 
     return printCommand;
   }
