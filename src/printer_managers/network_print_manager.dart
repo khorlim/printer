@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:tunaipro/extra_utils/printer/src/utils/port_scanner.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 
@@ -23,7 +24,7 @@ class NetworkPrintManager {
 
   String _ipAddress = '';
   int _port = 9100;
-  final String _subnet = '192.168.0';
+  String _subnet = '192.168.0';
   final Duration _timeout = const Duration(seconds: 5);
   Socket? _socket;
 
@@ -32,7 +33,16 @@ class NetworkPrintManager {
   StreamController<TCPStatus> _networkDeviceStatusController =
       StreamController<TCPStatus>();
 
-  void searchPrinter() {
+  Future<void> _updateSubnet() async {
+    final wifiGateway = await NetworkInfo().getWifiGatewayIP();
+    String subnet =
+        wifiGateway?.substring(0, wifiGateway.lastIndexOf('.')) ?? '192.168.0';
+    _subnet = subnet;
+    print('Updating subnet : $subnet');
+  }
+
+  void searchPrinter() async {
+    await _updateSubnet();
     List<PrinterDevice> networkDevicesList = [];
     final stream =
         PortScanner.discover(_subnet, _port, timeout: Duration(seconds: 7));
