@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/general_module/order_module/import_path.dart';
 import 'package:tunaipro/share_code/widget/add_space.dart';
+import 'package:tunaipro/share_code/widget/custom_popup_menu/custom_popup_menu.dart';
 import 'package:tunaipro/share_code/widget/small_widget/close_button.dart';
 
 import 'super_printer.dart';
@@ -39,6 +41,8 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   ];
 
   late PaperSize selectedPaperSize = paperSizeList.first;
+
+  final double conHeight = 50;
 
   bool isSearching = false;
   @override
@@ -80,6 +84,8 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           sharedPreferences.getString('printerPaperSize') == 'mm58'
               ? PaperSize.mm58
               : PaperSize.mm80;
+
+      searchPrinter();
     });
   }
 
@@ -134,6 +140,17 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         index, (context, animation) => SizeTransition(sizeFactor: animation));
   }
 
+  Future<void> searchPrinter() {
+    setState(() {
+      isSearching = true;
+    });
+    return superPrinter.searchPrinter().then((value) {
+      setState(() {
+        isSearching = false;
+      });
+    });
+  }
+
   @override
   void dispose() {
     btDeviceSubs.cancel();
@@ -148,59 +165,60 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Printer',
-        leading: CustomCloseButton(),
-        actions: [
-          if (printerStatus != null &&
-              selectedPrinter != null &&
-              printerStatus == PStatus.none)
-            CupertinoButton(
-                child: Text(
-                  'Reconnect',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: primaryBlue),
-                ),
-                onPressed: () {
-                  superPrinter.connect(selectedPrinter!);
-                })
-        ],
-      ),
+      // appBar: CustomAppBar(
+      //   title: 'Printer',
+      //   leading: CustomCloseButton(),
+      //   actions: [
+      //     if (printerStatus != null &&
+      //         selectedPrinter != null &&
+      //         printerStatus == PStatus.none)
+      //       CupertinoButton(
+      //           child: Text(
+      //             'Reconnect',
+      //             style: TextStyle(
+      //                 fontSize: 14,
+      //                 fontWeight: FontWeight.w500,
+      //                 color: primaryBlue),
+      //           ),
+      //           onPressed: () {
+      //             superPrinter.connect(selectedPrinter!);
+      //           })
+      //   ],
+      // ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 10.0, right: 10, bottom: 5),
+        padding:
+            const EdgeInsets.only(left: 20.0, right: 20, bottom: 5, top: 10),
         child: Column(
           children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    selectedPrinter == null
-                        ? 'No Printer'
-                        : '${selectedPrinter!.name}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  if (selectedPrinter != null)
-                    printerStatus == null
-                        ? SizedBox.shrink()
-                        : printerStatus == PStatus.none
-                            ? Icon(
-                                CupertinoIcons.xmark,
-                                color: Colors.red,
-                              )
-                            : printerStatus == PStatus.connecting
-                                ? CupertinoActivityIndicator()
-                                : Icon(
-                                    CupertinoIcons.check_mark,
-                                    color: Colors.green,
-                                  ),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding:
+            //       const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       Text(
+            //         selectedPrinter == null
+            //             ? 'No Printer'
+            //             : '${selectedPrinter!.name}',
+            //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            //       ),
+            //       if (selectedPrinter != null)
+            //         printerStatus == null
+            //             ? SizedBox.shrink()
+            //             : printerStatus == PStatus.none
+            //                 ? Icon(
+            //                     CupertinoIcons.xmark,
+            //                     color: Colors.red,
+            //                   )
+            //                 : printerStatus == PStatus.connecting
+            //                     ? CupertinoActivityIndicator()
+            //                     : Icon(
+            //                         CupertinoIcons.check_mark,
+            //                         color: Colors.green,
+            //                       ),
+            //     ],
+            //   ),
+            // ),
             // Row(
             //   mainAxisAlignment: MainAxisAlignment.center,
             //   children: [
@@ -233,36 +251,47 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
             //     CupertinoButton(child: Text('Test Drawer'), onPressed: () {}),
             //   ],
             // ),
+            if (selectedPrinter != null)
+              buildSelectedPrinter(onPressed: () {
+                superPrinter.connect(selectedPrinter!);
+              }),
+
             buildPaperSizeOption(),
-            CupertinoButton(
-                child: Column(
-                  children: [
-                    Text('Search for printer'),
-                    if (isSearching) CupertinoActivityIndicator()
-                  ],
-                ),
-                onPressed: isSearching
-                    ? null
-                    : () async {
-                        setState(() {
-                          isSearching = true;
-                        });
-                        await superPrinter.searchPrinter();
-                        setState(() {
-                          isSearching = false;
-                        });
-                      }),
+
+            if (isSearching && widgetList.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: CupertinoActivityIndicator(),
+              ),
+
+            // CupertinoButton(
+            //     child: Column(
+            //       children: [
+            //         Text('Search for printer'),
+            //         if (isSearching) CupertinoActivityIndicator()
+            //       ],
+            //     ),
+            //     onPressed: isSearching
+            //         ? null
+            //         : () async {
+            //             searchPrinter();
+            //           }),
             Expanded(
-              child: AnimatedList(
-                key: _listKey,
-                initialItemCount: 0,
-                itemBuilder: (context, index, animation) {
-                  return SizeTransition(
-                    sizeFactor: animation,
-                    key: UniqueKey(),
-                    child: widgetList[index].printerWidget,
-                  );
+              child: RefreshIndicator.adaptive(
+                onRefresh: () async {
+                  await searchPrinter();
                 },
+                child: AnimatedList(
+                  key: _listKey,
+                  initialItemCount: 0,
+                  itemBuilder: (context, index, animation) {
+                    return SizeTransition(
+                      sizeFactor: animation,
+                      key: UniqueKey(),
+                      child: widgetList[index].printerWidget,
+                    );
+                  },
+                ),
               ),
             )
           ],
@@ -271,39 +300,112 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
     );
   }
 
-  Row buildPaperSizeOption() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Paper Size: ',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        DropdownButton(
-            value: selectedPaperSize,
-            items: paperSizeList
-                .map((paperSize) => DropdownMenuItem(
-                      value: paperSize,
-                      child: Text(
-                        paperSize == PaperSize.mm80 ? 'mm80' : 'mm58',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
+  Widget buildSelectedPrinter({void Function()? onPressed}) {
+    bool reconnect = printerStatus != null &&
+        selectedPrinter != null &&
+        printerStatus == PStatus.none;
+    bool notConnected = printerStatus == null;
+    bool connecting = printerStatus == PStatus.connecting;
+    bool connected = printerStatus == PStatus.connected;
+
+    String trailingText = reconnect
+        ? 'Reconnect'
+        : notConnected
+            ? ''
+            : connecting
+                ? 'Connecting'
+                : connected
+                    ? 'Connected'
+                    : '';
+
+    return Animate(
+      effects: [FadeEffect()],
+      child: CupertinoButton(
+        onPressed: onPressed,
+        padding: EdgeInsets.zero,
+        child: buildContainer(
+            margin: EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TText(
+                    selectedPrinter?.name ?? 'None',
+                    textColor: MyColor.grey,
+                  ),
+                ),
+                connecting
+                    ? CupertinoActivityIndicator()
+                    : TText(
+                        trailingText,
+                        textColor: reconnect || connected
+                            ? MyColor.blue
+                            : MyColor.grey,
                       ),
-                    ))
-                .toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedPaperSize = value!;
-                superPrinter.changePaperSize(selectedPaperSize);
-              });
-              storePrinterPaperSize(selectedPaperSize);
-            }),
-      ],
+              ],
+            )),
+      ),
+    );
+  }
+
+  late final List<PopupItem> paperSizePopupItems = paperSizeList
+      .map((paperSize) => PopupItem(
+          title: getPaperSizeString(paperSize),
+          onPressed: () {
+            Navigator.pop(context);
+            setState(() {
+              selectedPaperSize = paperSize;
+              superPrinter.changePaperSize(selectedPaperSize);
+            });
+            storePrinterPaperSize(selectedPaperSize);
+          }))
+      .toList();
+
+  Widget buildPaperSizeOption() {
+    BuildContext? targetCtxt;
+    return CupertinoButton(
+      onPressed: () {
+        CustomPopupMenu(
+          items: paperSizePopupItems,
+          dialogWidth: 180,
+          alignTargetWidget: AlignTargetWidget.bottomCenter,
+        ).show(targetCtxt!);
+      },
+      padding: EdgeInsets.zero,
+      minSize: 0,
+      child: buildContainer(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TText(
+                    'Receipt size',
+                    textColor: MyColor.grey,
+                  ),
+                  AddSpace(
+                    height: 5,
+                  ),
+                  Builder(builder: (context) {
+                    targetCtxt = context;
+                    return TText(
+                      getPaperSizeString(selectedPaperSize),
+                      textColor: MyColor.black,
+                    );
+                  }),
+                ],
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_down,
+              size: 17,
+              color: MyColor.grey.color,
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -315,34 +417,53 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         AddSpace(
           height: 10,
         ),
-        Text(
-          title,
-          style: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+        Padding(
+          padding: const EdgeInsets.only(top: 10.0, left: 5),
+          child: TText(
+            title,
+            textColor: MyColor.grey,
+          ),
         ),
         AddSpace(
           height: 5,
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: printerList.length,
-          itemBuilder: (context, index) {
-            final CustomPrinter printer = printerList[index];
-            return _buildPrinterButton(printer);
-          },
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+          ),
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: printerList.length,
+            itemBuilder: (context, index) {
+              final CustomPrinter printer = printerList[index];
+              bool isLast = index == printerList.length - 1;
+              return Column(
+                children: [
+                  _buildPrinterButton(printer),
+                  if (!isLast)
+                    Divider(
+                      height: 0,
+                      thickness: 0.5,
+                      color: Colors.grey.withOpacity(0.3),
+                    ),
+                ],
+              );
+            },
+          ),
         )
       ],
     );
   }
 
   Widget _buildPrinterButton(CustomPrinter printer) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 5),
-      child: CupertinoButton(
-          padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          color: Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(8),
+    return CupertinoButton(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        child: Align(
+          alignment: Alignment.centerLeft,
           child: Text(
             printer.name,
             style: TextStyle(
@@ -350,21 +471,38 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
               fontSize: 14,
             ),
           ),
-          onPressed: () {
-            superPrinter.connect(printer);
-          }),
-    );
+        ),
+        onPressed: () {
+          superPrinter.connect(printer);
+        });
   }
 
   Future<void> storePrinterPaperSize(PaperSize paperSize) async {
     try {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
-      String paperSizeString = paperSize == PaperSize.mm80 ? 'mm80' : 'mm58';
+      String paperSizeString = getPaperSizeString(paperSize);
       sharedPreferences.setString('printerPaperSize', paperSizeString);
     } catch (e) {
       debugPrint('-----> Failed to store printer paper size to local.');
     }
+  }
+
+  String getPaperSizeString(PaperSize paperSize) {
+    return paperSize == PaperSize.mm58 ? 'mm58' : 'mm80';
+  }
+
+  Widget buildContainer({required Widget child, EdgeInsets? margin}) {
+    return Container(
+      height: conHeight,
+      margin: margin,
+      padding: EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(8)),
+      child: child,
+    );
   }
 }
 
