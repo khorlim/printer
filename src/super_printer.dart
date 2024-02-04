@@ -130,9 +130,25 @@ class SuperPrinter {
   // List<CustomPrinter> _btPrinterList = [];
   // List<CustomPrinter> _networkPrinterList = [];
 
-  Future<void> searchPrinter() async {
+  Future<void> searchPrinter({bool searchForStarPrinter = true}) async {
     _bluePrintManager.searchPrinter();
 
+    if (searchForStarPrinter) {
+      await searchStarPrinter();
+    }
+    _networkPrintManager.searchPrinter();
+
+    // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
+    // final List<CustomPrinter> starPrinterList = await Isolate.run(
+    //   () => _searchStarPrinter(rootIsolateToken),
+    // );
+    // _starPrinterList = starPrinterList;
+    // _starPrinterListController.add(_starPrinterList);
+
+    return;
+  }
+
+  Future<void> searchStarPrinter() async {
     try {
       await _starPrintManager.searchPrinter().then((starPList) {
         _starPrinterList =
@@ -142,17 +158,6 @@ class SuperPrinter {
     } catch (e) {
       debugPrint('-----Failed to search star printer. $e-----');
     }
-
-    // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
-    // final List<CustomPrinter> starPrinterList = await Isolate.run(
-    //   () => _searchStarPrinter(rootIsolateToken),
-    // );
-    // _starPrinterList = starPrinterList;
-    // _starPrinterListController.add(_starPrinterList);
-
-    _networkPrintManager.searchPrinter();
-
-    return;
   }
 
   Future<void> connect(CustomPrinter printer) async {

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -24,7 +25,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
   final List<PrinterWidget> widgetList = [];
 
-  List<CustomPrinter> btDeviceList = [];
+  List<CustomPrinter> starPrinterList = [];
 
   late final StreamSubscription<List<CustomPrinter>> btDeviceSubs;
   late final StreamSubscription<List<CustomPrinter>> starDeviceSubs;
@@ -45,6 +46,8 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   final double conHeight = 50;
 
   bool isSearching = false;
+  bool searchingStarPrinter = false;
+
   @override
   void initState() {
     super.initState();
@@ -55,9 +58,11 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
       updatePrinterWidget(printerType, event);
     });
     starDeviceSubs = superPrinter.starPrinterListStream.listen((event) {
-      PType printerType = PType.starPrinter;
+      starPrinterList = event;
+      setState(() {});
+      // PType printerType = PType.starPrinter;
 
-      updatePrinterWidget(printerType, event);
+      // updatePrinterWidget(printerType, event);
     });
     networkDeviceSubs = superPrinter.networkPrinterListStream.listen((event) {
       PType printerType = PType.networkPrinter;
@@ -144,7 +149,9 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
     setState(() {
       isSearching = true;
     });
-    return superPrinter.searchPrinter().then((value) {
+    return superPrinter
+        .searchPrinter(searchForStarPrinter: false)
+        .then((value) {
       setState(() {
         isSearching = false;
       });
@@ -281,22 +288,146 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 onRefresh: () async {
                   await searchPrinter();
                 },
-                child: AnimatedList(
-                  key: _listKey,
-                  initialItemCount: 0,
-                  itemBuilder: (context, index, animation) {
-                    return SizeTransition(
-                      sizeFactor: animation,
-                      key: UniqueKey(),
-                      child: widgetList[index].printerWidget,
-                    );
-                  },
+                child: SizedBox(
+                  height: double.infinity,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        AnimatedList(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          key: _listKey,
+                          initialItemCount: 0,
+                          itemBuilder: (context, index, animation) {
+                            return SizeTransition(
+                              sizeFactor: animation,
+                              key: UniqueKey(),
+                              child: widgetList[index].printerWidget,
+                            );
+                          },
+                        ),
+                        // Container(
+                        //   height: conHeight,
+                        //   width: double.infinity,
+                        //   margin: EdgeInsets.only(top: 20),
+                        //   decoration: BoxDecoration(
+                        //       color: Colors.white,
+                        //       borderRadius: BorderRadius.circular(8)),
+                        //   child: CupertinoButton(
+                        //       padding: EdgeInsets.zero,
+                        //       child: Row(
+                        //         mainAxisAlignment: MainAxisAlignment.center,
+                        //         children: [
+                        //           TText(
+                        //             'Search for star printer',
+                        //             textColor: searchingStarPrinter
+                        //                 ? MyColor.grey
+                        //                 : MyColor.blue,
+                        //           ),
+                        //           if (searchingStarPrinter)
+                        //             CupertinoActivityIndicator(),
+                        //         ],
+                        //       ),
+                        //       onPressed: searchingStarPrinter
+                        //           ? null
+                        //           : () async {
+                        //               setState(() {
+                        //                 searchingStarPrinter = true;
+                        //               });
+                        //               await superPrinter.searchStarPrinter();
+                        //               setState(() {
+                        //                 searchingStarPrinter = false;
+                        //               });
+                        //             }),
+                        // ),
+                        buildStarPrinterList(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             )
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildStarPrinterList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AddSpace(
+          height: 10,
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          minSize: 0,
+          onPressed: () async {
+            setState(() {
+              searchingStarPrinter = true;
+            });
+            await superPrinter.searchStarPrinter();
+            setState(() {
+              searchingStarPrinter = false;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 5),
+            child: Row(
+              children: [
+                TText(
+                  'Star Printer',
+                  textColor: MyColor.grey,
+                ),
+                AddSpace(
+                  width: 5,
+                ),
+                searchingStarPrinter
+                    ? CupertinoActivityIndicator()
+                    : Icon(
+                        CupertinoIcons.search,
+                        color: MyColor.grey.color,
+                        size: 17,
+                      )
+              ],
+            ),
+          ),
+        ),
+        AddSpace(
+          height: 5,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            children: AnimateList(
+                interval: 100.ms,
+                effects: [
+                  FadeEffect(),
+                ],
+                children: starPrinterList.mapIndexed((index, printer) {
+                  bool isLast = index == starPrinterList.length - 1;
+                  return Column(
+                    children: [
+                      _buildPrinterButton(printer),
+                      if (!isLast)
+                        Divider(
+                          height: 0,
+                          thickness: 0.5,
+                          color: Colors.grey.withOpacity(0.3),
+                        ),
+                    ],
+                  );
+                }).toList()),
+          ),
+        )
+      ],
     );
   }
 
@@ -464,12 +595,9 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         borderRadius: BorderRadius.circular(8),
         child: Align(
           alignment: Alignment.centerLeft,
-          child: Text(
+          child: TText(
             printer.name,
-            style: TextStyle(
-              color: primaryBlue,
-              fontSize: 14,
-            ),
+            textColor: MyColor.blue,
           ),
         ),
         onPressed: () {
