@@ -7,9 +7,8 @@ import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/general_module/order_module/import_path.dart';
-import 'package:tunaipro/share_code/widget/add_space.dart';
-import 'package:tunaipro/share_code/widget/custom_popup_menu/custom_popup_menu.dart';
 import 'package:tunaipro/share_code/widget/small_widget/close_button.dart';
+import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
 
 import 'super_printer.dart';
 
