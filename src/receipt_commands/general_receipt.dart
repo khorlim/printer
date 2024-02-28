@@ -7,17 +7,17 @@
 // import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
 // import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 
-// class GeneralReceipt {
-//   final PType printerType;
-//   final ReceiptData receiptData;
+import 'abstract_receipt.dart';
 
-//   late final PrintCommandAdapter printCommand =
-//       PrintCommandAdapter(printerType: printerType);
+class GeneralReceipt extends AbstractReceipt {
+  GeneralReceipt({
+    required super.printerType,
+    required super.receiptData,
+    required super.paperSize,
+  });
 
-//   GeneralReceipt({required this.printerType, required this.receiptData});
-
-//   Future<PrintCommandAdapter> getReceipt() async {
-//     final imagePath = receiptData.icon;
+  Future<PrintCommandAdapter> getReceipt({bool openDrawer = false}) async {
+    final imagePath = receiptData.icon;
 
 //     await printCommand.initialize(imagePath: imagePath);
 
@@ -31,22 +31,37 @@
 //         bold: true,
 //         linesAfter: 2);
 
-//     addFieldLines(receiptData.field);
+    printCommand.addTextLine('Name : ${receiptData.customerName}');
 
-//     printCommand.addEmptyLine();
+    if (receiptData.customerMobile != null) {
+      printCommand.addTextLine('Mobile : ${receiptData.customerMobile!}');
+    }
+
+    addFieldLines(receiptData.field);
+
+    if (receiptData.customerDetail != null) {
+      printCommand
+          .addTextLine('Car Model : ${receiptData.customerDetail!.carModel}');
+      printCommand
+          .addTextLine('Car Plate : ${receiptData.customerDetail!.carPlate}');
+    }
+
+    printCommand.addEmptyLine();
 
 //     addItemColumn(receiptData.items);
 
-//     printCommand.addLine();
-
-//     addPayments(receiptData.payments);
+    addPayments(receiptData.payments);
 
 //     printCommand.addEmptyLine(line: 2);
 
 //     addMultiLine(receiptData.footer);
 
-//     return printCommand;
-//   }
+    if (openDrawer) {
+      printCommand.openCashDrawer();
+    }
+
+    return printCommand;
+  }
 
 //   void addMultiLine(List<String> multiLineString,
 //       {int linesAfter = 0, bool center = true}) {
@@ -68,66 +83,70 @@
 //     }
 //   }
 
-//   void addItemColumn(List<RItem> items, {int linesAfter = 0}) {
-//     printCommand.addLine();
-//     printCommand.addTextRow([
-//       TextColumn(
-//         text: 'Item Price',
-//         ratio: 2,
-//       ),
-//       TextColumn(
-//         text: 'Discount',
-//         ratio: 2,
-//       ),
-//       TextColumn(
-//         text: 'Qty',
-//         ratio: 1,
-//       ),
-//       TextColumn(text: 'Total', ratio: 2, alignment: PosAlign.right),
-//     ]);
-//     printCommand.addLine();
-//     for (var item in items) {
-//       printCommand.addTextLine(item.description);
-//       if (item.extra != null) {
-//         for (var extra in item.extra!) {
-//           printCommand.addTextLine(extra.description);
-//         }
-//       }
-//       printCommand.addTextRow([
-//         TextColumn(
-//           text: item.price,
-//           ratio: 2,
-//         ),
-//         TextColumn(
-//           text: item.discount.toStringAsFixed(2),
-//           ratio: 2,
-//         ),
-//         TextColumn(
-//           text: item.qty.toString(),
-//           ratio: 1,
-//         ),
-//         TextColumn(text: item.amount, ratio: 2, alignment: PosAlign.right),
-//       ]);
-//     }
-//   }
+  void addItemColumn(List<RItem> items, {int linesAfter = 0}) {
+    printCommand.addLine();
+    printCommand.addTextRow([
+      TextColumn(
+        text: 'Item Price',
+        ratio: 3,
+      ),
+      TextColumn(
+        text: 'Discount',
+        ratio: 3,
+      ),
+      TextColumn(
+        text: 'Qty',
+        ratio: 1,
+      ),
+      TextColumn(text: 'Total', ratio: 2, alignment: PosAlign.right),
+    ]);
+    printCommand.addLine();
+    for (var item in items) {
+      printCommand.addTextLine(item.description);
+      if (item.extra != null) {
+        for (var extra in item.extra!) {
+          printCommand.addTextLine(extra.description);
+        }
+      }
+      printCommand.addEmptyLine();
+      printCommand.addTextRow([
+        TextColumn(
+          text: item.price,
+          ratio: 3,
+        ),
+        TextColumn(
+          text: item.discount.toStringAsFixed(2),
+          ratio: 3,
+        ),
+        TextColumn(
+          text: item.qty.toString(),
+          ratio: 1,
+        ),
+        TextColumn(text: item.amount, ratio: 2, alignment: PosAlign.right),
+      ]);
+      printCommand.addLine();
+    }
+  }
 
-//   void addPayments(List<RPayment> payments) {
-//     for (var payment in payments) {
-//       printCommand.addTextRow([
-//         TextColumn(
-//             text: payment.text,
-//             ratio: 3,
-//             alignment: PosAlign.right,
-//             bold: payment.bold),
-//         TextColumn(
-//             text: payment.amount,
-//             ratio: 1,
-//             alignment: PosAlign.right,
-//             bold: payment.bold)
-//       ]);
-//       if (payment.linebreak) {
-//         printCommand.addLine();
-//       }
-//     }
-//   }
-// }
+  void addPayments(List<RPayment> payments) {
+    for (var payment in payments) {
+      printCommand.addTextRow([
+        TextColumn(
+          text: payment.text,
+          ratio: 3,
+          alignment: PosAlign.right,
+          //bold: payment.bold,
+        ),
+        TextColumn(
+          text: payment.amount,
+          ratio: 1,
+          alignment: PosAlign.right,
+          // bold: payment.bold,
+        )
+      ]);
+      if (payment.linebreak) {
+        printCommand.addLine();
+      }
+    }
+  }
+}

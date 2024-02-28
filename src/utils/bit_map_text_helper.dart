@@ -1,20 +1,20 @@
-// import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-// import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
-// import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
-// import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
-// import 'package:tunaipro/general_module/order_module/bar_code_listener.dart';
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
 
 // import 'text_column.dart';
 
-// class BitmapTextHelper {
-//   final PType printerType;
-//   late int _maxWidth = _getMaxWidth(printerType);
-//   BitmapTextHelper({required this.printerType}) {}
-//   String text(String text,
-//       {PosAlign alignment = PosAlign.left,
-//       int linesAfter = 0,
-//       FontSizeType fontSizeType = FontSizeType.normal}) {
-//     _maxWidth = _getMaxWidth(printerType, fontSizeType: fontSizeType);
+class BitmapTextHelper {
+  final PType printerType;
+  final PaperSize paperSize;
+  late int _maxWidth = _getMaxWidth();
+  BitmapTextHelper({required this.printerType, required this.paperSize}) {}
+  String text(String text,
+      {PosAlign alignment = PosAlign.left,
+      int linesAfter = 0,
+      FontSizeType fontSizeType = FontSizeType.normal}) {
+    _maxWidth = _getMaxWidth(fontSizeType: fontSizeType);
 
 //     String formatText = text;
 //     switch (alignment) {
@@ -56,12 +56,13 @@
 //     return ' ' * leftPadding + text;
 //   }
 
-//   String row(List<TextColumn> textColumns, {bool bold = false}) {
-//     _maxWidth = _getMaxWidth(printerType, bold: bold);
-//     if (textColumns.isEmpty) {
-//       return '';
-//     }
-//     int totalR = textColumns.fold(0, (total, text) => total += text.ratio);
+    String row(List<TextColumn> textColumns, {bool bold = false}) {
+      _maxWidth = _getMaxWidth(bold: bold);
+
+      if (textColumns.isEmpty) {
+        return '';
+      }
+      int totalR = textColumns.fold(0, (total, text) => total += text.ratio);
 
 //     String row = '';
 
@@ -72,22 +73,26 @@
 //       String content = textColumns[i].text;
 //       int addSpace = (textColumn.ratio / totalR * _maxWidth).ceil();
 
-//       if (countingSpace + addSpace > _maxWidth) {
-//         addSpace = _maxWidth - countingSpace;
-//       }
-//       countingSpace += addSpace;
-//       if (textColumn.alignment == PosAlign.right) {
-//         row += content.padLeft(addSpace);
-//       } else if (textColumn.alignment == PosAlign.left) {
-//         row += content.padRight(addSpace);
-//       } else if (textColumn.alignment == PosAlign.center) {
-//         int spaceLeft = (addSpace - content.length) ~/ 2;
-//         row += (' ' * spaceLeft) + content + (' ' * spaceLeft);
-//       }
-//     }
+      if (countingSpace + addSpace >= _maxWidth) {
+        addSpace = _maxWidth - countingSpace;
+      }
+      countingSpace += addSpace;
+      if (textColumn.alignment == PosAlign.right) {
+        row += content.padLeft(addSpace);
+      } else if (textColumn.alignment == PosAlign.left) {
+        row += content.padRight(addSpace);
+      } else if (textColumn.alignment == PosAlign.center) {
+        int spaceLeft = (addSpace - content.length) ~/ 2;
+        row += (' ' * spaceLeft) + content + (' ' * spaceLeft);
+      }
+    }
 
-//     return '$row' + (bold ? '\n' : '');
-//   }
+    if (bold) {
+      print(row.length);
+    }
+
+    return '$row' + (bold ? '\n' : '');
+  }
 
 //   List<String> _divideTextIntoLines(String text) {
 //     // Logic to divide the text into lines based on _maxWidth
@@ -110,20 +115,23 @@
 //     return ' ' * ((_maxWidth - line.length) ~/ 2) + line;
 //   }
 
-//   int _getMaxWidth(PType printerType,
-//       {FontSizeType fontSizeType = FontSizeType.normal, bool bold = false}) {
-//     if (printerType == PType.starPrinter) {
-//       switch (fontSizeType) {
-//         case FontSizeType.normal:
-//           if (bold) {
-//             return 38;
-//           }
-//           return 39;
-//         case FontSizeType.big:
-//           return 23;
-//       }
-//     } else {
-//       return 48;
-//     }
-//   }
-// }
+  int _getMaxWidth(
+      {FontSizeType fontSizeType = FontSizeType.normal, bool bold = false}) {
+    if (printerType == PType.starPrinter) {
+      switch (fontSizeType) {
+        case FontSizeType.normal:
+          // if (bold) {
+          //   return 38;
+          // }
+
+          return 39;
+        case FontSizeType.big:
+          return 23;
+      }
+    } else if (paperSize == PaperSize.mm58) {
+      return 32;
+    } else {
+      return 48;
+    }
+  }
+}

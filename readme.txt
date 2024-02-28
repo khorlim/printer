@@ -9,6 +9,7 @@
   shared_preferences: ^2.2.2
   http: ^1.1.2
   image: ^4.1.3
+  network_info_plus: ^4.1.0+1
 
 -> Info.plist
     ---Star printer---

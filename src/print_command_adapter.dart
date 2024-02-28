@@ -14,30 +14,33 @@
 
 // enum FontSizeType { normal, big }
 
-// class PrintCommandAdapter {
-//   final PType printerType;
-//   PrintCommandAdapter({required this.printerType}) {}
+class PrintCommandAdapter {
+  final PType printerType;
+  final PaperSize paperSize;
+  PrintCommandAdapter(
+      {required this.printerType, this.paperSize = PaperSize.mm80}) {}
 
-//   Future<void> initialize({String? imagePath}) async {
-//     try {
-//       _profile = await CapabilityProfile.load();
-//       _generator = Generator(_paperSize, _profile!);
-//       if (imagePath != null) {
-//         _image = await _getImageFromUrl(imagePath);
-//       }
-//     } catch (e) {
-//       debugPrintStack();
-//       throw Exception('Failed to load profile. $e');
-//     }
-//   }
+  Future<void> initialize({String? imagePath}) async {
+    try {
+      _profile = await CapabilityProfile.load();
+      _generator = Generator(paperSize, _profile!);
+      if (imagePath != null) {
+        _image = await _getImageFromUrl(imagePath);
+      }
+      _printCommands.push({'enableEmphasis': true});
+      _printCommands.push({'appendFontStyle': 'Menlo'});
+    } catch (e) {
+      debugPrintStack();
+      throw Exception('Failed to load profile. $e');
+    }
+  }
 
-//   final PaperSize _paperSize = PaperSize.mm80;
-//   CapabilityProfile? _profile;
-//   Generator? _generator;
-//   img.Image? _image;
+  CapabilityProfile? _profile;
+  Generator? _generator;
+  img.Image? _image;
 
-//   late final BitmapTextHelper _textHelper =
-//       BitmapTextHelper(printerType: printerType);
+  late final BitmapTextHelper _textHelper =
+      BitmapTextHelper(printerType: printerType, paperSize: paperSize);
 
 //   PrintCommands _printCommands = PrintCommands();
 //   String _bitMapText = '';
@@ -147,9 +150,14 @@
 //         styles: PosStyles(bold: bold), containsChinese: true);
 //   }
 
-//   Future<img.Image> _getImageFromUrl(String path) async {
-//     try {
-//       img.Image? image;
+  void openCashDrawer() {
+    _printCommands.openCashDrawer(1);
+    _bytes += _generator!.drawer();
+  }
+
+  Future<img.Image> _getImageFromUrl(String path) async {
+    try {
+      img.Image? image;
 
 //       final response = await http.get(Uri.parse(path));
 

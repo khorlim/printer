@@ -1,20 +1,18 @@
-// import 'dart:async';
-// import 'dart:convert';
-// import 'dart:isolate';
-
-// import 'package:flutter/rendering.dart';
-// import 'package:flutter/services.dart';
-// import 'package:thermal_printer/thermal_printer.dart';
-// import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-// import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
-// import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_print_manager.dart';
-// import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
-// import 'package:tunaipro/extra_utils/printer/src/printer_managers/network_print_manager.dart';
-// import 'package:tunaipro/extra_utils/printer/src/printer_managers/star_print_manager.dart';
-// import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_manager.dart';
-// import 'package:thermal_printer/printer.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:thermal_printer/thermal_printer.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:thermal_printer/thermal_printer.dart';
+import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/network_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/star_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_manager.dart';
+import 'package:thermal_printer/printer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // class SuperPrinter {
 //   static final SuperPrinter _instance = SuperPrinter._internal();
@@ -23,24 +21,28 @@
 //     return _instance;
 //   }
 
-//   SuperPrinter._internal() {
-//     () async {
-//       sharedPrefs = await SharedPreferences.getInstance();
-//       final String? savedPrinterJsonString = sharedPrefs.getString('printer');
-//       if (savedPrinterJsonString == null) {
-//         debugPrint('## No printer settings found locally. ##');
-//       } else {
-//         debugPrint('## Applying stored printer settings.');
-//         _selectedPrinter =
-//             CustomPrinter.fromJson(jsonDecode(savedPrinterJsonString));
-//         _selectedPrinterController.add(_selectedPrinter!);
-//         bool status = await checkStatus();
-//         debugPrint('-> Printer Connection Status : $status');
-//         if (!status) {
-//           connect(_selectedPrinter!);
-//         }
-//       }
-//     }();
+  SuperPrinter._internal() {
+    () async {
+      sharedPrefs = await SharedPreferences.getInstance();
+      final String? savedPrinterJsonString = sharedPrefs.getString('printer');
+      _paperSize = sharedPrefs.getString('printerPaperSize') == 'mm58'
+          ? PaperSize.mm58
+          : PaperSize.mm80;
+
+      if (savedPrinterJsonString == null) {
+        debugPrint('## No printer settings found locally. ##');
+      } else {
+        debugPrint('## Applying stored printer settings.');
+        _selectedPrinter =
+            CustomPrinter.fromJson(jsonDecode(savedPrinterJsonString));
+        _selectedPrinterController.add(_selectedPrinter!);
+        bool status = await checkStatus();
+        debugPrint('-> Printer Connection Status : $status');
+        if (!status) {
+          connect(_selectedPrinter!);
+        }
+      }
+    }();
 
 //     _btDeviceSubscription =
 //         _bluePrintManager.btDeviceStream.listen((btDeviceList) {
@@ -119,39 +121,44 @@
 //   final StreamController<List<CustomPrinter>> _networkPrinterListController =
 //       StreamController<List<CustomPrinter>>.broadcast();
 
-//   CustomPrinter? _selectedPrinter;
-//   PStatus _status = PStatus.none;
-//   PrintStatus? _printStatus;
+  CustomPrinter? _selectedPrinter;
+  PaperSize _paperSize = PaperSize.mm80;
+  PStatus _status = PStatus.none;
 
-//   List<CustomPrinter> _starPrinterList = [];
-//   List<CustomPrinter> _btPrinterList = [];
-//   List<CustomPrinter> _networkPrinterList = [];
+  //PrintStatus? _printStatus;
+  List<CustomPrinter> _starPrinterList = [];
+  // List<CustomPrinter> _btPrinterList = [];
+  // List<CustomPrinter> _networkPrinterList = [];
 
-//   Future<void> searchPrinter() async {
-//     _bluePrintManager.searchPrinter();
+  Future<void> searchPrinter({bool searchForStarPrinter = true}) async {
+    _bluePrintManager.searchPrinter();
 
-//     try {
-//       await _starPrintManager.searchPrinter().then((starPList) {
-//         _starPrinterList =
-//             starPList.map((port) => CustomPrinter.fromPortInfo(port)).toList();
-//         _starPrinterListController.add(_starPrinterList);
-//       });
-//     } catch (e) {
-//       debugPrint('-----Failed to search star printer. $e-----');
-//     }
+    if (searchForStarPrinter) {
+      await searchStarPrinter();
+    }
+    _networkPrintManager.searchPrinter();
 
-//     RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
+    // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
+    // final List<CustomPrinter> starPrinterList = await Isolate.run(
+    //   () => _searchStarPrinter(rootIsolateToken),
+    // );
+    // _starPrinterList = starPrinterList;
+    // _starPrinterListController.add(_starPrinterList);
 
-//     // final List<CustomPrinter> starPrinterList = await Isolate.run(
-//     //   () => _searchStarPrinter(rootIsolateToken),
-//     // );
-//     // _starPrinterList = starPrinterList;
-//     // _starPrinterListController.add(_starPrinterList);
+    return;
+  }
 
-//     _networkPrintManager.searchPrinter();
-
-//     return;
-//   }
+  Future<void> searchStarPrinter() async {
+    try {
+      await _starPrintManager.searchPrinter().then((starPList) {
+        _starPrinterList =
+            starPList.map((port) => CustomPrinter.fromPortInfo(port)).toList();
+        _starPrinterListController.add(_starPrinterList);
+      });
+    } catch (e) {
+      debugPrint('-----Failed to search star printer. $e-----');
+    }
+  }
 
 //   Future<void> connect(CustomPrinter printer) async {
 //     if (_status == PStatus.connecting) {
@@ -165,54 +172,56 @@
 //     _selectedPrinterController.add(_selectedPrinter!);
 //     _savePrinterSetting(_selectedPrinter!);
 
-//     debugPrint(
-//         '---> Trying to connect printer : ${_selectedPrinter?.name} (${_selectedPrinter?.address})');
-//     bool connected = false;
-//     switch (printer.printerType) {
-//       case PType.btPrinter:
-//         connected =
-//             await _bluePrintManager.connectPrinter(printer.toPrinterDevice());
-//         break;
-//       case PType.networkPrinter:
-//         connected = await _networkPrintManager
-//             .connectPrinter(printer.toPrinterDevice());
-//         break;
-//       case PType.starPrinter:
-//         connected =
-//             await _starPrintManager.getPrinterStatus(printer.toPortInfo());
-//         break;
-//     }
-//     if (connected) {
-//       debugPrint('----> Successfully connected printer. Ready to print.');
-//     } else {
-//       debugPrint('----> Failed to connect printer.');
-//     }
-//     _status = connected ? PStatus.connected : PStatus.none;
-//     _printerStatusController.add(_status);
-//   }
+    debugPrint(
+        '---> Trying to connect printer : ${_selectedPrinter?.name} (${_selectedPrinter?.address})');
+    bool connected = false;
+    switch (printer.printerType) {
+      case PType.btPrinter:
+        connected =
+            await _bluePrintManager.connectPrinter(printer.toPrinterDevice());
+        break;
+      case PType.networkPrinter:
+        connected = await _networkPrintManager
+            .checkConnection(printer.toPrinterDevice());
+        break;
+      case PType.starPrinter:
+        connected =
+            await _starPrintManager.getPrinterStatus(printer.toPortInfo());
+        break;
+    }
+    if (connected) {
+      debugPrint('----> Successfully connected printer. Ready to print.');
+    } else {
+      debugPrint('----> Failed to connect printer.');
+    }
+    _status = connected ? PStatus.connected : PStatus.none;
+    _printerStatusController.add(_status);
+  }
 
-//   Future<bool> checkStatus() async {
-//     if (_selectedPrinter == null) {
-//       debugPrint('----- No Selected Printer.');
-//       return false;
-//     }
-//     _status = PStatus.connecting;
-//     _printerStatusController.add(_status);
+  Future<bool> checkStatus() async {
+    debugPrint('-----> Checking printer status');
+    if (_selectedPrinter == null) {
+      debugPrint('----- No Selected Printer.');
+      return false;
+    }
+    _status = PStatus.connecting;
+    _printerStatusController.add(_status);
 
-//     _selectedPrinterController.add(_selectedPrinter!);
-//     bool status = false;
-//     switch (_selectedPrinter!.printerType) {
-//       case PType.btPrinter:
-//         status = await _bluePrintManager.getStatus();
-//         break;
-//       case PType.networkPrinter:
-//         status = _networkPrintManager.checkStatus();
-//         break;
-//       case PType.starPrinter:
-//         status = await _starPrintManager
-//             .getPrinterStatus(_selectedPrinter!.toPortInfo());
-//         break;
-//     }
+    _selectedPrinterController.add(_selectedPrinter!);
+    bool status = false;
+    switch (_selectedPrinter!.printerType) {
+      case PType.btPrinter:
+        status = await _bluePrintManager.getStatus();
+        break;
+      case PType.networkPrinter:
+        status = await _networkPrintManager
+            .checkConnection(_selectedPrinter!.toPrinterDevice());
+        break;
+      case PType.starPrinter:
+        status = await _starPrintManager
+            .getPrinterStatus(_selectedPrinter!.toPortInfo());
+        break;
+    }
 
 //     if (status) {
 //       _status = PStatus.connected;
@@ -225,22 +234,28 @@
 //     }
 //   }
 
-//   Future<bool> startPrint(
-//       {required ReceiptType receiptType,
-//       required ReceiptData receiptData}) async {
-//     if (_selectedPrinter == null) {
-//       print('No printer selected.');
-//       return false;
-//     }
-//     if (_status != PStatus.connected) {
-//       print('No connected printer');
-//       return false;
-//     }
+  Future<bool> startPrint(
+      {required ReceiptType receiptType,
+      required ReceiptData receiptData,
+      bool openDrawer = false}) async {
+    if (_selectedPrinter == null) {
+      debugPrint('No printer selected.');
+      return false;
+    }
+    if (_status != PStatus.connected) {
+      debugPrint('No connected printer');
+      return false;
+    }
 
-//     PrintCommandAdapter printCommand = await ReceiptManager.getReceipt(
-//         receiptType: receiptType,
-//         receiptData: receiptData,
-//         printerType: _selectedPrinter!.printerType);
+    debugPrint('Paper Size : ${getPaperSizeString(_paperSize)}');
+
+    PrintCommandAdapter printCommand = await ReceiptManager.getReceipt(
+      receiptType: receiptType,
+      receiptData: receiptData,
+      printerType: _selectedPrinter!.printerType,
+      openDrawer: openDrawer,
+      paperSize: _paperSize,
+    );
 
 //     bool printSuccess = false;
 //     try {
@@ -269,23 +284,40 @@
 //     return printSuccess;
 //   }
 
-//   void _savePrinterSetting(CustomPrinter printer) async {
-//     debugPrint('## Storing printer setting to local. ##');
-//     try {
-//       await sharedPrefs.setString('printer', jsonEncode(printer.toJson()));
-//     } catch (e) {
-//       debugPrint('Failed to store printer setting to local. $e');
-//     }
-//   }
+  void changePaperSize(PaperSize paperSize) {
+    _paperSize = paperSize;
+  }
 
-//   void dispose() {
-//     // Cancel the stream subscriptions to avoid memory leaks
-//     _btDeviceSubscription.cancel();
-//     _networkDeviceSubscription.cancel();
-//     _btDeviceStatusSubs.cancel();
-//     _networkDeviceStatusSubs.cancel();
-//   }
-// }
+  void _savePrinterSetting(CustomPrinter printer) async {
+    debugPrint('## Storing printer setting to local. ##');
+    try {
+      await sharedPrefs.setString('printer', jsonEncode(printer.toJson()));
+    } catch (e) {
+      debugPrint('Failed to store printer setting to local. $e');
+    }
+  }
+
+  void dispose() {
+    // Cancel the stream subscriptions to avoid memory leaks
+    _btDeviceSubscription.cancel();
+    _networkDeviceSubscription.cancel();
+    _btDeviceStatusSubs.cancel();
+    _networkDeviceStatusSubs.cancel();
+  }
+
+  static String getPaperSizeString(PaperSize paperSize) {
+    switch (paperSize) {
+      case PaperSize.mm80:
+        return 'mm80';
+      case PaperSize.mm58:
+        return 'mm58';
+      case PaperSize.mm72:
+        return 'mm72';
+      default:
+        return 'mm80';
+    }
+  }
+}
 
 // @pragma('vm:entry-point')
 // Future<List<CustomPrinter>> _searchStarPrinter(
