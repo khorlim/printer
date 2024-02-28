@@ -8,10 +8,11 @@ Future<bool> printReceipt({
   ReceiptType receiptType = ReceiptType.beauty,
   bool openDrawer = false,
 }) async {
-  final SuperPrinter superPrinter = SuperPrinter();
-  bool success = await superPrinter.startPrint(
-      receiptData: receiptData,
-      receiptType: receiptType,
-      openDrawer: openDrawer);
-  return success;
+  // final SuperPrinter superPrinter = SuperPrinter();
+  // bool success = await superPrinter.startPrint(
+  //     receiptData: receiptData,
+  //     receiptType: receiptType,
+  //     openDrawer: openDrawer);
+  // return success;
+  return false;
 }
