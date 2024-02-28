@@ -17,7 +17,7 @@ class WorkSlipReceipt extends AbstractReceipt {
   Future<PrintCommandAdapter> getReceipt({bool openDrawer = false}) async {
     await printCommand.initialize();
 
-    printCommand.addTextLine('Invoice',
+    printCommand.addTextLine('Job Order',
         fontSizeType: FontSizeType.big,
         alignment: PosAlign.center,
         bold: true,
