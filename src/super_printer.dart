@@ -250,11 +250,12 @@ class SuperPrinter {
     debugPrint('Paper Size : ${getPaperSizeString(_paperSize)}');
 
     PrintCommandAdapter printCommand = await ReceiptManager.getReceipt(
-        receiptType: receiptType,
-        receiptData: receiptData,
-        printerType: _selectedPrinter!.printerType,
-        openDrawer: openDrawer,
-        paperSize: _paperSize);
+      receiptType: receiptType,
+      receiptData: receiptData,
+      printerType: _selectedPrinter!.printerType,
+      openDrawer: openDrawer,
+      paperSize: _paperSize,
+    );
 
     bool printSuccess = false;
     try {
