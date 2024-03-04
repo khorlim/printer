@@ -16,3 +16,5 @@ Future<bool> printReceipt({
   // return success;
   return false;
 }
+
+void openDrawer() {}
