@@ -13,7 +13,8 @@ import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_me
 import 'super_printer.dart';
 
 class PrinterSettingPage extends StatefulWidget {
-  const PrinterSettingPage({super.key});
+  final BuildContext context;
+  const PrinterSettingPage({super.key, required this.context});
 
   @override
   State<PrinterSettingPage> createState() => _PrinterSettingPageState();
@@ -481,7 +482,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
       .map((paperSize) => PopupItem(
           title: getPaperSizeString(paperSize),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(widget.context);
             setState(() {
               selectedPaperSize = paperSize;
               superPrinter.changePaperSize(selectedPaperSize);
@@ -498,7 +499,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           items: paperSizePopupItems,
           dialogWidth: 180,
           alignTargetWidget: AlignTargetWidget.bottomCenter,
-        ).show(targetCtxt!);
+        ).show(targetCtxt!, navigatorContext: widget.context);
       },
       padding: EdgeInsets.zero,
       minSize: 0,
