@@ -321,7 +321,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                         //         children: [
                         //           TText(
                         //             'Search for star printer',
-                        //             textColor: searchingStarPrinter
+                        //             color: searchingStarPrinter
                         //                 ? MyColor.grey
                         //                 : MyColor.blue,
                         //           ),
@@ -379,7 +379,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
               children: [
                 TText(
                   'Star Printer',
-                  textColor: MyColor.grey,
+                  color: MyColor.grey,
                 ),
                 AddSpace(
                   width: 5,
@@ -461,14 +461,14 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 Expanded(
                   child: TText(
                     selectedPrinter?.name ?? 'None',
-                    textColor: MyColor.grey,
+                    color: MyColor.grey,
                   ),
                 ),
                 connecting
                     ? CupertinoActivityIndicator()
                     : TText(
                         trailingText,
-                        textColor: reconnect || connected
+                        color: reconnect || connected
                             ? MyColor.blue
                             : MyColor.grey,
                       ),
@@ -514,7 +514,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 children: [
                   TText(
                     'Receipt size',
-                    textColor: MyColor.grey,
+                    color: MyColor.grey,
                   ),
                   AddSpace(
                     height: 5,
@@ -523,7 +523,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                     targetCtxt = context;
                     return TText(
                       getPaperSizeString(selectedPaperSize),
-                      textColor: MyColor.black,
+                      color: MyColor.black,
                     );
                   }),
                 ],
@@ -552,7 +552,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           padding: const EdgeInsets.only(top: 10.0, left: 5),
           child: TText(
             title,
-            textColor: MyColor.grey,
+            color: MyColor.grey,
           ),
         ),
         AddSpace(
@@ -597,7 +597,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           alignment: Alignment.centerLeft,
           child: TText(
             printer.name,
-            textColor: MyColor.blue,
+            color: MyColor.blue,
           ),
         ),
         onPressed: () {
