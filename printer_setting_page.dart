@@ -5,10 +5,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/general_module/order_module/import_path.dart';
+import 'package:tunaipro/homepage/utils/navigation_service.dart';
 import 'package:tunaipro/share_code/widget/small_widget/close_button.dart';
 import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
+import 'package:tunaipro/shared/shared_widgets/text_field_2.dart';
 
 import 'super_printer.dart';
 
@@ -145,12 +148,13 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         index, (context, animation) => SizeTransition(sizeFactor: animation));
   }
 
-  Future<void> searchPrinter() {
+  Future<void> searchPrinter({String? manualGateway}) {
     setState(() {
       isSearching = true;
     });
     return superPrinter
-        .searchPrinter(searchForStarPrinter: false)
+        .searchPrinter(
+            searchForStarPrinter: false, manualGateway: manualGateway)
         .then((value) {
       setState(() {
         isSearching = false;
@@ -342,6 +346,12 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                         //             }),
                         // ),
                         buildStarPrinterList(),
+                        buildManualConnectField(onSubmitted: (value) {
+                          superPrinter.connect(CustomPrinter(
+                              name: 'Manual ($value)',
+                              address: value,
+                              printerType: PType.networkPrinter));
+                        }),
                       ],
                     ),
                   ),
@@ -428,6 +438,82 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           ),
         )
       ],
+    );
+  }
+
+  Widget buildManualConnectField(
+      {required void Function(String value) onSubmitted}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CupertinoButton(
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+              child: Row(
+                children: [
+                  TText('Manual Connect', color: MyColor.grey,),
+                  Icon(CupertinoIcons.radiowaves_right, color: Colors.grey, size: 20,),
+                ],
+              ),
+              onPressed: () {
+                String ipAddress = '';
+                DialogManager(
+                    context: locator<NavigationService>().currentContext,
+                    height: 200,
+                    width: 300,
+                    child: Container(
+                      color: primaryBackgroundColor,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: TText('Custom Ip address', size: TextSize.px15,),
+                          ),
+                          Center(
+                            child: Container(
+                              width: 150,
+                              child: CustomTextField2(
+                                backgroundColor: primaryBackgroundColor,
+                                
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 15),
+                                hintText: 'Manual Connect',
+                                onChanged: (value) {
+                                  ipAddress = value;
+                                },
+                                onSubmitted: (value) {},
+                              ),
+                            ),
+                          ),
+                          Spacer(),
+                          Container(
+                            width: double.infinity
+                            ,
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                            child: CupertinoButton(
+                              color: MyColor.blue.color,
+                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 11),
+                              borderRadius: BorderRadius.circular(8),
+                                child: TText('Connect', color: MyColor.white,),
+                                onPressed: () {
+                                  onSubmitted(ipAddress);
+                                  Navigator.pop(locator<NavigationService>().currentContext);
+                                }),
+                          ),
+                             
+                        ],
+                      ),
+                    )).show();
+              })
+          // CustomTextField2(
+          //   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          //   hintText: 'Manual Connect',
+
+          //   onSubmitted: onSubmitted,
+          // ),
+        ],
+      ),
     );
   }
 

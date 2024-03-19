@@ -130,13 +130,13 @@ class SuperPrinter {
   // List<CustomPrinter> _btPrinterList = [];
   // List<CustomPrinter> _networkPrinterList = [];
 
-  Future<void> searchPrinter({bool searchForStarPrinter = true}) async {
+  Future<void> searchPrinter({bool searchForStarPrinter = true, String? manualGateway}) async {
     _bluePrintManager.searchPrinter();
 
     if (searchForStarPrinter) {
       await searchStarPrinter();
     }
-    _networkPrintManager.searchPrinter();
+    _networkPrintManager.searchPrinter(manualGateway: manualGateway);
 
     // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
     // final List<CustomPrinter> starPrinterList = await Isolate.run(

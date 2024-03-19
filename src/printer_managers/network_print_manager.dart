@@ -33,16 +33,31 @@ class NetworkPrintManager {
   StreamController<TCPStatus> _networkDeviceStatusController =
       StreamController<TCPStatus>();
 
+  final NetworkInfo _networkInfo = NetworkInfo();
+
   Future<void> _updateSubnet() async {
-    final wifiGateway = await NetworkInfo().getWifiGatewayIP();
+     String? wifiGateway;
+    try {
+      wifiGateway = await _networkInfo.getWifiGatewayIP();
+
+    }catch(e) {
+      debugPrint('Error getting wifi gateway. $e');
+
+    }
     String subnet =
         wifiGateway?.substring(0, wifiGateway.lastIndexOf('.')) ?? '192.168.0';
     _subnet = subnet;
-    print('Updating subnet : $subnet');
+    debugPrint('Updating subnet : $subnet');
   }
 
-  void searchPrinter() async {
-    await _updateSubnet();
+  void searchPrinter({String? manualGateway}) async {
+   
+    if(manualGateway != null) {
+      _subnet = manualGateway;
+    } else {
+       await _updateSubnet();
+    }
+    
     List<PrinterDevice> networkDevicesList = [];
     final stream =
         PortScanner.discover(_subnet, _port, timeout: Duration(seconds: 7));
