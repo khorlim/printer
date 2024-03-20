@@ -612,7 +612,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         CustomPopupMenu(
           items: paperSizePopupItems,
           dialogWidth: 180,
-          alignTargetWidget: AlignTargetWidget.bottomCenter,
+          alignTargetWidget: AlignTargetWidget.centerBottomRight,
         ).show(targetCtxt!, navigatorContext: widget.context);
       },
       padding: EdgeInsets.zero,
