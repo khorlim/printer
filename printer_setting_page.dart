@@ -58,7 +58,8 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
     btDeviceSubs = superPrinter.bluePrinterListStream.listen((event) {
       PType printerType = PType.btPrinter;
 
-      updatePrinterWidget(printerType, event);
+      updatePrinterWidget(
+          printerType, List<CustomPrinter>.from(event).toSet().toList());
     });
     starDeviceSubs = superPrinter.starPrinterListStream.listen((event) {
       starPrinterList = event;
@@ -176,6 +177,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: getDeviceType(context) == DeviceType.mobile,
       // appBar: CustomAppBar(
       //   title: 'Printer',
       //   leading: CustomCloseButton(),
@@ -449,33 +451,44 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CupertinoButton(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
               child: Row(
                 children: [
-                  TText('Manual Connect', color: MyColor.grey,),
-                  Icon(CupertinoIcons.radiowaves_right, color: Colors.grey, size: 20,),
+                  TText(
+                    'Manual Connect',
+                    color: MyColor.grey,
+                  ),
+                  Icon(
+                    CupertinoIcons.radiowaves_right,
+                    color: Colors.grey,
+                    size: 20,
+                  ),
                 ],
               ),
               onPressed: () {
                 String ipAddress = '';
                 DialogManager(
                     context: locator<NavigationService>().currentContext,
-                    height: 200,
+                    height: 240,
                     width: 300,
+                    pushDialogAboveWhenKeyboardShow: true,
                     child: Container(
                       color: primaryBackgroundColor,
                       child: Column(
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(15.0),
-                            child: TText('Custom Ip address', size: TextSize.px15,),
+                            child: TText(
+                              'Custom Ip address',
+                              size: TextSize.px15,
+                            ),
                           ),
                           Center(
                             child: Container(
                               width: 150,
                               child: CustomTextField2(
                                 backgroundColor: primaryBackgroundColor,
-                                
+                                autofocus: true,
                                 contentPadding: EdgeInsets.symmetric(
                                     vertical: 10, horizontal: 15),
                                 hintText: 'Manual Connect',
@@ -488,20 +501,29 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                           ),
                           Spacer(),
                           Container(
-                            width: double.infinity
-                            ,
-                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
                             child: CupertinoButton(
-                              color: MyColor.blue.color,
-                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 11),
-                              borderRadius: BorderRadius.circular(8),
-                                child: TText('Connect', color: MyColor.white,),
+                                color: MyColor.blue.color,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 11),
+                                borderRadius: BorderRadius.circular(8),
+                                child: TText(
+                                  'Connect',
+                                  color: MyColor.white,
+                                ),
                                 onPressed: () {
+                                  if (ipAddress.isEmpty) {
+                                    showInformDialog(context,
+                                        title: 'Empty Ip Address', message: '');
+                                    return;
+                                  }
                                   onSubmitted(ipAddress);
-                                  Navigator.pop(locator<NavigationService>().currentContext);
+                                  Navigator.pop(locator<NavigationService>()
+                                      .currentContext);
                                 }),
                           ),
-                             
                         ],
                       ),
                     )).show();
