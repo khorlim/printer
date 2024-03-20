@@ -134,7 +134,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   void addListItem(PrinterWidget pWidget) {
     widgetList.insert(0, pWidget);
     _listKey.currentState!
-        .insertItem(0, duration: Duration(milliseconds: 1000));
+        .insertItem(0, duration: const Duration(milliseconds: 1000));
   }
 
   void removeListItem(PrinterWidget pWidget) {
@@ -272,8 +272,8 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
             buildPaperSizeOption(),
 
             if (isSearching && widgetList.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 15.0),
+              const Padding(
+                padding: EdgeInsets.only(top: 15.0),
                 child: CupertinoActivityIndicator(),
               ),
 
@@ -297,12 +297,12 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 child: SizedBox(
                   height: double.infinity,
                   child: SingleChildScrollView(
-                    physics: AlwaysScrollableScrollPhysics(),
+                    physics: const AlwaysScrollableScrollPhysics(),
                     child: Column(
                       children: [
                         AnimatedList(
                           shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
+                          physics: const NeverScrollableScrollPhysics(),
                           key: _listKey,
                           initialItemCount: 0,
                           itemBuilder: (context, index, animation) {
@@ -370,7 +370,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AddSpace(
+        const AddSpace(
           height: 10,
         ),
         CupertinoButton(
@@ -389,15 +389,15 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
             padding: const EdgeInsets.only(top: 10.0, left: 5),
             child: Row(
               children: [
-                TText(
+                const TText(
                   'Star Printer',
                   color: MyColor.grey,
                 ),
-                AddSpace(
+                const AddSpace(
                   width: 5,
                 ),
                 searchingStarPrinter
-                    ? CupertinoActivityIndicator()
+                    ? const CupertinoActivityIndicator()
                     : Icon(
                         CupertinoIcons.search,
                         color: MyColor.grey.color,
@@ -407,7 +407,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
             ),
           ),
         ),
-        AddSpace(
+        const AddSpace(
           height: 5,
         ),
         Container(
@@ -417,11 +417,11 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           ),
           child: ListView(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             children: AnimateList(
                 interval: 100.ms,
                 effects: [
-                  FadeEffect(),
+                  const FadeEffect(),
                 ],
                 children: starPrinterList.mapIndexed((index, printer) {
                   bool isLast = index == starPrinterList.length - 1;
@@ -451,8 +451,8 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CupertinoButton(
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-              child: Row(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+              child: const Row(
                 children: [
                   TText(
                     'Manual Connect',
@@ -476,22 +476,28 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                       color: primaryBackgroundColor,
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(15.0),
+                          const Padding(
+                            padding: EdgeInsets.all(15.0),
                             child: TText(
-                              'Custom Ip address',
+                              'Manual Connect',
                               size: TextSize.px15,
                             ),
                           ),
                           Center(
                             child: Container(
-                              width: 150,
-                              child: CustomTextField2(
-                                backgroundColor: primaryBackgroundColor,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: TextField(
                                 autofocus: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 15),
-                                hintText: 'Manual Connect',
+                                autocorrect: false,
+                                enableSuggestions: false,
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  fillColor: Colors.white,
+                                  hintText: 'Enter Ip Address',
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 15),
+                                ),
                                 onChanged: (value) {
                                   ipAddress = value;
                                 },
@@ -499,17 +505,17 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                               ),
                             ),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Container(
                             width: double.infinity,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 10),
                             child: CupertinoButton(
                                 color: MyColor.blue.color,
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 15, vertical: 11),
                                 borderRadius: BorderRadius.circular(8),
-                                child: TText(
+                                child: const TText(
                                   'Connect',
                                   color: MyColor.white,
                                 ),
@@ -558,12 +564,12 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                     : '';
 
     return Animate(
-      effects: [FadeEffect()],
+      effects: [const FadeEffect()],
       child: CupertinoButton(
         onPressed: onPressed,
         padding: EdgeInsets.zero,
         child: buildContainer(
-            margin: EdgeInsets.only(bottom: 10),
+            margin: const EdgeInsets.only(bottom: 10),
             child: Row(
               children: [
                 Expanded(
@@ -573,7 +579,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                   ),
                 ),
                 connecting
-                    ? CupertinoActivityIndicator()
+                    ? const CupertinoActivityIndicator()
                     : TText(
                         trailingText,
                         color: reconnect || connected
@@ -620,11 +626,11 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TText(
+                  const TText(
                     'Receipt size',
                     color: MyColor.grey,
                   ),
-                  AddSpace(
+                  const AddSpace(
                     height: 5,
                   ),
                   Builder(builder: (context) {
@@ -653,7 +659,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AddSpace(
+        const AddSpace(
           height: 10,
         ),
         Padding(
@@ -663,7 +669,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
             color: MyColor.grey,
           ),
         ),
-        AddSpace(
+        const AddSpace(
           height: 5,
         ),
         Container(
@@ -673,7 +679,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
           ),
           child: ListView.builder(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: printerList.length,
             itemBuilder: (context, index) {
               final CustomPrinter printer = printerList[index];
@@ -698,7 +704,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
 
   Widget _buildPrinterButton(CustomPrinter printer) {
     return CupertinoButton(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         child: Align(
@@ -732,7 +738,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
     return Container(
       height: conHeight,
       margin: margin,
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 10,
       ),
       decoration: BoxDecoration(

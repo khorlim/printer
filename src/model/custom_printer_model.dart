@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 
@@ -7,7 +8,7 @@ enum PStatus { connected, connecting, none }
 
 enum PrintStatus { success, failed, printing }
 
-class CustomPrinter {
+class CustomPrinter extends Equatable {
   final String name;
   final String address;
   final PType printerType;
@@ -54,4 +55,7 @@ class CustomPrinter {
           PType.values.firstWhere((e) => e.toString() == json['printerType']),
     );
   }
+
+  @override
+  List<Object?> get props => [name, address, printerType];
 }
