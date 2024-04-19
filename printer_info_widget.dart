@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tunaipro/general_module/order_module/import_path.dart';
+import 'package:tunaipro/theme/style_imports.dart';
 
 import 'super_printer.dart';
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -5,13 +7,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thermal_printer/thermal_printer.dart';
-import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-import 'package:tunaipro/general_module/order_module/import_path.dart';
+import 'package:tunaipro/engine/injection.dart';
 import 'package:tunaipro/homepage/utils/navigation_service.dart';
-import 'package:tunaipro/share_code/widget/small_widget/close_button.dart';
+import 'package:tunaipro/share_code/custom_dialog/custom_dialog.dart';
+import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
 import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
-import 'package:tunaipro/shared/shared_widgets/text_field_2.dart';
+import 'package:tunaipro/theme/responsive/device_type.dart';
+import 'package:tunaipro/theme/style_imports.dart';
 
 import 'super_printer.dart';
 
