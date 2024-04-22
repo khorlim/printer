@@ -123,6 +123,7 @@ class SuperPrinter {
 
   CustomPrinter? _selectedPrinter;
   PaperSize _paperSize = PaperSize.mm80;
+  PaperSize get paperSize => _paperSize;
   PStatus _status = PStatus.none;
 
   //PrintStatus? _printStatus;
@@ -240,7 +241,7 @@ class SuperPrinter {
     required ReceiptData receiptData,
     bool openDrawer = false,
   }) async {
-    SuperPrintCommand printCommand = await ReceiptFactory.getReceipt(
+    SuperPrintCommand printCommand = ReceiptFactory.getReceipt(
       receiptType: receiptType,
       receiptData: receiptData,
       printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
@@ -256,7 +257,6 @@ class SuperPrinter {
       printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
       paperSize: _paperSize,
     );
-    await printCommand.initialize();
     printCommand.openCashDrawer();
     startPrint(printCommand);
   }
@@ -271,23 +271,27 @@ class SuperPrinter {
       return false;
     }
 
-    debugPrint('Paper Size : ${getPaperSizeString(_paperSize)}');
+    debugPrint(
+        'Printing... [${_selectedPrinter}] [${getPaperSizeString(_paperSize)}]');
+    List<int> printBytes = await commands.getBytes();
 
     bool printSuccess = false;
     try {
       switch (_selectedPrinter!.printerType) {
         case PType.btPrinter:
-          printSuccess =
-              await _bluePrintManager.sendPrintCommand(commands.bytes);
+          printSuccess = await _bluePrintManager.sendPrintCommand(
+            _selectedPrinter!,
+            printBytes,
+          );
           break;
         case PType.networkPrinter:
           printSuccess =
-              await _networkPrintManager.sendPrintCommand(commands.bytes);
+              await _networkPrintManager.sendPrintCommand(printBytes);
           break;
         case PType.starPrinter:
           printSuccess = await _starPrintManager.sendPrintCommand(
             printer: _selectedPrinter!,
-            commands: commands.starPrintCommands,
+            commands: commands.getStarPrintCommands(),
           );
           break;
       }

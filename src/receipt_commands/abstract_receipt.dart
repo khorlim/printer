@@ -15,5 +15,5 @@ abstract class AbstractReceipt {
   late final SuperPrintCommand printCommand =
       SuperPrintCommand(printerType: printerType, paperSize: paperSize);
 
-  Future<SuperPrintCommand> getPrintCommand({bool openDrawer = false});
+  SuperPrintCommand getPrintCommand({bool openDrawer = false});
 }

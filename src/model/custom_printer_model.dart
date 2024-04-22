@@ -58,4 +58,9 @@ class CustomPrinter extends Equatable {
 
   @override
   List<Object?> get props => [name, address, printerType];
+
+  @override
+  String toString() {
+    return 'CustomPrinter{name: $name, address: $address, printerType: $printerType}';
+  }
 }

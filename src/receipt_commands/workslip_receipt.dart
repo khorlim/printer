@@ -16,9 +16,7 @@ class WorkSlipReceipt extends AbstractReceipt {
   });
 
   @override
-  Future<SuperPrintCommand> getPrintCommand({bool openDrawer = false}) async {
-    await printCommand.initialize();
-
+  SuperPrintCommand getPrintCommand({bool openDrawer = false}) {
     printCommand.addTextLine('Job Order',
         fontSizeType: FontSizeType.big,
         alignment: PosAlign.center,

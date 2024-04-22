@@ -16,10 +16,9 @@ class GeneralReceipt extends AbstractReceipt {
     required this.receiptData,
   });
 
-  Future<SuperPrintCommand> getPrintCommand({bool openDrawer = false}) async {
+  @override
+  SuperPrintCommand getPrintCommand({bool openDrawer = false}) {
     final imagePath = receiptData.icon;
-
-    await printCommand.initialize(imagePath: imagePath);
 
     printCommand.addImage(imagePath);
     printCommand.addEmptyLine();

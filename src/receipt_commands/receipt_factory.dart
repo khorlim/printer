@@ -8,23 +8,23 @@ import 'package:tunaipro/extra_utils/printer/src/receipt_commands/workslip_recei
 enum ReceiptType { beauty, car, optic, spa, workslip }
 
 class ReceiptFactory {
-  static Future<SuperPrintCommand> getReceipt({
+  static SuperPrintCommand getReceipt({
     required ReceiptType receiptType,
     required ReceiptData receiptData,
     required PaperSize paperSize,
     bool openDrawer = false,
     PType printerType = PType.btPrinter,
-  }) async {
+  }) {
     switch (receiptType) {
       case ReceiptType.workslip:
-        return await WorkSlipReceipt(
+        return WorkSlipReceipt(
           printerType: printerType,
           receiptData: receiptData,
           paperSize: paperSize,
         ).getPrintCommand(openDrawer: openDrawer);
 
       default:
-        return await GeneralReceipt(
+        return GeneralReceipt(
           printerType: printerType,
           receiptData: receiptData,
           paperSize: paperSize,

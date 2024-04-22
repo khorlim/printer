@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:thermal_printer/thermal_printer.dart';
+import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 
 class BluetoothPrintManager {
   static final BluetoothPrintManager _instance =
@@ -39,7 +42,7 @@ class BluetoothPrintManager {
     }
   }
 
-  void searchPrinter() {
+  void searchPrinter() async {
     List<PrinterDevice> btDevicesList = [];
     _searchSubscription = _printerManager
         .discovery(
@@ -71,13 +74,44 @@ class BluetoothPrintManager {
     }
   }
 
-  Future<bool> sendPrintCommand(List<int> bytes) async {
+  Future<bool> sendPrintCommand(CustomPrinter printer, List<int> bytes) async {
     try {
-      bool sendSuccess =
-          await _printerManager.send(type: PrinterType.bluetooth, bytes: bytes);
-      return sendSuccess;
+      final List<BluetoothDevice> connectedDevices =
+          await FlutterBluePlus.systemDevices;
+
+      BluetoothDevice? foundConnectedDevice = connectedDevices
+          .firstWhereOrNull((d) => d.remoteId.str == printer.address);
+      await foundConnectedDevice?.discoverServices();
+
+      // print('max Mtu : $maxMtu');
+      final BluetoothCharacteristic? character = foundConnectedDevice
+          ?.servicesList.firstOrNull?.characteristics
+          .firstWhereOrNull((element) => element.properties.write);
+
+      if (character != null) {
+        int maxWrite = 97;
+        int totalBytes = bytes.length;
+        int totalChunks = (totalBytes / maxWrite).ceil();
+
+        for (int i = 0; i < totalChunks; i++) {
+          int start = i * maxWrite;
+          int end = (i + 1) * maxWrite;
+          if (end > totalBytes) {
+            end = totalBytes;
+          }
+          List<int> chunk = bytes.sublist(start, end);
+          await character.write(chunk);
+        }
+      } else {
+        bool sendSuccess = await _printerManager.send(
+            type: PrinterType.bluetooth, bytes: bytes);
+        return sendSuccess;
+      }
+
+      return true;
     } catch (e) {
       debugPrintStack(maxFrames: 2);
+      print(e);
       throw Exception('Failed to send command to printer. $e');
     }
   }

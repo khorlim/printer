@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/utils/bit_map_text_helper.dart';
@@ -11,6 +12,8 @@ import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
+
+import 'utils/temp_command.dart';
 
 enum FontSizeType { normal, big }
 
@@ -20,78 +23,79 @@ class SuperPrintCommand {
   SuperPrintCommand({
     required this.printerType,
     this.paperSize = PaperSize.mm80,
-  });
-
-  Future<void> initialize({String? imagePath}) async {
-    try {
-      _profile = await CapabilityProfile.load();
-      _generator = Generator(paperSize, _profile!);
-      if (imagePath != null) {
-        _image = await _getImageFromUrl(imagePath);
-      }
-      _printCommands.push({'enableEmphasis': true});
-      _printCommands.push({'appendFontStyle': 'Menlo'});
-    } catch (e) {
-      debugPrintStack();
-      throw Exception('Failed to load profile. $e');
-    }
+  }) {
+    _printCommands.push({'enableEmphasis': true});
+    _printCommands.push({'appendFontStyle': 'Menlo'});
   }
-
-  CapabilityProfile? _profile;
-  Generator? _generator;
-  img.Image? _image;
-
   late final BitmapTextHelper _textHelper =
       BitmapTextHelper(printerType: printerType, paperSize: paperSize);
 
   final PrintCommands _printCommands = PrintCommands();
 
-  List<int> _bytes = [];
+  List<TempCommand> tempCommands = [];
 
-  List<int> get bytes {
-    _bytes += _generator!.cut();
+  Future<List<int>> getBytes() async {
+    CapabilityProfile profile = await CapabilityProfile.load();
+    Generator generator = Generator(paperSize, profile);
+    List<int> bytes = [];
+    for (var command in tempCommands) {
+      if (command is ImageCommand) {
+        img.Image image = await _getImageFromUrl(command.imagePath);
+        bytes += generator.image(image);
+      } else if (command is EmptyLineCommand) {
+        bytes += generator.feed(command.line);
+      } else if (command is TextCommand) {
+        bytes += generator.text(
+          command.text,
+          containsChinese: true,
+          styles: command.style,
+          linesAfter: command.linesAfter,
+        );
+      } else if (command is LineCommand) {
+        bytes += generator.text(_textHelper.line());
+      } else if (command is TextRowCommand) {
+        bytes += generator.text(
+          _textHelper.row(command.textList),
+          styles: command.style,
+          containsChinese: true,
+        );
+      } else if (command is OpenCashDrawerCommand) {
+        bytes += generator.drawer();
+      }
+    }
+    bytes += generator.cut();
 
-    return _bytes;
+    return bytes;
   }
 
-  PrintCommands get starPrintCommands {
+  PrintCommands getStarPrintCommands() {
     _printCommands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
     return _printCommands;
   }
 
-  void addImage(String imagePath) async {
-    if (_generator == null) {
-      throw Exception('Profile must be loaded before using the class.');
-    }
-
-    if (_image == null) {
-      throw Exception('Image must be initialized before this function.');
-    }
-
+  void addImage(String imagePath) {
     _printCommands.appendBitmap(
       path: imagePath,
       width: 576 ~/ 2,
       absolutePosition: (576 ~/ 2) ~/ 2,
       bothScale: true,
     );
-
-    _bytes += _generator!.image(_image!);
+    tempCommands.add(ImageCommand(imagePath));
   }
 
   void addEmptyLine({int line = 1}) {
     _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
-    _bytes += _generator!.feed(line);
+
+    tempCommands.add(EmptyLineCommand(line));
   }
 
-  void addTextLine(String text,
-      {PosAlign alignment = PosAlign.left,
-      bool bold = false,
-      int linesAfter = 0,
-      FontSizeType fontSizeType = FontSizeType.normal}) {
-    if (_generator == null) {
-      throw Exception('Profile must be loaded before using the class.');
-    }
-
+  void addTextLine(
+    String text, {
+    PosAlign alignment = PosAlign.left,
+    bool bold = false,
+    int linesAfter = 0,
+    FontSizeType fontSizeType = FontSizeType.normal,
+  }) {
     _printCommands.appendBitmapText(
         fontSize: _getFontSize(fontSizeType),
         text: _textHelper.text(text,
@@ -99,37 +103,46 @@ class SuperPrintCommand {
             linesAfter: linesAfter,
             fontSizeType: fontSizeType));
 
-    _bytes += _generator!.text(text,
-        containsChinese: true,
-        styles: PosStyles(
+    tempCommands.add(
+      TextCommand(
+        text,
+        style: PosStyles(
           height: _getFontPosTextSize(fontSizeType),
           width: _getFontPosTextSize(fontSizeType),
           align: alignment,
           bold: bold,
         ),
-        linesAfter: linesAfter);
+        linesAfter: linesAfter,
+      ),
+    );
+
+    // _bytes += _generator!.text(
+    //   text,
+    //   containsChinese: true,
+    //   styles: PosStyles(
+    //     height: _getFontPosTextSize(fontSizeType),
+    //     width: _getFontPosTextSize(fontSizeType),
+    //     align: alignment,
+    //     bold: bold,
+    //   ),
+    //   linesAfter: linesAfter,
+    // );
   }
 
   void addLine() {
-    if (_generator == null) {
-      throw Exception('Profile must be loaded before using the class.');
-    }
-
     _printCommands.appendBitmapText(text: _textHelper.line());
 
-    _bytes += _generator!.text(
-      _textHelper.line(),
-    );
+    tempCommands.add(LineCommand());
+
+    // _bytes += _generator!.text(
+    //   _textHelper.line(),
+    // );
   }
 
   void addTextRow(
     List<TextColumn> textList, {
     int linesAfter = 0,
   }) {
-    if (_generator == null) {
-      throw Exception('Profile must be loaded before using the class.');
-    }
-
     bool bold = textList.any((element) => element.bold);
 
     if (bold) {
@@ -139,21 +152,26 @@ class SuperPrintCommand {
       _printCommands.appendBitmapText(text: _textHelper.row(textList));
     }
 
-    List<PosColumn> posColumnList = textList.map((textColumn) {
-      int max = 12;
-      int totalR = textList.fold(0, (total, text) => total += text.ratio);
-      int width = ((textColumn.ratio / totalR) * max).round();
-      return textColumn.toPosColumn(width);
-    }).toList();
+    // List<PosColumn> posColumnList = textList.map((textColumn) {
+    //   int max = 12;
+    //   int totalR = textList.fold(0, (total, text) => total += text.ratio);
+    //   int width = ((textColumn.ratio / totalR) * max).round();
+    //   return textColumn.toPosColumn(width);
+    // }).toList();
 
+    tempCommands.add(TextRowCommand(textList, style: PosStyles(bold: bold)));
+    // useless
     // _bytes += _generator!.row(posColumnList, multiLine: false);
-    _bytes += _generator!.text(_textHelper.row(textList),
-        styles: PosStyles(bold: bold), containsChinese: true);
+
+    // _bytes += _generator!.text(_textHelper.row(textList),
+    //     styles: PosStyles(bold: bold), containsChinese: true);
   }
 
   void openCashDrawer() {
     _printCommands.openCashDrawer(1);
-    _bytes += _generator!.drawer();
+
+    tempCommands.add(OpenCashDrawerCommand());
+    // _bytes += _generator!.drawer();
   }
 
   Future<img.Image> _getImageFromUrl(String path) async {
@@ -164,12 +182,14 @@ class SuperPrintCommand {
 
       if (response.statusCode == 200) {
         final Uint8List bytes = response.bodyBytes;
-        image = img.decodeImage(Uint8List.fromList(bytes));
-        image = img.copyResize(image!,
-            backgroundColor: img.ColorUint8.rgb(255, 255, 255),
-            width: 558 ~/ 2,
-            maintainAspect: true,
-            interpolation: img.Interpolation.linear);
+
+        var compressedImage = await FlutterImageCompress.compressWithList(
+          bytes,
+          minHeight: 558 ~/ 2,
+          minWidth: 558 ~/ 2,
+        );
+
+        image = img.decodeImage(Uint8List.fromList(compressedImage));
       } else {
         debugPrint('-----Failed to load image from url.');
       }
