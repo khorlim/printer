@@ -3,20 +3,20 @@ import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_field.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_item.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_payment.dart';
-import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
 import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 
 import 'abstract_receipt.dart';
 
 class GeneralReceipt extends AbstractReceipt {
+  final ReceiptData receiptData;
   GeneralReceipt({
     required super.printerType,
-    required super.receiptData,
     required super.paperSize,
+    required this.receiptData,
   });
 
-  Future<PrintCommandAdapter> getReceipt({bool openDrawer = false}) async {
+  Future<SuperPrintCommand> getPrintCommand({bool openDrawer = false}) async {
     final imagePath = receiptData.icon;
 
     await printCommand.initialize(imagePath: imagePath);

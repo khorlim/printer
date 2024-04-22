@@ -14,11 +14,13 @@ import 'package:http/http.dart' as http;
 
 enum FontSizeType { normal, big }
 
-class PrintCommandAdapter {
+class SuperPrintCommand {
   final PType printerType;
   final PaperSize paperSize;
-  PrintCommandAdapter(
-      {required this.printerType, this.paperSize = PaperSize.mm80}) {}
+  SuperPrintCommand({
+    required this.printerType,
+    this.paperSize = PaperSize.mm80,
+  });
 
   Future<void> initialize({String? imagePath}) async {
     try {
@@ -42,8 +44,7 @@ class PrintCommandAdapter {
   late final BitmapTextHelper _textHelper =
       BitmapTextHelper(printerType: printerType, paperSize: paperSize);
 
-  PrintCommands _printCommands = PrintCommands();
-  String _bitMapText = '';
+  final PrintCommands _printCommands = PrintCommands();
 
   List<int> _bytes = [];
 

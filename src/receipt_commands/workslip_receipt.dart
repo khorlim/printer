@@ -1,20 +1,22 @@
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_field.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_item.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
 import 'package:tunaipro/extra_utils/printer/src/receipt_commands/abstract_receipt.dart';
 
 import '../utils/text_column.dart';
 
 class WorkSlipReceipt extends AbstractReceipt {
+  final ReceiptData receiptData;
   WorkSlipReceipt({
     required super.printerType,
-    required super.receiptData,
     required super.paperSize,
+    required this.receiptData,
   });
 
   @override
-  Future<PrintCommandAdapter> getReceipt({bool openDrawer = false}) async {
+  Future<SuperPrintCommand> getPrintCommand({bool openDrawer = false}) async {
     await printCommand.initialize();
 
     printCommand.addTextLine('Job Order',

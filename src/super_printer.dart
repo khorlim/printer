@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_command_adapter.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_print_manager.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/network_print_manager.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/star_print_manager.dart';
-import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_factory.dart';
 import 'package:thermal_printer/printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -130,7 +130,8 @@ class SuperPrinter {
   // List<CustomPrinter> _btPrinterList = [];
   // List<CustomPrinter> _networkPrinterList = [];
 
-  Future<void> searchPrinter({bool searchForStarPrinter = true, String? manualGateway}) async {
+  Future<void> searchPrinter(
+      {bool searchForStarPrinter = true, String? manualGateway}) async {
     _bluePrintManager.searchPrinter();
 
     if (searchForStarPrinter) {
@@ -234,10 +235,33 @@ class SuperPrinter {
     }
   }
 
-  Future<bool> startPrint(
-      {required ReceiptType receiptType,
-      required ReceiptData receiptData,
-      bool openDrawer = false}) async {
+  Future<bool> printReceipt({
+    required ReceiptType receiptType,
+    required ReceiptData receiptData,
+    bool openDrawer = false,
+  }) async {
+    SuperPrintCommand printCommand = await ReceiptFactory.getReceipt(
+      receiptType: receiptType,
+      receiptData: receiptData,
+      printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
+      openDrawer: openDrawer,
+      paperSize: _paperSize,
+    );
+
+    return await startPrint(printCommand);
+  }
+
+  Future<void> openDrawer() async {
+    SuperPrintCommand printCommand = SuperPrintCommand(
+      printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
+      paperSize: _paperSize,
+    );
+    await printCommand.initialize();
+    printCommand.openCashDrawer();
+    startPrint(printCommand);
+  }
+
+  Future<bool> startPrint(SuperPrintCommand commands) async {
     if (_selectedPrinter == null) {
       debugPrint('No printer selected.');
       return false;
@@ -249,34 +273,26 @@ class SuperPrinter {
 
     debugPrint('Paper Size : ${getPaperSizeString(_paperSize)}');
 
-    PrintCommandAdapter printCommand = await ReceiptManager.getReceipt(
-      receiptType: receiptType,
-      receiptData: receiptData,
-      printerType: _selectedPrinter!.printerType,
-      openDrawer: openDrawer,
-      paperSize: _paperSize,
-    );
-
     bool printSuccess = false;
     try {
       switch (_selectedPrinter!.printerType) {
         case PType.btPrinter:
           printSuccess =
-              await _bluePrintManager.sendPrintCommand(printCommand.bytes);
+              await _bluePrintManager.sendPrintCommand(commands.bytes);
           break;
         case PType.networkPrinter:
           printSuccess =
-              await _networkPrintManager.sendPrintCommand(printCommand.bytes);
+              await _networkPrintManager.sendPrintCommand(commands.bytes);
           break;
         case PType.starPrinter:
           printSuccess = await _starPrintManager.sendPrintCommand(
-              printer: _selectedPrinter!,
-              commands: printCommand.starPrintCommands);
+            printer: _selectedPrinter!,
+            commands: commands.starPrintCommands,
+          );
           break;
       }
     } catch (e) {
       printSuccess = false;
-      print('faill.....');
     }
     if (!printSuccess) {
       connect(_selectedPrinter!);
