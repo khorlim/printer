@@ -14,6 +14,7 @@ class _PrinterInfoWidgetState extends State<PrinterInfoWidget> {
   final SuperPrinter superPrinter = SuperPrinter();
 
   late Future getPrinterFuture;
+  bool status = false;
 
   @override
   void initState() {
@@ -22,7 +23,7 @@ class _PrinterInfoWidgetState extends State<PrinterInfoWidget> {
   }
 
   Future<CustomPrinter?> getSelectedPrinter() async {
-    await superPrinter.checkStatus();
+    status = await superPrinter.checkStatus();
     return superPrinter.currentPrinter;
   }
 
@@ -39,9 +40,19 @@ class _PrinterInfoWidgetState extends State<PrinterInfoWidget> {
                 color: MyColor.grey,
               );
             } else {
-              return TText(
-                printer.name,
-                color: MyColor.blue,
+              return Row(
+                children: [
+                  TText(
+                    printer.name,
+                    color: MyColor.blue,
+                  ),
+                  if (!status)
+                    Icon(
+                      CupertinoIcons.xmark,
+                      color: Colors.red,
+                      size: 18,
+                    )
+                ],
               );
             }
           } else {

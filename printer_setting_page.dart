@@ -577,7 +577,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 Expanded(
                   child: TText(
                     selectedPrinter?.name ?? 'None',
-                    color: MyColor.grey,
+                    color: reconnect ? MyColor.red : MyColor.grey,
                   ),
                 ),
                 connecting
