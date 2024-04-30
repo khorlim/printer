@@ -22,7 +22,10 @@ class GeneralReceipt extends AbstractReceipt {
 
     printCommand.addImage(imagePath);
     printCommand.addEmptyLine();
-    addMultiLine(receiptData.shopAddress, linesAfter: 1);
+
+    if (receiptData.shopAddress.isNotEmpty) {
+      addMultiLine(receiptData.shopAddress, linesAfter: 1);
+    }
 
     printCommand.addTextLine(receiptData.title,
         fontSizeType: FontSizeType.big,
