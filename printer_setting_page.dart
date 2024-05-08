@@ -8,7 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tunaipro/engine/injection.dart';
-import 'package:tunaipro/homepage/utils/navigation_service.dart';
+import 'package:tunaipro/homepage/utils/custom_navigator.dart';
 import 'package:tunaipro/share_code/custom_dialog/custom_dialog.dart';
 import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
 import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
@@ -470,7 +470,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
               onPressed: () {
                 String ipAddress = '';
                 DialogManager(
-                    context: locator<NavigationService>().currentContext,
+                    context: CustomNavigator().currentContext,
                     height: 240,
                     width: 300,
                     pushDialogAboveWhenKeyboardShow: true,
@@ -528,8 +528,8 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                                     return;
                                   }
                                   onSubmitted(ipAddress);
-                                  Navigator.pop(locator<NavigationService>()
-                                      .currentContext);
+                                  Navigator.pop(
+                                      CustomNavigator().currentContext);
                                 }),
                           ),
                         ],
