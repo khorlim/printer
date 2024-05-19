@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -184,13 +185,18 @@ class SuperPrintCommand {
       if (response.statusCode == 200) {
         final Uint8List bytes = response.bodyBytes;
 
-        var compressedImage = await FlutterImageCompress.compressWithList(
-          bytes,
-          minHeight: 558 ~/ 2,
-          minWidth: 558 ~/ 2,
-        );
+        final Uint8List compressedImage = Platform.isWindows
+            ? bytes
+            : await FlutterImageCompress.compressWithList(
+                bytes,
+                minHeight: 558 ~/ 2,
+                minWidth: 558 ~/ 2,
+              );
 
         image = img.decodeImage(Uint8List.fromList(compressedImage));
+        if(Platform.isWindows) {
+          image = img.copyResize(image!, width: 558 ~/ 2, height: 558 ~/ 2);
+        }
       } else {
         debugPrint('-----Failed to load image from url.');
       }

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
+import 'package:tunaipro/extra_utils/printer/src/super_print_command.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_print_manager.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/network_print_manager.dart';
@@ -13,6 +13,8 @@ import 'package:tunaipro/extra_utils/printer/src/printer_managers/star_print_man
 import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_factory.dart';
 import 'package:thermal_printer/printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'printer_managers/usb_print_manager.dart';
 
 class SuperPrinter {
   static final SuperPrinter _instance = SuperPrinter._internal();
@@ -24,6 +26,7 @@ class SuperPrinter {
   SuperPrinter._internal() {
     () async {
       sharedPrefs = await SharedPreferences.getInstance();
+    // await  sharedPrefs.setString('printer', '');
       final String? savedPrinterJsonString = sharedPrefs.getString('printer');
       _paperSize = sharedPrefs.getString('printerPaperSize') == 'mm58'
           ? PaperSize.mm58
@@ -105,10 +108,17 @@ class SuperPrinter {
       _bluePrinterListController.stream;
   Stream<List<CustomPrinter>> get networkPrinterListStream =>
       _networkPrinterListController.stream;
+  Stream<List<CustomPrinter>> get usbPrinterListStream =>
+      _usbPrintManager.usbDevicesStream.map((devices) => devices
+          .map((e) => CustomPrinter.fromPrinterDevice(
+              e,
+              printerType: PType.usbPrinter,))
+          .toList());
 
   final StarPrintManager _starPrintManager = StarPrintManager();
   final BluetoothPrintManager _bluePrintManager = BluetoothPrintManager();
   final NetworkPrintManager _networkPrintManager = NetworkPrintManager();
+  final UsbPrintManager _usbPrintManager = UsbPrintManager();
 
   final StreamController<CustomPrinter> _selectedPrinterController =
       StreamController<CustomPrinter>.broadcast();
@@ -139,6 +149,7 @@ class SuperPrinter {
       await searchStarPrinter();
     }
     _networkPrintManager.searchPrinter(manualGateway: manualGateway);
+    _usbPrintManager.searchPrinter();
 
     // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
     // final List<CustomPrinter> starPrinterList = await Isolate.run(
@@ -186,6 +197,10 @@ class SuperPrinter {
         connected = await _networkPrintManager
             .checkConnection(printer.toPrinterDevice());
         break;
+      case PType.usbPrinter:
+        connected = await _usbPrintManager
+            .checkConnection(printer.toPrinterDevice());
+        break;
       case PType.starPrinter:
         connected =
             await _starPrintManager.getPrinterStatus(printer.toPortInfo());
@@ -219,6 +234,10 @@ class SuperPrinter {
         status = await _networkPrintManager
             .checkConnection(_selectedPrinter!.toPrinterDevice());
         break;
+      case PType.usbPrinter:
+        status = await _usbPrintManager
+            .checkConnection(_selectedPrinter!.toPrinterDevice());
+            break;
       case PType.starPrinter:
         status = await _starPrintManager
             .getPrinterStatus(_selectedPrinter!.toPortInfo());
@@ -287,6 +306,10 @@ class SuperPrinter {
         case PType.networkPrinter:
           printSuccess =
               await _networkPrintManager.sendPrintCommand(printBytes);
+          break;
+
+        case PType.usbPrinter:
+          printSuccess = await _usbPrintManager.sendPrintCommand(device: _selectedPrinter!.toPrinterDevice(), bytes :printBytes);
           break;
         case PType.starPrinter:
           printSuccess = await _starPrintManager.sendPrintCommand(

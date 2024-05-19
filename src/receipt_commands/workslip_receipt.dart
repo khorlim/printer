@@ -2,7 +2,7 @@ import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_field.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_item.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
+import 'package:tunaipro/extra_utils/printer/src/super_print_command.dart';
 import 'package:tunaipro/extra_utils/printer/src/receipt_commands/abstract_receipt.dart';
 
 import '../utils/text_column.dart';

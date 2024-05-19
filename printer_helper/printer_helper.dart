@@ -1,5 +1,5 @@
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
+import 'package:tunaipro/extra_utils/printer/src/super_print_command.dart';
 import 'package:tunaipro/extra_utils/printer/super_printer.dart';
 
 class PrinterHelper {

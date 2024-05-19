@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/engine/injection.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/usb_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/xprinter_manager.dart';
 import 'package:tunaipro/homepage/utils/custom_navigator.dart';
 import 'package:tunaipro/share_code/custom_dialog/custom_dialog.dart';
 import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
@@ -15,7 +19,8 @@ import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_me
 import 'package:tunaipro/theme/responsive/device_type.dart';
 import 'package:tunaipro/theme/style_imports.dart';
 
-import 'super_printer.dart';
+import '../super_printer.dart';
+import 'change_ip_dialog.dart';
 
 class PrinterSettingPage extends StatefulWidget {
   final BuildContext context;
@@ -27,6 +32,7 @@ class PrinterSettingPage extends StatefulWidget {
 
 class _PrinterSettingPageState extends State<PrinterSettingPage> {
   final SuperPrinter superPrinter = SuperPrinter();
+  final XPrinterManager xPrinterManager = XPrinterManager();
   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
   final List<PrinterWidget> widgetList = [];
 
@@ -301,6 +307,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AnimatedList(
                           shrinkWrap: true,
@@ -315,6 +322,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                             );
                           },
                         ),
+                        buildUsbPrinterList(),
                         // Container(
                         //   height: conHeight,
                         //   width: double.infinity,
@@ -350,6 +358,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                         //             }),
                         // ),
                         buildStarPrinterList(),
+                        buildChangeXprinterIPOption(),
                         buildManualConnectField(onSubmitted: (value) {
                           superPrinter.connect(CustomPrinter(
                               name: 'Manual ($value)',
@@ -366,6 +375,94 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         ),
       ),
     );
+  }
+
+  Widget buildUsbPrinterList() {
+    if (!Platform.isWindows) {
+      return SizedBox.shrink();
+    }
+    return StreamBuilder(
+        stream: superPrinter.usbPrinterListStream,
+        builder: (context, snapshot) {
+          final List<CustomPrinter> usbPrinters = (snapshot.data ?? []);
+          if (usbPrinters.isEmpty) return SizedBox.shrink();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AddSpace(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 5.0),
+                child: TText(
+                  'USB Printer',
+                  color: MyColor.grey,
+                ),
+              ),
+              const AddSpace(
+                height: 5,
+              ),
+              ListView(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                children: usbPrinters
+                    .map((e) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: _buildPrinterButton(e),
+                        ))
+                    .toList(),
+              )
+            ],
+          );
+        });
+  }
+
+  Widget buildChangeXprinterIPOption() {
+    return CupertinoButton(
+        padding: EdgeInsets.only(left: 5, top: 10, right: 20, bottom: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TText(
+              'Change Printer IP',
+              color: MyColor.grey,
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Icon(
+              CupertinoIcons.pencil_circle,
+              color: Colors.grey,
+              size: 16,
+            )
+          ],
+        ),
+        onPressed: () async {
+          showChangePrinterIpDialog(
+              initialIP: '192.168.123.100',
+              onConfirm: (currentIp, newIp) async {
+                try {
+                  await xPrinterManager.setupXPrinter(
+                      currentPrinterIp: currentIp, newPrinterIP: newIp);
+                  Navigator.pop(context);
+                  showInformDialog(context,
+                      title: 'Success',
+                      message:
+                          'Printer IP changed successfully to $newIp. Please reconnect to the printer.');
+                } catch (e) {
+                  print('Failed to setup xprinter : $e');
+                  if (e is XPrinterNotFoundException) {
+                    showInformDialog(context,
+                        title: 'Printer not found',
+                        message:
+                            'Please make sure your device is in the same subnet as the printer.');
+                  } else if (e is XPrinterFailedToChangeIpException) {
+                    showInformDialog(context,
+                        title: 'Failed to change IP', message: '');
+                  }
+                }
+              });
+        });
   }
 
   Widget buildStarPrinterList() {
