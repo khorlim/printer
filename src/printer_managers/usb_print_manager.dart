@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:thermal_printer/thermal_printer.dart';
-import 'package:quick_usb/quick_usb.dart';
 
 class UsbPrintManager {
   static final UsbPrintManager _instance = UsbPrintManager._internal();
