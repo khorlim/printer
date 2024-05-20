@@ -31,7 +31,7 @@ class ChangeIpPage extends StatefulWidget {
 class _ChangeIpPageState extends State<ChangeIpPage> {
   bool isLoading = false;
   late final TextEditingController currentPrinterIpController =
-      TextEditingController(text: widget.initialIP );
+      TextEditingController(text: widget.initialIP);
   final TextEditingController newPrinterIpController = TextEditingController();
 
   bool get canConfirm =>
@@ -41,6 +41,7 @@ class _ChangeIpPageState extends State<ChangeIpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: getDeviceType(context) == DeviceType.mobile,
       appBar: CustomAppBar(
         elevation: 0,
         backgroundColor: primaryBackgroundColor,
