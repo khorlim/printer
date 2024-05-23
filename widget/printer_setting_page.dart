@@ -378,9 +378,6 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   }
 
   Widget buildUsbPrinterList() {
-    if (!Platform.isWindows) {
-      return SizedBox.shrink();
-    }
     return StreamBuilder(
         stream: superPrinter.usbPrinterListStream,
         builder: (context, snapshot) {
