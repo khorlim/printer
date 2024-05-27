@@ -1,33 +1,37 @@
-// import 'dart:async';
-// import 'dart:convert';
-// import 'package:flutter/rendering.dart';
-// import 'package:flutter/services.dart';
-// import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-// import 'package:thermal_printer/thermal_printer.dart';
-// import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-// import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
-// import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_print_manager.dart';
-// import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
-// import 'package:tunaipro/extra_utils/printer/src/printer_managers/network_print_manager.dart';
-// import 'package:tunaipro/extra_utils/printer/src/printer_managers/star_print_manager.dart';
-// import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_factory.dart';
-// import 'package:thermal_printer/printer.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:thermal_printer/thermal_printer.dart';
+import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_commander/abstract_print_commander.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/network_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/star_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_factory.dart';
+import 'package:thermal_printer/printer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-// class SuperPrinter {
-//   static final SuperPrinter _instance = SuperPrinter._internal();
+import 'printer_managers/usb_print_manager.dart';
+
+class SuperPrinter {
+  static final SuperPrinter _instance = SuperPrinter._internal();
 
 //   factory SuperPrinter() {
 //     return _instance;
 //   }
 
-//   SuperPrinter._internal() {
-//     () async {
-//       sharedPrefs = await SharedPreferences.getInstance();
-//       final String? savedPrinterJsonString = sharedPrefs.getString('printer');
-//       _paperSize = sharedPrefs.getString('printerPaperSize') == 'mm58'
-//           ? PaperSize.mm58
-//           : PaperSize.mm80;
+  SuperPrinter._internal() {
+    () async {
+      sharedPrefs = await SharedPreferences.getInstance();
+      // await  sharedPrefs.setString('printer', '');
+      final String? savedPrinterJsonString = sharedPrefs.getString('printer');
+      _paperSize = sharedPrefs.getString('printerPaperSize') == 'mm58'
+          ? PaperSize.mm58
+          : PaperSize.mm80;
 
 //       if (savedPrinterJsonString == null) {
 //         debugPrint('## No printer settings found locally. ##');
@@ -99,16 +103,24 @@
 //       _selectedPrinterController.stream;
 //   Stream<PStatus> get printerStatusStream => _printerStatusController.stream;
 
-//   Stream<List<CustomPrinter>> get starPrinterListStream =>
-//       _starPrinterListController.stream;
-//   Stream<List<CustomPrinter>> get bluePrinterListStream =>
-//       _bluePrinterListController.stream;
-//   Stream<List<CustomPrinter>> get networkPrinterListStream =>
-//       _networkPrinterListController.stream;
+  Stream<List<CustomPrinter>> get starPrinterListStream =>
+      _starPrinterListController.stream;
+  Stream<List<CustomPrinter>> get bluePrinterListStream =>
+      _bluePrinterListController.stream;
+  Stream<List<CustomPrinter>> get networkPrinterListStream =>
+      _networkPrinterListController.stream;
+  Stream<List<CustomPrinter>> get usbPrinterListStream =>
+      _usbPrintManager.usbDevicesStream.map((devices) => devices
+          .map((e) => CustomPrinter.fromPrinterDevice(
+                e,
+                printerType: PType.usbPrinter,
+              ))
+          .toList());
 
-//   final StarPrintManager _starPrintManager = StarPrintManager();
-//   final BluetoothPrintManager _bluePrintManager = BluetoothPrintManager();
-//   final NetworkPrintManager _networkPrintManager = NetworkPrintManager();
+  final StarPrintManager _starPrintManager = StarPrintManager();
+  final BluetoothPrintManager _bluePrintManager = BluetoothPrintManager();
+  final NetworkPrintManager _networkPrintManager = NetworkPrintManager();
+  final UsbPrintManager _usbPrintManager = UsbPrintManager();
 
 //   final StreamController<CustomPrinter> _selectedPrinterController =
 //       StreamController<CustomPrinter>.broadcast();
@@ -135,10 +147,11 @@
 //       {bool searchForStarPrinter = true, String? manualGateway}) async {
 //     _bluePrintManager.searchPrinter();
 
-//     if (searchForStarPrinter) {
-//       await searchStarPrinter();
-//     }
-//     _networkPrintManager.searchPrinter(manualGateway: manualGateway);
+    if (searchForStarPrinter) {
+      await searchStarPrinter();
+    }
+    _networkPrintManager.searchPrinter(manualGateway: manualGateway);
+    _usbPrintManager.searchPrinter();
 
 //     // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
 //     // final List<CustomPrinter> starPrinterList = await Isolate.run(
@@ -174,31 +187,35 @@
 //     _selectedPrinterController.add(_selectedPrinter!);
 //     _savePrinterSetting(_selectedPrinter!);
 
-//     debugPrint(
-//         '---> Trying to connect printer : ${_selectedPrinter?.name} (${_selectedPrinter?.address})');
-//     bool connected = false;
-//     switch (printer.printerType) {
-//       case PType.btPrinter:
-//         connected =
-//             await _bluePrintManager.connectPrinter(printer.toPrinterDevice());
-//         break;
-//       case PType.networkPrinter:
-//         connected = await _networkPrintManager
-//             .checkConnection(printer.toPrinterDevice());
-//         break;
-//       case PType.starPrinter:
-//         connected =
-//             await _starPrintManager.getPrinterStatus(printer.toPortInfo());
-//         break;
-//     }
-//     if (connected) {
-//       debugPrint('----> Successfully connected printer. Ready to print.');
-//     } else {
-//       debugPrint('----> Failed to connect printer.');
-//     }
-//     _status = connected ? PStatus.connected : PStatus.none;
-//     _printerStatusController.add(_status);
-//   }
+    debugPrint(
+        '---> Trying to connect printer : ${_selectedPrinter?.name} (${_selectedPrinter?.address})');
+    bool connected = false;
+    switch (printer.printerType) {
+      case PType.btPrinter:
+        connected =
+            await _bluePrintManager.connectPrinter(printer.toPrinterDevice());
+        break;
+      case PType.networkPrinter:
+        connected = await _networkPrintManager
+            .checkConnection(printer.toPrinterDevice());
+        break;
+      case PType.usbPrinter:
+        connected =
+            await _usbPrintManager.checkConnection(printer.toPrinterDevice());
+        break;
+      case PType.starPrinter:
+        connected =
+            await _starPrintManager.getPrinterStatus(printer.toPortInfo());
+        break;
+    }
+    if (connected) {
+      debugPrint('----> Successfully connected printer. Ready to print.');
+    } else {
+      debugPrint('----> Failed to connect printer.');
+    }
+    _status = connected ? PStatus.connected : PStatus.none;
+    _printerStatusController.add(_status);
+  }
 
 //   Future<bool> checkStatus() async {
 //     debugPrint('-----> Checking printer status');
@@ -209,21 +226,25 @@
 //     _status = PStatus.connecting;
 //     _printerStatusController.add(_status);
 
-//     _selectedPrinterController.add(_selectedPrinter!);
-//     bool status = false;
-//     switch (_selectedPrinter!.printerType) {
-//       case PType.btPrinter:
-//         status = await _bluePrintManager.getStatus();
-//         break;
-//       case PType.networkPrinter:
-//         status = await _networkPrintManager
-//             .checkConnection(_selectedPrinter!.toPrinterDevice());
-//         break;
-//       case PType.starPrinter:
-//         status = await _starPrintManager
-//             .getPrinterStatus(_selectedPrinter!.toPortInfo());
-//         break;
-//     }
+    _selectedPrinterController.add(_selectedPrinter!);
+    bool status = false;
+    switch (_selectedPrinter!.printerType) {
+      case PType.btPrinter:
+        status = await _bluePrintManager.getStatus();
+        break;
+      case PType.networkPrinter:
+        status = await _networkPrintManager
+            .checkConnection(_selectedPrinter!.toPrinterDevice());
+        break;
+      case PType.usbPrinter:
+        status = await _usbPrintManager
+            .checkConnection(_selectedPrinter!.toPrinterDevice());
+        break;
+      case PType.starPrinter:
+        status = await _starPrintManager
+            .getPrinterStatus(_selectedPrinter!.toPortInfo());
+        break;
+    }
 
 //     if (status) {
 //       _status = PStatus.connected;
@@ -236,73 +257,89 @@
 //     }
 //   }
 
-//   Future<bool> printReceipt({
-//     required ReceiptType receiptType,
-//     required ReceiptData receiptData,
-//     bool openDrawer = false,
-//   }) async {
-//     SuperPrintCommand printCommand = ReceiptFactory.getReceipt(
-//       receiptType: receiptType,
-//       receiptData: receiptData,
-//       printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
-//       openDrawer: openDrawer,
-//       paperSize: _paperSize,
-//     );
+  Future<bool> printReceipt({
+    required ReceiptType receiptType,
+    required ReceiptData receiptData,
+    bool openDrawer = false,
+  }) async {
+    SuperPrintCommander printCommand = ReceiptFactory.getReceipt(
+      receiptType: receiptType,
+      receiptData: receiptData,
+      printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
+      openDrawer: openDrawer,
+      paperSize: _paperSize,
+    );
 
 //     return await startPrint(printCommand);
 //   }
 
-//   Future<void> openDrawer() async {
-//     SuperPrintCommand printCommand = SuperPrintCommand(
-//       printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
-//       paperSize: _paperSize,
-//     );
-//     printCommand.openCashDrawer();
-//     startPrint(printCommand);
-//   }
+  Future<bool> printCustomCommand(AbstractPrintCommander commander) async {
+    SuperPrintCommander printCommand = SuperPrintCommander(
+      printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
+      paperSize: _paperSize,
+    );
+    commander.generate(printCommand);
 
-//   Future<bool> startPrint(SuperPrintCommand commands) async {
-//     if (_selectedPrinter == null) {
-//       debugPrint('No printer selected.');
-//       return false;
-//     }
-//     if (_status != PStatus.connected) {
-//       debugPrint('No connected printer');
-//       return false;
-//     }
+    return await startPrint(printCommand);
+  }
+
+  Future<void> openDrawer() async {
+    SuperPrintCommander printCommand = SuperPrintCommander(
+      printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
+      paperSize: _paperSize,
+      cutPaper: false,
+    );
+    printCommand.openCashDrawer();
+    startPrint(printCommand);
+  }
+
+  Future<bool> startPrint(SuperPrintCommander commands) async {
+    if (_selectedPrinter == null) {
+      debugPrint('No printer selected.');
+      return false;
+    }
+    if (_status != PStatus.connected) {
+      debugPrint('No connected printer');
+      return false;
+    }
 
 //     debugPrint(
 //         'Printing... [${_selectedPrinter}] [${getPaperSizeString(_paperSize)}]');
 //     List<int> printBytes = await commands.getBytes();
 
-//     bool printSuccess = false;
-//     try {
-//       switch (_selectedPrinter!.printerType) {
-//         case PType.btPrinter:
-//           printSuccess = await _bluePrintManager.sendPrintCommand(
-//             _selectedPrinter!,
-//             printBytes,
-//           );
-//           break;
-//         case PType.networkPrinter:
-//           printSuccess =
-//               await _networkPrintManager.sendPrintCommand(printBytes);
-//           break;
-//         case PType.starPrinter:
-//           printSuccess = await _starPrintManager.sendPrintCommand(
-//             printer: _selectedPrinter!,
-//             commands: commands.getStarPrintCommands(),
-//           );
-//           break;
-//       }
-//     } catch (e) {
-//       printSuccess = false;
-//     }
-//     if (!printSuccess) {
-//       connect(_selectedPrinter!);
-//     }
-//     return printSuccess;
-//   }
+    bool printSuccess = false;
+    try {
+      switch (_selectedPrinter!.printerType) {
+        case PType.btPrinter:
+          printSuccess = await _bluePrintManager.sendPrintCommand(
+            _selectedPrinter!,
+            printBytes,
+          );
+          break;
+        case PType.networkPrinter:
+          printSuccess =
+              await _networkPrintManager.sendPrintCommand(printBytes);
+          break;
+
+        case PType.usbPrinter:
+          printSuccess = await _usbPrintManager.sendPrintCommand(
+              device: _selectedPrinter!.toPrinterDevice(), bytes: printBytes);
+          break;
+        case PType.starPrinter:
+          printSuccess = await _starPrintManager.sendPrintCommand(
+            printer: _selectedPrinter!,
+            commands: commands.getStarPrintCommands(),
+          );
+          break;
+      }
+    } catch (e) {
+      printSuccess = false;
+    }
+    if (!printSuccess) {
+      connect(_selectedPrinter!);
+    }
+    return printSuccess;
+  }
 
 //   void changePaperSize(PaperSize paperSize) {
 //     _paperSize = paperSize;

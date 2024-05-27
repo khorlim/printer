@@ -1,9 +1,9 @@
-// import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-// import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-// import 'package:tunaipro/engine/receipt/model/sub_models/r_field.dart';
-// import 'package:tunaipro/engine/receipt/model/sub_models/r_item.dart';
-// import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
-// import 'package:tunaipro/extra_utils/printer/src/receipt_commands/abstract_receipt.dart';
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
+import 'package:tunaipro/engine/receipt/model/sub_models/r_field.dart';
+import 'package:tunaipro/engine/receipt/model/sub_models/r_item.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
+import 'package:tunaipro/extra_utils/printer/src/receipt_commands/abstract_receipt.dart';
 
 // import '../utils/text_column.dart';
 
@@ -15,13 +15,13 @@
 //     required this.receiptData,
 //   });
 
-//   @override
-//   SuperPrintCommand getPrintCommand({bool openDrawer = false}) {
-//     printCommand.addTextLine('Job Order',
-//         fontSizeType: FontSizeType.big,
-//         alignment: PosAlign.center,
-//         bold: true,
-//         linesAfter: 2);
+  @override
+  SuperPrintCommander getPrintCommand({bool openDrawer = false}) {
+    printCommand.addTextLine('Job Order',
+        fontSizeType: FontSizeType.big,
+        alignment: PosAlign.center,
+        bold: true,
+        linesAfter: 2);
 
 //     printCommand.addTextLine('Name : ${receiptData.customerName}');
 

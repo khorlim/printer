@@ -79,9 +79,15 @@
 //       final List<BluetoothDevice> connectedDevices =
 //           await FlutterBluePlus.systemDevices;
 
-//       BluetoothDevice? foundConnectedDevice = connectedDevices
-//           .firstWhereOrNull((d) => d.remoteId.str == printer.address);
-//       await foundConnectedDevice?.discoverServices();
+      BluetoothDevice? foundConnectedDevice = connectedDevices
+          .firstWhereOrNull((d) => d.remoteId.str == printer.address);
+
+      if (foundConnectedDevice != null &&
+          foundConnectedDevice.servicesList.isEmpty) {
+        await foundConnectedDevice.connect();
+        await foundConnectedDevice.discoverServices(
+            subscribeToServicesChanged: false);
+      }
 
 //       // print('max Mtu : $maxMtu');
 //       final BluetoothCharacteristic? character = foundConnectedDevice

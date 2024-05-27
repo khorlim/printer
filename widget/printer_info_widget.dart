@@ -1,7 +1,7 @@
 // import 'package:flutter/material.dart';
 // import 'package:tunaipro/theme/style_imports.dart';
 
-// import 'super_printer.dart';
+import '../super_printer.dart';
 
 // class PrinterInfoWidget extends StatefulWidget {
 //   const PrinterInfoWidget({super.key});

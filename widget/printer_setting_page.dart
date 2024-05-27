@@ -1,21 +1,26 @@
-// import 'dart:async';
+import 'dart:async';
+import 'dart:io';
 
-// import 'package:collection/collection.dart';
-// import 'package:flutter/foundation.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter/widgets.dart';
-// import 'package:flutter_animate/flutter_animate.dart';
-// import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:tunaipro/engine/injection.dart';
-// import 'package:tunaipro/homepage/utils/navigation_service.dart';
-// import 'package:tunaipro/share_code/custom_dialog/custom_dialog.dart';
-// import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
-// import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
-// import 'package:tunaipro/theme/responsive/device_type.dart';
-// import 'package:tunaipro/theme/style_imports.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:thermal_printer/thermal_printer.dart';
+import 'package:tunaipro/engine/injection.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/usb_print_manager.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/xprinter_manager.dart';
+import 'package:tunaipro/homepage/utils/custom_navigator.dart';
+import 'package:tunaipro/share_code/custom_dialog/custom_dialog.dart';
+import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
+import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
+import 'package:tunaipro/theme/responsive/device_type.dart';
+import 'package:tunaipro/theme/style_imports.dart';
 
-// import 'super_printer.dart';
+import '../super_printer.dart';
+import 'change_ip_dialog.dart';
 
 // class PrinterSettingPage extends StatefulWidget {
 //   final BuildContext context;
@@ -25,10 +30,11 @@
 //   State<PrinterSettingPage> createState() => _PrinterSettingPageState();
 // }
 
-// class _PrinterSettingPageState extends State<PrinterSettingPage> {
-//   final SuperPrinter superPrinter = SuperPrinter();
-//   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
-//   final List<PrinterWidget> widgetList = [];
+class _PrinterSettingPageState extends State<PrinterSettingPage> {
+  final SuperPrinter superPrinter = SuperPrinter();
+  final XPrinterManager xPrinterManager = XPrinterManager();
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
+  final List<PrinterWidget> widgetList = [];
 
 //   List<CustomPrinter> starPrinterList = [];
 
@@ -279,266 +285,353 @@
 //                 child: CupertinoActivityIndicator(),
 //               ),
 
-//             // CupertinoButton(
-//             //     child: Column(
-//             //       children: [
-//             //         Text('Search for printer'),
-//             //         if (isSearching) CupertinoActivityIndicator()
-//             //       ],
-//             //     ),
-//             //     onPressed: isSearching
-//             //         ? null
-//             //         : () async {
-//             //             searchPrinter();
-//             //           }),
-//             Expanded(
-//               child: RefreshIndicator.adaptive(
-//                 onRefresh: () async {
-//                   await searchPrinter();
-//                 },
-//                 child: SizedBox(
-//                   height: double.infinity,
-//                   child: SingleChildScrollView(
-//                     physics: const AlwaysScrollableScrollPhysics(),
-//                     child: Column(
-//                       children: [
-//                         AnimatedList(
-//                           shrinkWrap: true,
-//                           physics: const NeverScrollableScrollPhysics(),
-//                           key: _listKey,
-//                           initialItemCount: 0,
-//                           itemBuilder: (context, index, animation) {
-//                             return SizeTransition(
-//                               sizeFactor: animation,
-//                               key: UniqueKey(),
-//                               child: widgetList[index].printerWidget,
-//                             );
-//                           },
-//                         ),
-//                         // Container(
-//                         //   height: conHeight,
-//                         //   width: double.infinity,
-//                         //   margin: EdgeInsets.only(top: 20),
-//                         //   decoration: BoxDecoration(
-//                         //       color: Colors.white,
-//                         //       borderRadius: BorderRadius.circular(8)),
-//                         //   child: CupertinoButton(
-//                         //       padding: EdgeInsets.zero,
-//                         //       child: Row(
-//                         //         mainAxisAlignment: MainAxisAlignment.center,
-//                         //         children: [
-//                         //           TText(
-//                         //             'Search for star printer',
-//                         //             color: searchingStarPrinter
-//                         //                 ? MyColor.grey
-//                         //                 : MyColor.blue,
-//                         //           ),
-//                         //           if (searchingStarPrinter)
-//                         //             CupertinoActivityIndicator(),
-//                         //         ],
-//                         //       ),
-//                         //       onPressed: searchingStarPrinter
-//                         //           ? null
-//                         //           : () async {
-//                         //               setState(() {
-//                         //                 searchingStarPrinter = true;
-//                         //               });
-//                         //               await superPrinter.searchStarPrinter();
-//                         //               setState(() {
-//                         //                 searchingStarPrinter = false;
-//                         //               });
-//                         //             }),
-//                         // ),
-//                         buildStarPrinterList(),
-//                         buildManualConnectField(onSubmitted: (value) {
-//                           superPrinter.connect(CustomPrinter(
-//                               name: 'Manual ($value)',
-//                               address: value,
-//                               printerType: PType.networkPrinter));
-//                         }),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
+            // CupertinoButton(
+            //     child: Column(
+            //       children: [
+            //         Text('Search for printer'),
+            //         if (isSearching) CupertinoActivityIndicator()
+            //       ],
+            //     ),
+            //     onPressed: isSearching
+            //         ? null
+            //         : () async {
+            //             searchPrinter();
+            //           }),
+            Expanded(
+              child: RefreshIndicator.adaptive(
+                onRefresh: () async {
+                  await searchPrinter();
+                },
+                child: SizedBox(
+                  height: double.infinity,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedList(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          key: _listKey,
+                          initialItemCount: 0,
+                          itemBuilder: (context, index, animation) {
+                            return SizeTransition(
+                              sizeFactor: animation,
+                              key: UniqueKey(),
+                              child: widgetList[index].printerWidget,
+                            );
+                          },
+                        ),
+                        buildUsbPrinterList(),
+                        // Container(
+                        //   height: conHeight,
+                        //   width: double.infinity,
+                        //   margin: EdgeInsets.only(top: 20),
+                        //   decoration: BoxDecoration(
+                        //       color: Colors.white,
+                        //       borderRadius: BorderRadius.circular(8)),
+                        //   child: CupertinoButton(
+                        //       padding: EdgeInsets.zero,
+                        //       child: Row(
+                        //         mainAxisAlignment: MainAxisAlignment.center,
+                        //         children: [
+                        //           TText(
+                        //             'Search for star printer',
+                        //             color: searchingStarPrinter
+                        //                 ? MyColor.grey
+                        //                 : MyColor.blue,
+                        //           ),
+                        //           if (searchingStarPrinter)
+                        //             CupertinoActivityIndicator(),
+                        //         ],
+                        //       ),
+                        //       onPressed: searchingStarPrinter
+                        //           ? null
+                        //           : () async {
+                        //               setState(() {
+                        //                 searchingStarPrinter = true;
+                        //               });
+                        //               await superPrinter.searchStarPrinter();
+                        //               setState(() {
+                        //                 searchingStarPrinter = false;
+                        //               });
+                        //             }),
+                        // ),
+                        buildStarPrinterList(),
+                        buildChangeXprinterIPOption(),
+                        buildManualConnectField(onSubmitted: (value) {
+                          superPrinter.connect(CustomPrinter(
+                              name: 'Manual ($value)',
+                              address: value,
+                              printerType: PType.networkPrinter));
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 
-//   Widget buildStarPrinterList() {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         const AddSpace(
-//           height: 10,
-//         ),
-//         CupertinoButton(
-//           padding: EdgeInsets.zero,
-//           minSize: 0,
-//           onPressed: () async {
-//             setState(() {
-//               searchingStarPrinter = true;
-//             });
-//             await superPrinter.searchStarPrinter();
-//             setState(() {
-//               searchingStarPrinter = false;
-//             });
-//           },
-//           child: Padding(
-//             padding: const EdgeInsets.only(top: 10.0, left: 5),
-//             child: Row(
-//               children: [
-//                 const TText(
-//                   'Star Printer',
-//                   color: MyColor.grey,
-//                 ),
-//                 const AddSpace(
-//                   width: 5,
-//                 ),
-//                 searchingStarPrinter
-//                     ? const CupertinoActivityIndicator()
-//                     : Icon(
-//                         CupertinoIcons.search,
-//                         color: MyColor.grey.color,
-//                         size: 17,
-//                       )
-//               ],
-//             ),
-//           ),
-//         ),
-//         const AddSpace(
-//           height: 5,
-//         ),
-//         Container(
-//           decoration: BoxDecoration(
-//             borderRadius: BorderRadius.circular(8),
-//             color: Colors.white,
-//           ),
-//           child: ListView(
-//             shrinkWrap: true,
-//             physics: const NeverScrollableScrollPhysics(),
-//             children: AnimateList(
-//                 interval: 100.ms,
-//                 effects: [
-//                   const FadeEffect(),
-//                 ],
-//                 children: starPrinterList.mapIndexed((index, printer) {
-//                   bool isLast = index == starPrinterList.length - 1;
-//                   return Column(
-//                     children: [
-//                       _buildPrinterButton(printer),
-//                       if (!isLast)
-//                         Divider(
-//                           height: 0,
-//                           thickness: 0.5,
-//                           color: Colors.grey.withOpacity(0.3),
-//                         ),
-//                     ],
-//                   );
-//                 }).toList()),
-//           ),
-//         )
-//       ],
-//     );
-//   }
+  Widget buildUsbPrinterList() {
+    return StreamBuilder(
+        stream: superPrinter.usbPrinterListStream,
+        builder: (context, snapshot) {
+          final List<CustomPrinter> usbPrinters = (snapshot.data ?? []);
+          if (usbPrinters.isEmpty) return SizedBox.shrink();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AddSpace(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 5.0),
+                child: TText(
+                  'USB Printer',
+                  color: MyColor.grey,
+                ),
+              ),
+              const AddSpace(
+                height: 5,
+              ),
+              ListView(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                children: usbPrinters
+                    .map((e) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: _buildPrinterButton(e),
+                        ))
+                    .toList(),
+              )
+            ],
+          );
+        });
+  }
 
-//   Widget buildManualConnectField(
-//       {required void Function(String value) onSubmitted}) {
-//     return Padding(
-//       padding: const EdgeInsets.only(top: 5.0),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           CupertinoButton(
-//               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-//               child: const Row(
-//                 children: [
-//                   TText(
-//                     'Manual Connect',
-//                     color: MyColor.grey,
-//                   ),
-//                   Icon(
-//                     CupertinoIcons.radiowaves_right,
-//                     color: Colors.grey,
-//                     size: 20,
-//                   ),
-//                 ],
-//               ),
-//               onPressed: () {
-//                 String ipAddress = '';
-//                 DialogManager(
-//                     context: locator<NavigationService>().currentContext,
-//                     height: 240,
-//                     width: 300,
-//                     pushDialogAboveWhenKeyboardShow: true,
-//                     child: Container(
-//                       color: primaryBackgroundColor,
-//                       child: Column(
-//                         children: [
-//                           const Padding(
-//                             padding: EdgeInsets.all(15.0),
-//                             child: TText(
-//                               'Manual Connect',
-//                               size: TextSize.px15,
-//                             ),
-//                           ),
-//                           Center(
-//                             child: Container(
-//                               padding:
-//                                   const EdgeInsets.symmetric(horizontal: 15),
-//                               child: TextField(
-//                                 autofocus: true,
-//                                 autocorrect: false,
-//                                 enableSuggestions: false,
-//                                 textAlign: TextAlign.center,
-//                                 decoration: const InputDecoration(
-//                                   fillColor: Colors.white,
-//                                   hintText: 'Enter Ip Address',
-//                                   contentPadding: EdgeInsets.symmetric(
-//                                       vertical: 10, horizontal: 15),
-//                                 ),
-//                                 onChanged: (value) {
-//                                   ipAddress = value;
-//                                 },
-//                                 onSubmitted: (value) {},
-//                               ),
-//                             ),
-//                           ),
-//                           const Spacer(),
-//                           Container(
-//                             width: double.infinity,
-//                             padding: const EdgeInsets.symmetric(
-//                                 horizontal: 15, vertical: 10),
-//                             child: CupertinoButton(
-//                                 color: MyColor.blue.color,
-//                                 padding: const EdgeInsets.symmetric(
-//                                     horizontal: 15, vertical: 11),
-//                                 borderRadius: BorderRadius.circular(8),
-//                                 child: const TText(
-//                                   'Connect',
-//                                   color: MyColor.white,
-//                                 ),
-//                                 onPressed: () {
-//                                   if (ipAddress.isEmpty) {
-//                                     showInformDialog(context,
-//                                         title: 'Empty Ip Address', message: '');
-//                                     return;
-//                                   }
-//                                   onSubmitted(ipAddress);
-//                                   Navigator.pop(locator<NavigationService>()
-//                                       .currentContext);
-//                                 }),
-//                           ),
-//                         ],
-//                       ),
-//                     )).show();
-//               })
-//           // CustomTextField2(
-//           //   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-//           //   hintText: 'Manual Connect',
+  Widget buildChangeXprinterIPOption() {
+    return CupertinoButton(
+        padding: EdgeInsets.only(left: 5, top: 10, right: 20, bottom: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TText(
+              'Change Printer IP',
+              color: MyColor.grey,
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Icon(
+              CupertinoIcons.pencil_circle,
+              color: Colors.grey,
+              size: 16,
+            )
+          ],
+        ),
+        onPressed: () async {
+          showChangePrinterIpDialog(
+              initialIP: '192.168.123.100',
+              onConfirm: (currentIp, newIp) async {
+                try {
+                  await xPrinterManager.setupXPrinter(
+                      currentPrinterIp: currentIp, newPrinterIP: newIp);
+                  Navigator.pop(context);
+                  showInformDialog(context,
+                      title: 'Success',
+                      message:
+                          'Printer IP changed successfully to $newIp. Please reconnect to the printer.');
+                } catch (e) {
+                  print('Failed to setup xprinter : $e');
+                  if (e is XPrinterNotFoundException) {
+                    showInformDialog(context,
+                        title: 'Printer not found',
+                        message:
+                            'Please make sure your device is in the same subnet as the printer.');
+                  } else if (e is XPrinterFailedToChangeIpException) {
+                    showInformDialog(context,
+                        title: 'Failed to change IP', message: '');
+                  }
+                }
+              });
+        });
+  }
+
+  Widget buildStarPrinterList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const AddSpace(
+          height: 10,
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          minSize: 0,
+          onPressed: () async {
+            setState(() {
+              searchingStarPrinter = true;
+            });
+            await superPrinter.searchStarPrinter();
+            setState(() {
+              searchingStarPrinter = false;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 5),
+            child: Row(
+              children: [
+                const TText(
+                  'Star Printer',
+                  color: MyColor.grey,
+                ),
+                const AddSpace(
+                  width: 5,
+                ),
+                searchingStarPrinter
+                    ? const CupertinoActivityIndicator()
+                    : Icon(
+                        CupertinoIcons.search,
+                        color: MyColor.grey.color,
+                        size: 17,
+                      )
+              ],
+            ),
+          ),
+        ),
+        const AddSpace(
+          height: 5,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: AnimateList(
+                interval: 100.ms,
+                effects: [
+                  const FadeEffect(),
+                ],
+                children: starPrinterList.mapIndexed((index, printer) {
+                  bool isLast = index == starPrinterList.length - 1;
+                  return Column(
+                    children: [
+                      _buildPrinterButton(printer),
+                      if (!isLast)
+                        Divider(
+                          height: 0,
+                          thickness: 0.5,
+                          color: Colors.grey.withOpacity(0.3),
+                        ),
+                    ],
+                  );
+                }).toList()),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget buildManualConnectField(
+      {required void Function(String value) onSubmitted}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+              child: const Row(
+                children: [
+                  TText(
+                    'Manual Connect',
+                    color: MyColor.grey,
+                  ),
+                  Icon(
+                    CupertinoIcons.radiowaves_right,
+                    color: Colors.grey,
+                    size: 20,
+                  ),
+                ],
+              ),
+              onPressed: () {
+                String ipAddress = '';
+                DialogManager(
+                    context: CustomNavigator.currentContext,
+                    height: 240,
+                    width: 300,
+                    pushDialogAboveWhenKeyboardShow: true,
+                    child: Container(
+                      color: primaryBackgroundColor,
+                      child: Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.all(15.0),
+                            child: TText(
+                              'Manual Connect',
+                              size: TextSize.px15,
+                            ),
+                          ),
+                          Center(
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: TextField(
+                                autofocus: true,
+                                autocorrect: false,
+                                enableSuggestions: false,
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  fillColor: Colors.white,
+                                  hintText: 'Enter Ip Address',
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 15),
+                                ),
+                                onChanged: (value) {
+                                  ipAddress = value;
+                                },
+                                onSubmitted: (value) {},
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
+                            child: CupertinoButton(
+                                color: MyColor.blue.color,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 11),
+                                borderRadius: BorderRadius.circular(8),
+                                child: const TText(
+                                  'Connect',
+                                  color: MyColor.white,
+                                ),
+                                onPressed: () {
+                                  if (ipAddress.isEmpty) {
+                                    showInformDialog(context,
+                                        title: 'Empty Ip Address', message: '');
+                                    return;
+                                  }
+                                  onSubmitted(ipAddress);
+                                  Navigator.pop(CustomNavigator.currentContext);
+                                }),
+                          ),
+                        ],
+                      ),
+                    )).show();
+              })
+          // CustomTextField2(
+          //   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          //   hintText: 'Manual Connect',
 
 //           //   onSubmitted: onSubmitted,
 //           // ),

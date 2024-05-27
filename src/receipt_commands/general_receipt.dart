@@ -1,10 +1,10 @@
-// import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-// import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-// import 'package:tunaipro/engine/receipt/model/sub_models/r_field.dart';
-// import 'package:tunaipro/engine/receipt/model/sub_models/r_item.dart';
-// import 'package:tunaipro/engine/receipt/model/sub_models/r_payment.dart';
-// import 'package:tunaipro/extra_utils/printer/src/print_command.dart';
-// import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
+import 'package:tunaipro/engine/receipt/model/sub_models/r_field.dart';
+import 'package:tunaipro/engine/receipt/model/sub_models/r_item.dart';
+import 'package:tunaipro/engine/receipt/model/sub_models/r_payment.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
+import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 
 // import 'abstract_receipt.dart';
 
@@ -16,13 +16,16 @@
 //     required this.receiptData,
 //   });
 
-//   @override
-//   SuperPrintCommand getPrintCommand({bool openDrawer = false}) {
-//     final imagePath = receiptData.icon;
+  @override
+  SuperPrintCommander getPrintCommand({bool openDrawer = false}) {
+    final imagePath = receiptData.icon;
 
-//     printCommand.addImage(imagePath);
-//     printCommand.addEmptyLine();
-//     addMultiLine(receiptData.shopAddress, linesAfter: 1);
+    printCommand.addImage(imagePath);
+    printCommand.addEmptyLine();
+
+    if (receiptData.shopAddress.isNotEmpty) {
+      addMultiLine(receiptData.shopAddress, linesAfter: 1);
+    }
 
 //     printCommand.addTextLine(receiptData.title,
 //         fontSizeType: FontSizeType.big,

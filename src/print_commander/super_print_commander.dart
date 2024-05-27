@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -13,16 +14,18 @@ import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 
-import 'utils/temp_command.dart';
+import '../utils/temp_command.dart';
 
 enum FontSizeType { normal, big }
 
-class SuperPrintCommand {
+class SuperPrintCommander {
   final PType printerType;
   final PaperSize paperSize;
-  SuperPrintCommand({
+  final bool cutPaper;
+  SuperPrintCommander({
     required this.printerType,
     this.paperSize = PaperSize.mm80,
+    this.cutPaper = true,
   }) {
     // _printCommands.push({'enableEmphasis': true});
     // _printCommands.push({'appendFontStyle': 'Menlo'});
@@ -38,40 +41,44 @@ class SuperPrintCommand {
     CapabilityProfile profile = await CapabilityProfile.load();
     Generator generator = Generator(paperSize, profile);
     List<int> bytes = [];
-    // for (var command in tempCommands) {
-    //   if (command is ImageCommand) {
-    //     img.Image image = await _getImageFromUrl(command.imagePath);
-    //     bytes += generator.image(image);
-    //   } else if (command is EmptyLineCommand) {
-    //     bytes += generator.feed(command.line);
-    //   } else if (command is TextCommand) {
-    //     bytes += generator.text(
-    //       command.text,
-    //       containsChinese: true,
-    //       styles: command.style,
-    //       linesAfter: command.linesAfter,
-    //     );
-    //   } else if (command is LineCommand) {
-    //     bytes += generator.text(_textHelper.line());
-    //   } else if (command is TextRowCommand) {
-    //     bytes += generator.text(
-    //       _textHelper.row(command.textList),
-    //       styles: command.style,
-    //       containsChinese: true,
-    //     );
-    //   } else if (command is OpenCashDrawerCommand) {
-    //     bytes += generator.drawer();
-    //   }
-    // }
-    // bytes += generator.cut();
+    for (var command in tempCommands) {
+      if (command is ImageCommand) {
+        img.Image image = await _getImageFromUrl(command.imagePath);
+        bytes += generator.image(image);
+      } else if (command is EmptyLineCommand) {
+        bytes += generator.feed(command.line);
+      } else if (command is TextCommand) {
+        bytes += generator.text(
+          command.text,
+          containsChinese: true,
+          styles: command.style,
+          linesAfter: command.linesAfter,
+        );
+      } else if (command is LineCommand) {
+        bytes += generator.text(_textHelper.line());
+      } else if (command is TextRowCommand) {
+        bytes += generator.text(
+          _textHelper.row(command.textList),
+          styles: command.style,
+          containsChinese: true,
+        );
+      } else if (command is OpenCashDrawerCommand) {
+        bytes += generator.drawer();
+      }
+    }
+    if (cutPaper) {
+      bytes += generator.cut();
+    }
 
     return bytes;
   }
 
-  // PrintCommands getStarPrintCommands() {
-  //   _printCommands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
-  //   return _printCommands;
-  // }
+  PrintCommands getStarPrintCommands() {
+    if (cutPaper) {
+      _printCommands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
+    }
+    return _printCommands;
+  }
 
   // void addImage(String imagePath) {
   //   _printCommands.appendBitmap(
@@ -85,6 +92,7 @@ class SuperPrintCommand {
 
   void addEmptyLine({int line = 1}) {
     // _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
+    _printCommands.push({'appendLineSpace': line});
 
     // tempCommands.add(EmptyLineCommand(line));
   }
@@ -183,13 +191,18 @@ class SuperPrintCommand {
       if (response.statusCode == 200) {
         final Uint8List bytes = response.bodyBytes;
 
-        var compressedImage = await FlutterImageCompress.compressWithList(
-          bytes,
-          minHeight: 558 ~/ 2,
-          minWidth: 558 ~/ 2,
-        );
+        final Uint8List compressedImage = Platform.isWindows
+            ? bytes
+            : await FlutterImageCompress.compressWithList(
+                bytes,
+                minHeight: 558 ~/ 2,
+                minWidth: 558 ~/ 2,
+              );
 
         image = img.decodeImage(Uint8List.fromList(compressedImage));
+        if (Platform.isWindows) {
+          image = img.copyResize(image!, width: 558 ~/ 2, height: 558 ~/ 2);
+        }
       } else {
         debugPrint('-----Failed to load image from url.');
       }
