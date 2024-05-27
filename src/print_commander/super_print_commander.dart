@@ -41,44 +41,44 @@ class SuperPrintCommander {
     CapabilityProfile profile = await CapabilityProfile.load();
     Generator generator = Generator(paperSize, profile);
     List<int> bytes = [];
-    for (var command in tempCommands) {
-      if (command is ImageCommand) {
-        img.Image image = await _getImageFromUrl(command.imagePath);
-        bytes += generator.image(image);
-      } else if (command is EmptyLineCommand) {
-        bytes += generator.feed(command.line);
-      } else if (command is TextCommand) {
-        bytes += generator.text(
-          command.text,
-          containsChinese: true,
-          styles: command.style,
-          linesAfter: command.linesAfter,
-        );
-      } else if (command is LineCommand) {
-        bytes += generator.text(_textHelper.line());
-      } else if (command is TextRowCommand) {
-        bytes += generator.text(
-          _textHelper.row(command.textList),
-          styles: command.style,
-          containsChinese: true,
-        );
-      } else if (command is OpenCashDrawerCommand) {
-        bytes += generator.drawer();
-      }
-    }
-    if (cutPaper) {
-      bytes += generator.cut();
-    }
+    // for (var command in tempCommands) {
+    //   if (command is ImageCommand) {
+    //     img.Image image = await _getImageFromUrl(command.imagePath);
+    //     bytes += generator.image(image);
+    //   } else if (command is EmptyLineCommand) {
+    //     bytes += generator.feed(command.line);
+    //   } else if (command is TextCommand) {
+    //     bytes += generator.text(
+    //       command.text,
+    //       containsChinese: true,
+    //       styles: command.style,
+    //       linesAfter: command.linesAfter,
+    //     );
+    //   } else if (command is LineCommand) {
+    //     bytes += generator.text(_textHelper.line());
+    //   } else if (command is TextRowCommand) {
+    //     bytes += generator.text(
+    //       _textHelper.row(command.textList),
+    //       styles: command.style,
+    //       containsChinese: true,
+    //     );
+    //   } else if (command is OpenCashDrawerCommand) {
+    //     bytes += generator.drawer();
+    //   }
+    // }
+    // if (cutPaper) {
+    //   bytes += generator.cut();
+    // }
 
     return bytes;
   }
 
-  PrintCommands getStarPrintCommands() {
-    if (cutPaper) {
-      _printCommands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
-    }
-    return _printCommands;
-  }
+  // PrintCommands getStarPrintCommands() {
+  //   if (cutPaper) {
+  //     _printCommands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
+  //   }
+  //   return _printCommands;
+  // }
 
   // void addImage(String imagePath) {
   //   _printCommands.appendBitmap(
@@ -92,7 +92,7 @@ class SuperPrintCommander {
 
   void addEmptyLine({int line = 1}) {
     // _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
-    _printCommands.push({'appendLineSpace': line});
+    // _printCommands.push({'appendLineSpace': line});
 
     // tempCommands.add(EmptyLineCommand(line));
   }

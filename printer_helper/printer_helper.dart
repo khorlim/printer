@@ -22,10 +22,12 @@ class PrinterHelper {
 
   static Future<bool> printCustomCommand(
       AbstractPrintCommander commander) async {
-    return superPrinter.printCustomCommand(commander);
+    return false;
+    // return superPrinter.printCustomCommand(commander);
   }
 
   static Future<void> openDrawer() {
-    return superPrinter.openDrawer();
+    return Future.value();
+    // return superPrinter.openDrawer();
   }
 }

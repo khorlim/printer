@@ -3,14 +3,14 @@ import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
 
-// abstract class AbstractReceipt {
-//   final PType printerType;
-//   final PaperSize paperSize;
+abstract class AbstractReceipt {
+  final PType printerType;
+  final PaperSize paperSize;
 
-//   AbstractReceipt({
-//     required this.printerType,
-//     required this.paperSize,
-//   });
+  AbstractReceipt({
+    required this.printerType,
+    required this.paperSize,
+  });
 
   late final SuperPrintCommander printCommand =
       SuperPrintCommander(printerType: printerType, paperSize: paperSize);

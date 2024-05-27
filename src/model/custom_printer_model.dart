@@ -16,20 +16,20 @@ enum PrintStatus { success, failed, printing }
 //   CustomPrinter(
 //       {required this.name, required this.address, required this.printerType});
 
-  factory CustomPrinter.fromPrinterDevice(PrinterDevice printerDevice,
-      {required PType printerType}) {
-        if(printerType == PType.usbPrinter) {
+  // factory CustomPrinter.fromPrinterDevice(PrinterDevice printerDevice,
+  //     {required PType printerType}) {
+  //       if(printerType == PType.usbPrinter) {
           
-          return CustomPrinter(
-            name: printerDevice.name,
-            address: '${printerDevice.productId}-${printerDevice.vendorId}',
-            printerType: printerType);
-        }
-    return CustomPrinter(
-        name: printerDevice.name,
-        address: printerDevice.address!,
-        printerType: printerType);
-  }
+  //         return CustomPrinter(
+  //           name: printerDevice.name,
+  //           address: '${printerDevice.productId}-${printerDevice.vendorId}',
+  //           printerType: printerType);
+  //       }
+  //   return CustomPrinter(
+  //       name: printerDevice.name,
+  //       address: printerDevice.address!,
+  //       printerType: printerType);
+  // }
 
 //   factory CustomPrinter.fromPortInfo(PortInfo portInfo) {
 //     return CustomPrinter(
@@ -38,17 +38,17 @@ enum PrintStatus { success, failed, printing }
 //         printerType: PType.starPrinter);
 //   }
 
-  PrinterDevice toPrinterDevice() {
-    if(printerType == PType.usbPrinter) {
-       List<String> ids = address.split('-');
-       String productID = ids[0];
-        String vendorID = ids[1];
+  // PrinterDevice toPrinterDevice() {
+  //   if(printerType == PType.usbPrinter) {
+  //      List<String> ids = address.split('-');
+  //      String productID = ids[0];
+  //       String vendorID = ids[1];
 
 
-      return PrinterDevice(name: name, productId: productID , vendorId: vendorID);
-    }
-    return PrinterDevice(name: name, address: address);
-  }
+  //     return PrinterDevice(name: name, productId: productID , vendorId: vendorID);
+  //   }
+  //   return PrinterDevice(name: name, address: address);
+  // }
 
 //   PortInfo toPortInfo() {
 //     return PortInfo({'modelName': name, 'portName': address});
