@@ -13,7 +13,7 @@ Future<void> showChangePrinterIpDialog({
   required Future<void> Function(String currentIp, String newIp) onConfirm,
 }) async {
   return await DialogManager(
-          context: CustomNavigator().currentContext,
+          context: CustomNavigator.currentContext,
           child: ChangeIpPage(initialIP: initialIP, onConfirm: onConfirm))
       .show();
 }

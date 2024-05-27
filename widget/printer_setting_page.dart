@@ -564,7 +564,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
               onPressed: () {
                 String ipAddress = '';
                 DialogManager(
-                    context: CustomNavigator().currentContext,
+                    context: CustomNavigator.currentContext,
                     height: 240,
                     width: 300,
                     pushDialogAboveWhenKeyboardShow: true,
@@ -622,8 +622,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                                     return;
                                   }
                                   onSubmitted(ipAddress);
-                                  Navigator.pop(
-                                      CustomNavigator().currentContext);
+                                  Navigator.pop(CustomNavigator.currentContext);
                                 }),
                           ),
                         ],
