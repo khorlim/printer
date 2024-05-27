@@ -14,16 +14,18 @@ import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 
-import 'utils/temp_command.dart';
+import '../utils/temp_command.dart';
 
 enum FontSizeType { normal, big }
 
-class SuperPrintCommand {
+class SuperPrintCommander {
   final PType printerType;
   final PaperSize paperSize;
-  SuperPrintCommand({
+  final bool cutPaper;
+  SuperPrintCommander({
     required this.printerType,
     this.paperSize = PaperSize.mm80,
+    this.cutPaper = true,
   }) {
     _printCommands.push({'enableEmphasis': true});
     _printCommands.push({'appendFontStyle': 'Menlo'});
@@ -64,13 +66,17 @@ class SuperPrintCommand {
         bytes += generator.drawer();
       }
     }
-    bytes += generator.cut();
+    if (cutPaper) {
+      bytes += generator.cut();
+    }
 
     return bytes;
   }
 
   PrintCommands getStarPrintCommands() {
-    _printCommands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
+    if (cutPaper) {
+      _printCommands.appendCutPaper(StarCutPaperAction.FullCutWithFeed);
+    }
     return _printCommands;
   }
 
@@ -194,7 +200,7 @@ class SuperPrintCommand {
               );
 
         image = img.decodeImage(Uint8List.fromList(compressedImage));
-        if(Platform.isWindows) {
+        if (Platform.isWindows) {
           image = img.copyResize(image!, width: 558 ~/ 2, height: 558 ~/ 2);
         }
       } else {

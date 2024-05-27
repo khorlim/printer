@@ -3,7 +3,7 @@ import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_field.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_item.dart';
 import 'package:tunaipro/engine/receipt/model/sub_models/r_payment.dart';
-import 'package:tunaipro/extra_utils/printer/src/super_print_command.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
 import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 
 import 'abstract_receipt.dart';
@@ -17,7 +17,7 @@ class GeneralReceipt extends AbstractReceipt {
   });
 
   @override
-  SuperPrintCommand getPrintCommand({bool openDrawer = false}) {
+  SuperPrintCommander getPrintCommand({bool openDrawer = false}) {
     final imagePath = receiptData.icon;
 
     printCommand.addImage(imagePath);

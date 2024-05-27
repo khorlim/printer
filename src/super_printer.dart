@@ -5,7 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-import 'package:tunaipro/extra_utils/printer/src/super_print_command.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_commander/abstract_print_commander.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_print_manager.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/network_print_manager.dart';
@@ -26,7 +27,7 @@ class SuperPrinter {
   SuperPrinter._internal() {
     () async {
       sharedPrefs = await SharedPreferences.getInstance();
-    // await  sharedPrefs.setString('printer', '');
+      // await  sharedPrefs.setString('printer', '');
       final String? savedPrinterJsonString = sharedPrefs.getString('printer');
       _paperSize = sharedPrefs.getString('printerPaperSize') == 'mm58'
           ? PaperSize.mm58
@@ -111,8 +112,9 @@ class SuperPrinter {
   Stream<List<CustomPrinter>> get usbPrinterListStream =>
       _usbPrintManager.usbDevicesStream.map((devices) => devices
           .map((e) => CustomPrinter.fromPrinterDevice(
-              e,
-              printerType: PType.usbPrinter,))
+                e,
+                printerType: PType.usbPrinter,
+              ))
           .toList());
 
   final StarPrintManager _starPrintManager = StarPrintManager();
@@ -198,8 +200,8 @@ class SuperPrinter {
             .checkConnection(printer.toPrinterDevice());
         break;
       case PType.usbPrinter:
-        connected = await _usbPrintManager
-            .checkConnection(printer.toPrinterDevice());
+        connected =
+            await _usbPrintManager.checkConnection(printer.toPrinterDevice());
         break;
       case PType.starPrinter:
         connected =
@@ -237,7 +239,7 @@ class SuperPrinter {
       case PType.usbPrinter:
         status = await _usbPrintManager
             .checkConnection(_selectedPrinter!.toPrinterDevice());
-            break;
+        break;
       case PType.starPrinter:
         status = await _starPrintManager
             .getPrinterStatus(_selectedPrinter!.toPortInfo());
@@ -260,7 +262,7 @@ class SuperPrinter {
     required ReceiptData receiptData,
     bool openDrawer = false,
   }) async {
-    SuperPrintCommand printCommand = ReceiptFactory.getReceipt(
+    SuperPrintCommander printCommand = ReceiptFactory.getReceipt(
       receiptType: receiptType,
       receiptData: receiptData,
       printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
@@ -271,16 +273,27 @@ class SuperPrinter {
     return await startPrint(printCommand);
   }
 
-  Future<void> openDrawer() async {
-    SuperPrintCommand printCommand = SuperPrintCommand(
+  Future<bool> printCustomCommand(AbstractPrintCommander commander) async {
+    SuperPrintCommander printCommand = SuperPrintCommander(
       printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
       paperSize: _paperSize,
+    );
+    commander.generate(printCommand);
+
+    return await startPrint(printCommand);
+  }
+
+  Future<void> openDrawer() async {
+    SuperPrintCommander printCommand = SuperPrintCommander(
+      printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
+      paperSize: _paperSize,
+      cutPaper: false,
     );
     printCommand.openCashDrawer();
     startPrint(printCommand);
   }
 
-  Future<bool> startPrint(SuperPrintCommand commands) async {
+  Future<bool> startPrint(SuperPrintCommander commands) async {
     if (_selectedPrinter == null) {
       debugPrint('No printer selected.');
       return false;
@@ -309,7 +322,8 @@ class SuperPrinter {
           break;
 
         case PType.usbPrinter:
-          printSuccess = await _usbPrintManager.sendPrintCommand(device: _selectedPrinter!.toPrinterDevice(), bytes :printBytes);
+          printSuccess = await _usbPrintManager.sendPrintCommand(
+              device: _selectedPrinter!.toPrinterDevice(), bytes: printBytes);
           break;
         case PType.starPrinter:
           printSuccess = await _starPrintManager.sendPrintCommand(
