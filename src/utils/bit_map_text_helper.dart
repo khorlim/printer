@@ -56,7 +56,8 @@ class BitmapTextHelper {
     return ' ' * leftPadding + text;
   }
 
-  String row(List<TextColumn> textColumns, {bool bold = false}) {
+  String row(List<TextColumn> textColumns,
+      {bool bold = false, int linesAfter = 0}) {
     _maxWidth = _getMaxWidth(bold: bold);
 
     if (textColumns.isEmpty) {
@@ -91,7 +92,7 @@ class BitmapTextHelper {
       print(row.length);
     }
 
-    return '$row' + (bold ? '\n' : '');
+    return '$row' + ('\n' * (linesAfter));
   }
 
   List<String> _divideTextIntoLines(String text) {

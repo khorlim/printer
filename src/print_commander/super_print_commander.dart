@@ -91,8 +91,8 @@ class SuperPrintCommander {
   }
 
   void addEmptyLine({int line = 1}) {
-    // _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
-    _printCommands.push({'appendLineSpace': line});
+    _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
+    // _printCommands.push({'appendLineSpace': line});
 
     tempCommands.add(EmptyLineCommand(line));
   }
@@ -154,10 +154,13 @@ class SuperPrintCommander {
     bool bold = textList.any((element) => element.bold);
 
     if (bold) {
-      _printCommands
-          .push({'appendEmphasis': _textHelper.row(textList, bold: bold)});
+      _printCommands.push({
+        'appendEmphasis':
+            _textHelper.row(textList, bold: bold, linesAfter: linesAfter)
+      });
     } else {
-      _printCommands.appendBitmapText(text: _textHelper.row(textList));
+      _printCommands.appendBitmapText(
+          text: _textHelper.row(textList, linesAfter: linesAfter));
     }
 
     // List<PosColumn> posColumnList = textList.map((textColumn) {
