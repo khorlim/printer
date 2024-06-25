@@ -80,15 +80,15 @@ class SuperPrintCommander {
   //   return _printCommands;
   // }
 
-  // void addImage(String imagePath) {
-  //   _printCommands.appendBitmap(
-  //     path: imagePath,
-  //     width: 576 ~/ 2,
-  //     absolutePosition: (576 ~/ 2) ~/ 2,
-  //     bothScale: true,
-  //   );
-  //   tempCommands.add(ImageCommand(imagePath));
-  // }
+  void addImage(String imagePath) {
+    // _printCommands.appendBitmap(
+    //   path: imagePath,
+    //   width: 576 ~/ 2,
+    //   absolutePosition: (576 ~/ 2) ~/ 2,
+    //   bothScale: true,
+    // );
+    // tempCommands.add(ImageCommand(imagePath));
+  }
 
   void addEmptyLine({int line = 1}) {
     // _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
