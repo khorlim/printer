@@ -6,6 +6,8 @@ import 'package:tunaipro/extra_utils/printer/super_printer.dart';
 class PrinterHelper {
   static final SuperPrinter superPrinter = SuperPrinter();
 
+  static bool get isPrinterConnected => superPrinter.currentPrinter != null;
+
   static Future<bool> printSaleReceipt({
     required ReceiptData receiptData,
     ReceiptType receiptType = ReceiptType.beauty,
