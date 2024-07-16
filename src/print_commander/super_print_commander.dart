@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:flutter_star_prnt_fork/flutter_star_prnt.dart';
+import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 import 'package:tunaipro/extra_utils/printer/src/utils/bit_map_text_helper.dart';
 import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';

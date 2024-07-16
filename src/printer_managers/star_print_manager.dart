@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_star_prnt_fork/flutter_star_prnt.dart';
+import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
 
 class StarPrintManager {

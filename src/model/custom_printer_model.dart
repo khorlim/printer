@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_star_prnt_fork/flutter_star_prnt.dart';
+import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 
 enum PType { btPrinter, starPrinter, networkPrinter, usbPrinter }
