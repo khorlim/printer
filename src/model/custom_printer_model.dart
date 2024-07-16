@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_star_prnt/flutter_star_prnt.dart';
+import 'package:flutter_star_prnt_fork/flutter_star_prnt.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 
 enum PType { btPrinter, starPrinter, networkPrinter, usbPrinter }
@@ -18,13 +18,12 @@ class CustomPrinter extends Equatable {
 
   factory CustomPrinter.fromPrinterDevice(PrinterDevice printerDevice,
       {required PType printerType}) {
-        if(printerType == PType.usbPrinter) {
-          
-          return CustomPrinter(
-            name: printerDevice.name,
-            address: '${printerDevice.productId}-${printerDevice.vendorId}',
-            printerType: printerType);
-        }
+    if (printerType == PType.usbPrinter) {
+      return CustomPrinter(
+          name: printerDevice.name,
+          address: '${printerDevice.productId}-${printerDevice.vendorId}',
+          printerType: printerType);
+    }
     return CustomPrinter(
         name: printerDevice.name,
         address: printerDevice.address!,
@@ -39,13 +38,13 @@ class CustomPrinter extends Equatable {
   }
 
   PrinterDevice toPrinterDevice() {
-    if(printerType == PType.usbPrinter) {
-       List<String> ids = address.split('-');
-       String productID = ids[0];
-        String vendorID = ids[1];
+    if (printerType == PType.usbPrinter) {
+      List<String> ids = address.split('-');
+      String productID = ids[0];
+      String vendorID = ids[1];
 
-
-      return PrinterDevice(name: name, productId: productID , vendorId: vendorID);
+      return PrinterDevice(
+          name: name, productId: productID, vendorId: vendorID);
     }
     return PrinterDevice(name: name, address: address);
   }
