@@ -91,8 +91,8 @@ class SuperPrintCommander {
   }
 
   void addEmptyLine({int line = 1}) {
-    _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
-    // _printCommands.push({'appendLineSpace': line});
+    // _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
+    _printCommands.push({'appendLineSpace': line});
 
     tempCommands.add(EmptyLineCommand(line));
   }
