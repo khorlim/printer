@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
@@ -15,6 +17,7 @@ import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_factor
 import 'package:thermal_printer/printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'printer_managers/bt_plus_print_manager.dart';
 import 'printer_managers/usb_print_manager.dart';
 
 class SuperPrinter {
@@ -88,10 +91,25 @@ class SuperPrinter {
         _printerStatusController.add(PStatus.none);
       }
     });
+
+    _btPlusDeviceSubscription =
+        _btPlusPrintManager.scanStream.listen((btPlusDevices) {
+      List<CustomPrinter> btPlusDeviceList = btPlusDevices
+          .where(
+              (btDevice) => btDevice.advertisementData.serviceUuids.isNotEmpty)
+          .map((device) => CustomPrinter(
+                name: device.device.platformName,
+                address: device.device.remoteId.str,
+                printerType: PType.btPlusPrinter,
+              ))
+          .toList();
+      _btPlusPrinterListController.add(btPlusDeviceList);
+    });
   }
 
   late final StreamSubscription<List<PrinterDevice>> _btDeviceSubscription;
   late final StreamSubscription<List<PrinterDevice>> _networkDeviceSubscription;
+  late final StreamSubscription<List<ScanResult>> _btPlusDeviceSubscription;
   late final StreamSubscription<BTStatus> _btDeviceStatusSubs;
   late final StreamSubscription<TCPStatus> _networkDeviceStatusSubs;
 
@@ -116,11 +134,14 @@ class SuperPrinter {
                 printerType: PType.usbPrinter,
               ))
           .toList());
+  Stream<List<CustomPrinter>> get btPlusPrinterListStream =>
+      _btPlusPrinterListController.stream;
 
   final StarPrintManager _starPrintManager = StarPrintManager();
   final BluetoothPrintManager _bluePrintManager = BluetoothPrintManager();
   final NetworkPrintManager _networkPrintManager = NetworkPrintManager();
   final UsbPrintManager _usbPrintManager = UsbPrintManager();
+  final BtPlusPrintManager _btPlusPrintManager = BtPlusPrintManager();
 
   final StreamController<CustomPrinter> _selectedPrinterController =
       StreamController<CustomPrinter>.broadcast();
@@ -131,6 +152,8 @@ class SuperPrinter {
   final StreamController<List<CustomPrinter>> _bluePrinterListController =
       StreamController<List<CustomPrinter>>.broadcast();
   final StreamController<List<CustomPrinter>> _networkPrinterListController =
+      StreamController<List<CustomPrinter>>.broadcast();
+  final StreamController<List<CustomPrinter>> _btPlusPrinterListController =
       StreamController<List<CustomPrinter>>.broadcast();
 
   CustomPrinter? _selectedPrinter;
@@ -145,7 +168,11 @@ class SuperPrinter {
 
   Future<void> searchPrinter(
       {bool searchForStarPrinter = true, String? manualGateway}) async {
-    _bluePrintManager.searchPrinter();
+    if (Platform.isWindows) {
+      _bluePrintManager.searchPrinter();
+    } else {
+      _btPlusPrintManager.startScan();
+    }
 
     if (searchForStarPrinter) {
       await searchStarPrinter();
@@ -207,6 +234,9 @@ class SuperPrinter {
         connected =
             await _starPrintManager.getPrinterStatus(printer.toPortInfo());
         break;
+
+      case PType.btPlusPrinter:
+        connected = await _btPlusPrintManager.connectPrinter(printer);
     }
     if (connected) {
       debugPrint('----> Successfully connected printer. Ready to print.');
@@ -243,6 +273,9 @@ class SuperPrinter {
       case PType.starPrinter:
         status = await _starPrintManager
             .getPrinterStatus(_selectedPrinter!.toPortInfo());
+        break;
+      case PType.btPlusPrinter:
+        status = await _btPlusPrintManager.getStatus();
         break;
     }
 
@@ -331,6 +364,12 @@ class SuperPrinter {
             commands: commands.getStarPrintCommands(),
           );
           break;
+        case PType.btPlusPrinter:
+          printSuccess = await _btPlusPrintManager.sendPrintCommand(
+            _selectedPrinter!,
+            printBytes,
+          );
+          break;
       }
     } catch (e) {
       printSuccess = false;
@@ -360,6 +399,7 @@ class SuperPrinter {
     _networkDeviceSubscription.cancel();
     _btDeviceStatusSubs.cancel();
     _networkDeviceStatusSubs.cancel();
+    _btPlusDeviceSubscription.cancel();
   }
 
   static String getPaperSizeString(PaperSize paperSize) {

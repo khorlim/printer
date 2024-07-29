@@ -10,6 +10,7 @@ import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/engine/injection.dart';
+import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_plus_print_manager.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/usb_print_manager.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/xprinter_manager.dart';
 import 'package:tunaipro/homepage/utils/custom_navigator.dart';
@@ -37,10 +38,13 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   final List<PrinterWidget> widgetList = [];
 
   List<CustomPrinter> starPrinterList = [];
+  List<CustomPrinter> btPlusPrinterList = [];
 
   late final StreamSubscription<List<CustomPrinter>> btDeviceSubs;
+  late final StreamSubscription<List<CustomPrinter>> btPlusDeviceSubs;
   late final StreamSubscription<List<CustomPrinter>> starDeviceSubs;
   late final StreamSubscription<List<CustomPrinter>> networkDeviceSubs;
+
   late final StreamSubscription<CustomPrinter> selectedPrinterSubs;
   late final StreamSubscription<PStatus> printerStatusSubs;
 
@@ -91,6 +95,10 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
       setState(() {
         printerStatus = event;
       });
+    });
+
+    btPlusDeviceSubs = superPrinter.btPlusPrinterListStream.listen((event) {
+      btPlusPrinterList = event;
     });
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
@@ -322,6 +330,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                             );
                           },
                         ),
+                        buildBtPlusPrinterList(),
                         buildUsbPrinterList(),
                         // Container(
                         //   height: conHeight,
@@ -357,8 +366,9 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                         //               });
                         //             }),
                         // ),
+
                         buildStarPrinterList(),
-                        buildChangeXprinterIPOption(),
+                        // buildChangeXprinterIPOption(),
                         buildManualConnectField(onSubmitted: (value) {
                           superPrinter.connect(CustomPrinter(
                               name: 'Manual ($value)',
@@ -403,6 +413,43 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 children: usbPrinters
+                    .map((e) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: _buildPrinterButton(e),
+                        ))
+                    .toList(),
+              )
+            ],
+          );
+        });
+  }
+
+  Widget buildBtPlusPrinterList() {
+    return StreamBuilder(
+        stream: superPrinter.btPlusPrinterListStream,
+        builder: (context, snapshot) {
+          final List<CustomPrinter> btPrinters = (snapshot.data ?? []);
+          if (btPrinters.isEmpty) return SizedBox.shrink();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AddSpace(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 5.0),
+                child: TText(
+                  'Bluetooth Devices',
+                  color: MyColor.grey,
+                ),
+              ),
+              const AddSpace(
+                height: 5,
+              ),
+              ListView(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                children: btPrinters
                     .map((e) => Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: _buildPrinterButton(e),
