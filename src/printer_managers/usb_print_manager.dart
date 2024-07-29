@@ -22,23 +22,25 @@ class UsbPrintManager {
   List<PrinterDevice> _usbDevices = [];
 
   void searchPrinter() async {
-    _usbDevices.clear();
-    _usbDevicesController.add(_usbDevices);
-    final subs =
-        printerManager.discovery(type: PrinterType.usb).listen((device) {
-         
-      // print(
-      //     'Found usb device : ${device.name}, ${device.address}, ${device.operatingSystem} , ${device.productId}, ${device.vendorId}');
-      _usbDevices.add(device);
+    try {
+      _usbDevices.clear();
       _usbDevicesController.add(_usbDevices);
-    });
+      final subs =
+          printerManager.discovery(type: PrinterType.usb).listen((device) {
+        // print(
+        //     'Found usb device : ${device.name}, ${device.address}, ${device.operatingSystem} , ${device.productId}, ${device.vendorId}');
+        _usbDevices.add(device);
+        _usbDevicesController.add(_usbDevices);
+      });
 
-    await Future.delayed(Duration(seconds: 5));
-    subs.cancel();
+      await Future.delayed(Duration(seconds: 5));
+      subs.cancel();
+    } catch (e) {
+      print('Failed to search for usb devices. $e');
+    }
   }
 
   Future<bool> checkConnection(PrinterDevice device) async {
-    
     try {
       bool connected = await printerManager.connect(
           type: PrinterType.usb,
@@ -46,7 +48,6 @@ class UsbPrintManager {
               name: device.name,
               productId: device.productId,
               vendorId: device.vendorId));
-
 
       return connected;
     } catch (e) {
@@ -59,11 +60,11 @@ class UsbPrintManager {
   Future<bool> sendPrintCommand(
       {required PrinterDevice device, required List<int> bytes}) async {
     bool connected = await checkConnection(device);
-    if(!connected) return false; 
+    if (!connected) return false;
     try {
       final sent =
           await printerManager.send(type: PrinterType.usb, bytes: bytes);
-          print('send status : $sent');
+      print('send status : $sent');
       return sent;
     } catch (e) {
       debugPrintStack(maxFrames: 2);

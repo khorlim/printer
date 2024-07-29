@@ -94,6 +94,7 @@ class SuperPrinter {
 
     _btPlusDeviceSubscription =
         _btPlusPrintManager.scanStream.listen((btPlusDevices) {
+      // print('last devices : ${btPlusDevices.lastOrNull}');
       List<CustomPrinter> btPlusDeviceList = btPlusDevices
           .where(
               (btDevice) => btDevice.advertisementData.serviceUuids.isNotEmpty)
@@ -178,6 +179,7 @@ class SuperPrinter {
       await searchStarPrinter();
     }
     _networkPrintManager.searchPrinter(manualGateway: manualGateway);
+
     _usbPrintManager.searchPrinter();
 
     // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;

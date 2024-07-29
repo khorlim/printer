@@ -38,7 +38,9 @@ class BtPlusPrintManager {
   }
 
   void startScan() async {
+    print('bt plus start scan...');
     return await FlutterBluePlus.startScan(
+      androidUsesFineLocation: true,
       // withMsd: [
       //   MsdFilter(manufacturerId)
       // ],
@@ -68,9 +70,15 @@ class BtPlusPrintManager {
       await foundConnectedDevice.discoverServices(
           subscribeToServicesChanged: false);
 
+      print(
+          'foundconnecteddevice : ${foundConnectedDevice.servicesList.firstOrNull?.characteristics}');
+
       // print('max Mtu : $maxMtu');
       final BluetoothCharacteristic? character = foundConnectedDevice
-          .servicesList.firstOrNull?.characteristics
+          .servicesList
+          .firstWhereOrNull((service) =>
+              service.characteristics.any((c) => c.properties.write))
+          ?.characteristics
           .firstWhereOrNull((element) => element.properties.write);
 
       if (character != null) {

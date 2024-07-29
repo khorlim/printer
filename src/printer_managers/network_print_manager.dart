@@ -36,13 +36,11 @@ class NetworkPrintManager {
   final NetworkInfo _networkInfo = NetworkInfo();
 
   Future<void> _updateSubnet() async {
-     String? wifiGateway;
+    String? wifiGateway;
     try {
       wifiGateway = await _networkInfo.getWifiGatewayIP();
-
-    }catch(e) {
+    } catch (e) {
       debugPrint('Error getting wifi gateway. $e');
-
     }
     String subnet =
         wifiGateway?.substring(0, wifiGateway.lastIndexOf('.')) ?? '192.168.0';
@@ -51,31 +49,34 @@ class NetworkPrintManager {
   }
 
   void searchPrinter({String? manualGateway}) async {
-   
-    if(manualGateway != null) {
-      _subnet = manualGateway;
-    } else {
-       await _updateSubnet();
+    try {
+      if (manualGateway != null) {
+        _subnet = manualGateway;
+      } else {
+        await _updateSubnet();
+      }
+
+      List<PrinterDevice> networkDevicesList = [];
+      final stream =
+          PortScanner.discover(_subnet, _port, timeout: Duration(seconds: 7));
+      stream.listen((networkAddress) {
+        networkDevicesList.add(PrinterDevice(
+            name: 'Local device (${networkAddress.ip} : $_port)',
+            address: networkAddress.ip));
+        _networkDevicesController.add(networkDevicesList);
+      });
+      // _searchSubscription = _printerManager
+      //     .discovery(
+      //   type: PrinterType.network,
+      //   model: TcpPrinterInput(ipAddress: )
+      // )
+      //     .listen((device) {
+      //   networkDevicesList.add(device);
+      //   _networkDevicesController.add(networkDevicesList);
+      // });
+    } catch (e) {
+      print('Error searching for network printer. $e');
     }
-    
-    List<PrinterDevice> networkDevicesList = [];
-    final stream =
-        PortScanner.discover(_subnet, _port, timeout: Duration(seconds: 7));
-    stream.listen((networkAddress) {
-      networkDevicesList.add(PrinterDevice(
-          name: 'Local device (${networkAddress.ip} : $_port)',
-          address: networkAddress.ip));
-      _networkDevicesController.add(networkDevicesList);
-    });
-    // _searchSubscription = _printerManager
-    //     .discovery(
-    //   type: PrinterType.network,
-    //   model: TcpPrinterInput(ipAddress: )
-    // )
-    //     .listen((device) {
-    //   networkDevicesList.add(device);
-    //   _networkDevicesController.add(networkDevicesList);
-    // });
   }
 
   // bool checkStatus() {

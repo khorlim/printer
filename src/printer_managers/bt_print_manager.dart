@@ -43,15 +43,19 @@ class BluetoothPrintManager {
   }
 
   void searchPrinter() async {
-    List<PrinterDevice> btDevicesList = [];
-    _searchSubscription = _printerManager
-        .discovery(
-      type: PrinterType.bluetooth,
-    )
-        .listen((device) {
-      btDevicesList.add(device);
-      _btDevicesController.add(btDevicesList);
-    });
+    try {
+      List<PrinterDevice> btDevicesList = [];
+      _searchSubscription = _printerManager
+          .discovery(
+        type: PrinterType.bluetooth,
+      )
+          .listen((device) {
+        btDevicesList.add(device);
+        _btDevicesController.add(btDevicesList);
+      });
+    } catch (e) {
+      print('Failed to search for bluetooth devices. $e');
+    }
   }
 
   Future<bool> connectPrinter(PrinterDevice selectedPrinter) async {
