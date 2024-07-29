@@ -275,7 +275,7 @@ class SuperPrinter {
             .getPrinterStatus(_selectedPrinter!.toPortInfo());
         break;
       case PType.btPlusPrinter:
-        status = await _btPlusPrintManager.getStatus();
+        status = await _btPlusPrintManager.getStatus(_selectedPrinter!);
         break;
     }
 

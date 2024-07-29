@@ -15,8 +15,11 @@ class BtPlusPrintManager {
   Stream<List<ScanResult>> get scanStream => FlutterBluePlus.onScanResults;
   BluetoothDevice? connectedDevice;
 
-  Future<bool> getStatus() async {
-    return true;
+  Future<bool> getStatus(CustomPrinter printer) async {
+    bool isConnected = FlutterBluePlus.connectedDevices
+        .any((d) => d.remoteId.str == printer.address);
+
+    return isConnected;
   }
 
   void init() {
