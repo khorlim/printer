@@ -17,7 +17,7 @@
 // import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
 // import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
 // import 'package:tunaipro/theme/responsive/device_type.dart';
-// import 'package:tunaipro/theme/style_imports.dart';
+// import 'package:tunaipro/tunai_style/old/theme/style_imports.dart';
 
 // import '../super_printer.dart';
 // import 'change_ip_dialog.dart';
