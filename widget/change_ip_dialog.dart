@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tunaipro/homepage/utils/custom_navigator.dart';
+import 'package:tunaipro/tunai_modules/home_module/utils/custom_navigator.dart';
 import 'package:tunaipro/share_code/custom_dialog/dialog_manager/dialog_manager.dart';
 import 'package:tunaipro/tunai_style/old/common_widgets/common_widgets.dart';
 import 'package:tunaipro/shared/shared_widgets/text_field/my_text_field.dart';
