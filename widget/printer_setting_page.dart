@@ -1,24 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thermal_printer/thermal_printer.dart';
-import 'package:tunaipro/engine/injection.dart';
-import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_plus_print_manager.dart';
-import 'package:tunaipro/extra_utils/printer/src/printer_managers/usb_print_manager.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/xprinter_manager.dart';
-import 'package:tunaipro/homepage/utils/custom_navigator.dart';
 import 'package:tunaipro/share_code/custom_dialog/custom_dialog.dart';
 import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
 import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
-import 'package:tunaipro/theme/responsive/device_type.dart';
-import 'package:tunaipro/theme/style_imports.dart';
+import 'package:tunaipro/tunai_modules/home_module/utils/custom_navigator.dart';
+import 'package:tunaipro/tunai_style/old/theme/style_imports.dart';
 
 import '../super_printer.dart';
 import 'change_ip_dialog.dart';
