@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../tunai_modules/home_module/utils/custom_navigator.dart';
+import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../../../share_code/custom_dialog/dialog_manager/dialog_manager.dart';
 import '../../../tunai_style/old/common_widgets/common_widgets.dart';
 import '../../../shared/shared_widgets/text_field/my_text_field.dart';
@@ -13,7 +13,7 @@ Future<void> showChangePrinterIpDialog({
   required Future<void> Function(String currentIp, String newIp) onConfirm,
 }) async {
   return await DialogManager(
-          context: CustomNavigator.currentContext,
+          context: TunaiNavigator.currentContext,
           child: ChangeIpPage(initialIP: initialIP, onConfirm: onConfirm))
       .show();
 }
