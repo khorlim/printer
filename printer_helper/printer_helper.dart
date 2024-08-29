@@ -1,7 +1,7 @@
-import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_commander/abstract_print_commander.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
-import 'package:tunaipro/extra_utils/printer/super_printer.dart';
+import '../../../engine/receipt/model/receipt_data.dart';
+import '../src/print_commander/abstract_print_commander.dart';
+import '../src/print_commander/super_print_commander.dart';
+import '../super_printer.dart';
 
 class PrinterHelper {
   static final SuperPrinter superPrinter = SuperPrinter();
