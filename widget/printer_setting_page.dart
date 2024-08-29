@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tunaipro/extra_utils/printer/src/printer_managers/xprinter_manager.dart';
-import 'package:tunaipro/share_code/custom_dialog/custom_dialog.dart';
-import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
-import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
-import 'package:tunaipro/tunai_modules/home_module/utils/custom_navigator.dart';
-import 'package:tunaipro/tunai_style/old/theme/style_imports.dart';
+import '../src/printer_managers/xprinter_manager.dart';
+import '../../../share_code/custom_dialog/custom_dialog.dart';
+import '../../../share_code/widget/dialog/show_inform_dialog.dart';
+import '../../../shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
+import '../../../tunai_style/old/theme/style_imports.dart';
 
+import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../super_printer.dart';
 import 'change_ip_dialog.dart';
 
@@ -603,7 +603,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
               onPressed: () {
                 String ipAddress = '';
                 DialogManager(
-                    context: CustomNavigator.currentContext,
+                    context: TunaiNavigator.currentContext,
                     height: 240,
                     width: 300,
                     pushDialogAboveWhenKeyboardShow: true,
@@ -661,7 +661,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                                     return;
                                   }
                                   onSubmitted(ipAddress);
-                                  Navigator.pop(CustomNavigator.currentContext);
+                                  Navigator.pop(TunaiNavigator.currentContext);
                                 }),
                           ),
                         ],

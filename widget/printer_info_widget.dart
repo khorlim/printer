@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tunaipro/tunai_style/old/theme/style_imports.dart';
-
+import '../../../tunai_style/old/theme/style_imports.dart';
 import '../super_printer.dart';
 
 class PrinterInfoWidget extends StatefulWidget {
