@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../share_code/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
 import '../src/printer_managers/xprinter_manager.dart';
 import '../../../share_code/custom_dialog/custom_dialog.dart';
 import '../../../share_code/widget/dialog/show_inform_dialog.dart';
-import '../../../shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
 import '../../../tunai_style/old/theme/style_imports.dart';
 
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
