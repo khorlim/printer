@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../../../share_code/custom_dialog/dialog_manager/dialog_manager.dart';
-import '../../../tunai_style/old/common_widgets/common_widgets.dart';
+import '../../../tunai_style/common_widgets/common_widgets.dart';
 import '../../../share_code/shared_widgets/text_field/my_text_field.dart';
 import '../../../tunai_style/old/theme/style_imports.dart';
 
