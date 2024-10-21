@@ -49,7 +49,7 @@ class _ChangeIpPageState extends State<ChangeIpPage> {
         leading: CloseButt(),
         actions: [
           if (canConfirm)
-            AppBarButton(
+            AppBarButt(
                 title: t.confirm,
                 onPressed: () async {
                   try {
