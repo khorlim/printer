@@ -12,7 +12,6 @@ import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 
 import '../model/custom_printer_model.dart';
-import '../utils/temp_command.dart';
 import '../utils/text_column.dart';
 
 enum FontSizeType { normal, big }
@@ -37,8 +36,8 @@ class SuperPrintCommander {
   // List<TempCommand> tempCommands = [];
 
   Future<List<int>> getBytes() async {
-    CapabilityProfile profile = await CapabilityProfile.load();
-    Generator generator = Generator(paperSize, profile);
+    // CapabilityProfile profile = await CapabilityProfile.load();
+    // Generator generator = Generator(paperSize, profile);
     List<int> bytes = [];
     // for (var command in tempCommands) {
     //   if (command is ImageCommand) {

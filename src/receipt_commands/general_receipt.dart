@@ -18,7 +18,6 @@ class GeneralReceipt extends AbstractReceipt {
 
   @override
   SuperPrintCommander getPrintCommand({bool openDrawer = false}) {
-    final imagePath = receiptData.icon;
 
     // printCommand.addImage(imagePath);
     printCommand.addEmptyLine();

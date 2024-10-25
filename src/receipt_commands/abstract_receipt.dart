@@ -1,5 +1,4 @@
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-import '../../../../engine/receipt/model/receipt_data.dart';
 import '../model/custom_printer_model.dart';
 import '../print_commander/super_print_commander.dart';
 
