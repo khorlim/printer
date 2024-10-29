@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:thermal_printer/thermal_printer.dart';
-import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
+import '../model/custom_printer_model.dart';
 
 class BluetoothPrintManager {
   static final BluetoothPrintManager _instance =

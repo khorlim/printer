@@ -1,7 +1,6 @@
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
-import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
+import '../model/custom_printer_model.dart';
+import '../print_commander/super_print_commander.dart';
 
 import 'text_column.dart';
 
