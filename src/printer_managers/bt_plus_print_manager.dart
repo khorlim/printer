@@ -50,6 +50,10 @@ class BtPlusPrintManager {
     );
   }
 
+  Future<void> disconnect() async {
+    await connectedDevice?.disconnect();
+  }
+
   Future<bool> connectPrinter(CustomPrinter btDevice) async {
     try {
       await BluetoothDevice.fromId(btDevice.address).connect();

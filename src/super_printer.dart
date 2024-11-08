@@ -20,6 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'printer_managers/bt_plus_print_manager.dart';
 import 'printer_managers/usb_print_manager.dart';
 
+part 'extension/paper_size_extension.dart';
+
 class SuperPrinter {
   static final SuperPrinter _instance = SuperPrinter._internal();
 
@@ -32,9 +34,9 @@ class SuperPrinter {
       sharedPrefs = await SharedPreferences.getInstance();
       // await  sharedPrefs.setString('printer', '');
       final String? savedPrinterJsonString = sharedPrefs.getString('printer');
-      _paperSize = sharedPrefs.getString('printerPaperSize') == 'mm58'
-          ? PaperSize.mm58
-          : PaperSize.mm80;
+      final String paperSizeString =
+          sharedPrefs.getString('printerPaperSize') ?? '';
+      _paperSize = getPaperSizeFromString(paperSizeString);
 
       if (savedPrinterJsonString == null) {
         debugPrint('## No printer settings found locally. ##');
@@ -118,7 +120,7 @@ class SuperPrinter {
 
   CustomPrinter? get currentPrinter => _selectedPrinter;
 
-  Stream<CustomPrinter> get selectedPrinterStream =>
+  Stream<CustomPrinter?> get selectedPrinterStream =>
       _selectedPrinterController.stream;
   Stream<PStatus> get printerStatusStream => _printerStatusController.stream;
 
@@ -144,8 +146,8 @@ class SuperPrinter {
   final UsbPrintManager _usbPrintManager = UsbPrintManager();
   final BtPlusPrintManager _btPlusPrintManager = BtPlusPrintManager();
 
-  final StreamController<CustomPrinter> _selectedPrinterController =
-      StreamController<CustomPrinter>.broadcast();
+  final StreamController<CustomPrinter?> _selectedPrinterController =
+      StreamController<CustomPrinter?>.broadcast();
   final StreamController<PStatus> _printerStatusController =
       StreamController<PStatus>.broadcast();
   final StreamController<List<CustomPrinter>> _starPrinterListController =
@@ -249,6 +251,29 @@ class SuperPrinter {
     _printerStatusController.add(_status);
   }
 
+  Future<void> disconnect() async {
+    if (_selectedPrinter == null) return;
+    switch (_selectedPrinter!.printerType) {
+      case PType.btPrinter:
+        await _bluePrintManager.disconnect();
+        break;
+      case PType.networkPrinter:
+        await _networkPrintManager.disconnect();
+        break;
+      case PType.usbPrinter:
+        await _usbPrintManager.disconnect();
+        break;
+      case PType.starPrinter:
+        break;
+
+      case PType.btPlusPrinter:
+        await _btPlusPrintManager.disconnect();
+    }
+    _clearPrinterSetting();
+    _selectedPrinter = null;
+    _selectedPrinterController.add(null);
+  }
+
   Future<bool> checkStatus() async {
     debugPrint('-----> Checking printer status');
     if (_selectedPrinter == null) {
@@ -338,8 +363,7 @@ class SuperPrinter {
       return false;
     }
 
-    debugPrint(
-        'Printing... [${_selectedPrinter}] [${getPaperSizeString(_paperSize)}]');
+    debugPrint('Printing... [${_selectedPrinter}] [${_paperSize.name}]');
     List<int> printBytes = await commands.getBytes();
 
     bool printSuccess = false;
@@ -395,6 +419,15 @@ class SuperPrinter {
     }
   }
 
+  void _clearPrinterSetting() async {
+    debugPrint('## Clearing printer setting ##');
+    try {
+      await sharedPrefs.remove('printer');
+    } catch (e) {
+      debugPrint('Failed to clear printer setting. $e');
+    }
+  }
+
   void dispose() {
     // Cancel the stream subscriptions to avoid memory leaks
     _btDeviceSubscription.cancel();
@@ -402,19 +435,6 @@ class SuperPrinter {
     _btDeviceStatusSubs.cancel();
     _networkDeviceStatusSubs.cancel();
     _btPlusDeviceSubscription.cancel();
-  }
-
-  static String getPaperSizeString(PaperSize paperSize) {
-    switch (paperSize) {
-      case PaperSize.mm80:
-        return 'mm80';
-      case PaperSize.mm58:
-        return 'mm58';
-      case PaperSize.mm72:
-        return 'mm72';
-      default:
-        return 'mm80';
-    }
   }
 }
 

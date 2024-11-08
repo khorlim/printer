@@ -57,6 +57,14 @@ class UsbPrintManager {
     }
   }
 
+  Future<void> disconnect() async {
+    try {
+      await printerManager.disconnect(type: PrinterType.usb);
+    } catch (e) {
+      print('Failed to disconnect usb printer. $e');
+    }
+  }
+
   Future<bool> sendPrintCommand(
       {required PrinterDevice device, required List<int> bytes}) async {
     bool connected = await checkConnection(device);

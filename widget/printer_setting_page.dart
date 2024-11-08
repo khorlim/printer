@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../share_code/shared_widgets/popup_menu/custom_popup_menu/custom_popup_menu.dart';
+import '../../../tunai_style/common_widgets/appbar/tunai_app_bar.dart';
 import '../src/printer_managers/xprinter_manager.dart';
 import '../../../share_code/custom_dialog/custom_dialog.dart';
 import '../../../share_code/widget/dialog/show_inform_dialog.dart';
@@ -16,8 +17,7 @@ import '../super_printer.dart';
 import 'change_ip_dialog.dart';
 
 class PrinterSettingPage extends StatefulWidget {
-  final BuildContext context;
-  const PrinterSettingPage({super.key, required this.context});
+  const PrinterSettingPage({super.key});
 
   @override
   State<PrinterSettingPage> createState() => _PrinterSettingPageState();
@@ -37,7 +37,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   late final StreamSubscription<List<CustomPrinter>> starDeviceSubs;
   late final StreamSubscription<List<CustomPrinter>> networkDeviceSubs;
 
-  late final StreamSubscription<CustomPrinter> selectedPrinterSubs;
+  late final StreamSubscription<CustomPrinter?> selectedPrinterSubs;
   late final StreamSubscription<PStatus> printerStatusSubs;
 
   PStatus? printerStatus;
@@ -186,26 +186,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: getDeviceType(context) == DeviceType.mobile,
-      // appBar: CustomAppBar(
-      //   title: 'Printer',
-      //   leading: CustomCloseButton(),
-      //   actions: [
-      //     if (printerStatus != null &&
-      //         selectedPrinter != null &&
-      //         printerStatus == PStatus.none)
-      //       CupertinoButton(
-      //           child: Text(
-      //             'Reconnect',
-      //             style: TextStyle(
-      //                 fontSize: 14,
-      //                 fontWeight: FontWeight.w500,
-      //                 color: primaryBlue),
-      //           ),
-      //           onPressed: () {
-      //             superPrinter.connect(selectedPrinter!);
-      //           })
-      //   ],
-      // ),
+      appBar: TunaiAppBar(title: Text('Devices')),
       body: Padding(
         padding:
             const EdgeInsets.only(left: 20.0, right: 20, bottom: 5, top: 10),
@@ -578,100 +559,103 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
     );
   }
 
-Widget buildManualConnectField(
-    {required void Function(String value) onSubmitted}) {
-  return Padding(
-    padding: const EdgeInsets.only(top: 5.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-            child: const Row(
-              children: [
-                TText(
-                  'Manual Connect',
-                  color: MyColor.grey,
-                ),
-                Icon(
-                  CupertinoIcons.radiowaves_right,
-                  color: Colors.grey,
-                  size: 20,
-                ),
-              ],
-            ),
-            onPressed: () {
-              String ipAddress = '';
-              DialogManager(
-                  context: TunaiNavigator.currentContext,
-                  height: 240,
-                  width: 300,
-                  pushDialogAboveWhenKeyboardShow: true,
-                  child: Container(
-                    color: primaryBackgroundColor,
-                    child: Column(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(15.0),
-                          child: TText(
-                            'Manual Connect',
-                            size: TextSize.px15,
-                          ),
-                        ),
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: TextField(
-                              autofocus: true,
-                              autocorrect: false,
-                              enableSuggestions: false,
-                              textAlign: TextAlign.center,
-                              decoration: InputDecoration(
-                                fillColor: Colors.white,
-                                hintText: '192.168.1.1',
-                                hintStyle: TextStyle(color: Colors.grey), // Set hint text color to grey
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 15),
-                              ),
-                              onChanged: (value) {
-                                ipAddress = value;
-                              },
-                              onSubmitted: (value) {},
+  Widget buildManualConnectField(
+      {required void Function(String value) onSubmitted}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+              child: const Row(
+                children: [
+                  TText(
+                    'Manual Connect',
+                    color: MyColor.grey,
+                  ),
+                  Icon(
+                    CupertinoIcons.radiowaves_right,
+                    color: Colors.grey,
+                    size: 20,
+                  ),
+                ],
+              ),
+              onPressed: () {
+                String ipAddress = '';
+                DialogManager(
+                    context: TunaiNavigator.currentContext,
+                    height: 240,
+                    width: 300,
+                    pushDialogAboveWhenKeyboardShow: true,
+                    child: Container(
+                      color: primaryBackgroundColor,
+                      child: Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.all(15.0),
+                            child: TText(
+                              'Manual Connect',
+                              size: TextSize.px15,
                             ),
                           ),
-                        ),
-                        const Spacer(),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 10),
-                          child: CupertinoButton(
-                              color: MyColor.blue.color,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 11),
-                              borderRadius: BorderRadius.circular(8),
-                              child: const TText(
-                                'Connect',
-                                color: MyColor.white,
+                          Center(
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: TextField(
+                                autofocus: true,
+                                autocorrect: false,
+                                enableSuggestions: false,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  hintText: '192.168.1.1',
+                                  hintStyle: TextStyle(
+                                      color: Colors
+                                          .grey), // Set hint text color to grey
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 15),
+                                ),
+                                onChanged: (value) {
+                                  ipAddress = value;
+                                },
+                                onSubmitted: (value) {},
                               ),
-                              onPressed: () {
-                                if (ipAddress.isEmpty) {
-                                  showInformDialog(context,
-                                      title: 'Empty IP Address', message: '');
-                                  return;
-                                }
-                                onSubmitted(ipAddress);
-                                Navigator.pop(TunaiNavigator.currentContext);
-                              }),
-                        ),
-                      ],
-                    ),
-                  )).show();
-            })
-      ],
-    ),
-  );
-}
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
+                            child: CupertinoButton(
+                                color: MyColor.blue.color,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 11),
+                                borderRadius: BorderRadius.circular(8),
+                                child: const TText(
+                                  'Connect',
+                                  color: MyColor.white,
+                                ),
+                                onPressed: () {
+                                  if (ipAddress.isEmpty) {
+                                    showInformDialog(context,
+                                        title: 'Empty IP Address', message: '');
+                                    return;
+                                  }
+                                  onSubmitted(ipAddress);
+                                  Navigator.pop(TunaiNavigator.currentContext);
+                                }),
+                          ),
+                        ],
+                      ),
+                    )).show();
+              })
+        ],
+      ),
+    );
+  }
 
   Widget buildSelectedPrinter({void Function()? onPressed}) {
     bool reconnect = printerStatus != null &&
@@ -724,7 +708,7 @@ Widget buildManualConnectField(
       .map((paperSize) => PopupItem(
           title: getPaperSizeString(paperSize),
           onPressed: () {
-            Navigator.pop(widget.context);
+            TunaiNavigator.pop();
             setState(() {
               selectedPaperSize = paperSize;
               superPrinter.changePaperSize(selectedPaperSize);
@@ -741,7 +725,10 @@ Widget buildManualConnectField(
           items: paperSizePopupItems,
           dialogWidth: 180,
           alignTargetWidget: AlignTargetWidget.centerBottomRight,
-        ).show(targetCtxt!, navigatorContext: widget.context);
+        ).show(
+          targetCtxt!,
+          navigatorContext: TunaiNavigator.currentContext,
+        );
       },
       padding: EdgeInsets.zero,
       minSize: 0,

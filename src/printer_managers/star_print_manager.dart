@@ -41,6 +41,7 @@ class StarPrintManager {
         portName: port.portName!,
         emulation: emulationFor(port.modelName!),
       );
+
       bool connected = !response.offline;
       return connected;
     } catch (e) {

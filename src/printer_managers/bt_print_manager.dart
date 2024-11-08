@@ -77,6 +77,12 @@ class BluetoothPrintManager {
     }
   }
 
+  Future<void> disconnect() async {
+    await PrinterManager.instance.disconnect(
+      type: PrinterType.bluetooth,
+    );
+  }
+
   Future<bool> sendPrintCommand(CustomPrinter printer, List<int> bytes) async {
     try {
       final List<BluetoothDevice> connectedDevices =
