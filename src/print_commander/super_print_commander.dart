@@ -105,11 +105,14 @@ class SuperPrintCommander {
     FontSizeType fontSizeType = FontSizeType.normal,
   }) {
     _printCommands.appendBitmapText(
-        fontSize: _getFontSize(fontSizeType),
-        text: _textHelper.text(text,
-            alignment: alignment,
-            linesAfter: linesAfter,
-            fontSizeType: fontSizeType));
+      fontSize: _getFontSize(fontSizeType),
+      text: _textHelper.text(
+        text,
+        alignment: alignment,
+        linesAfter: linesAfter,
+        fontSizeType: fontSizeType,
+      ),
+    );
 
     tempCommands.add(
       TextCommand(
@@ -156,11 +159,16 @@ class SuperPrintCommander {
     if (bold) {
       _printCommands.push({
         'appendEmphasis':
-            _textHelper.row(textList, bold: bold, linesAfter: linesAfter)
+            _textHelper.row(textList, bold: bold, linesAfter: linesAfter),
       });
     } else {
       _printCommands.appendBitmapText(
-          text: _textHelper.row(textList, linesAfter: linesAfter));
+        text: _textHelper.row(
+          textList,
+          linesAfter: linesAfter,
+        ),
+        fontSize: _getFontSize(FontSizeType.normal),
+      );
     }
 
     // List<PosColumn> posColumnList = textList.map((textColumn) {
@@ -218,11 +226,20 @@ class SuperPrintCommander {
   }
 
   int _getFontSize(FontSizeType fontSizeType) {
-    switch (fontSizeType) {
-      case FontSizeType.big:
-        return 20;
-      case FontSizeType.normal:
-        return 12;
+    if (paperSize == PaperSize.mm80) {
+      switch (fontSizeType) {
+        case FontSizeType.big:
+          return 20;
+        case FontSizeType.normal:
+          return 12;
+      }
+    } else {
+      switch (fontSizeType) {
+        case FontSizeType.big:
+          return 16;
+        case FontSizeType.normal:
+          return 8;
+      }
     }
   }
 
