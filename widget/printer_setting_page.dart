@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core_utils/tunai_dialog/tunai_dialog.dart';
+import '../../../core_utils/tunai_logger/tunai_logger.dart';
 import '../../../share_code/shared_widgets/popup_menu/custom_popup_menu/custom_popup_menu.dart';
 import '../../../tunai_style/common_widgets/appbar/tunai_app_bar.dart';
 import '../src/printer_managers/xprinter_manager.dart';
 import '../../../share_code/custom_dialog/custom_dialog.dart';
-import '../../../share_code/widget/dialog/show_inform_dialog.dart';
 import '../../../tunai_style/old/theme/style_imports.dart';
 
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
@@ -186,7 +187,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: getDeviceType(context) == DeviceType.mobile,
-      appBar: TunaiAppBar(title: Text('Devices')),
+      appBar: TunaiAppBar(title: const Text('Devices')),
       body: Padding(
         padding:
             const EdgeInsets.only(left: 20.0, right: 20, bottom: 5, top: 10),
@@ -365,15 +366,15 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         stream: superPrinter.usbPrinterListStream,
         builder: (context, snapshot) {
           final List<CustomPrinter> usbPrinters = (snapshot.data ?? []);
-          if (usbPrinters.isEmpty) return SizedBox.shrink();
+          if (usbPrinters.isEmpty) return const SizedBox.shrink();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const AddSpace(
                 height: 10,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 5.0),
+              const Padding(
+                padding: EdgeInsets.only(left: 5.0),
                 child: TText(
                   'USB Printer',
                   color: MyColor.grey,
@@ -384,7 +385,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
               ),
               ListView(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: usbPrinters
                     .map((e) => Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
@@ -402,15 +403,15 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
         stream: superPrinter.btPlusPrinterListStream,
         builder: (context, snapshot) {
           final List<CustomPrinter> btPrinters = (snapshot.data ?? []);
-          if (btPrinters.isEmpty) return SizedBox.shrink();
+          if (btPrinters.isEmpty) return const SizedBox.shrink();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const AddSpace(
                 height: 10,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 5.0),
+              const Padding(
+                padding: EdgeInsets.only(left: 5.0),
                 child: TText(
                   'Bluetooth Devices',
                   color: MyColor.grey,
@@ -421,7 +422,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
               ),
               ListView(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: btPrinters
                     .map((e) => Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
@@ -436,15 +437,15 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
 
   Widget buildChangeXprinterIPOption() {
     return CupertinoButton(
-        padding: EdgeInsets.only(left: 5, top: 10, right: 20, bottom: 10),
-        child: Row(
+        padding: const EdgeInsets.only(left: 5, top: 10, right: 20, bottom: 10),
+        child: const Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TText(
               'Change Printer IP',
               color: MyColor.grey,
             ),
-            const SizedBox(
+            SizedBox(
               width: 5,
             ),
             Icon(
@@ -462,19 +463,20 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                   await xPrinterManager.setupXPrinter(
                       currentPrinterIp: currentIp, newPrinterIP: newIp);
                   Navigator.pop(context);
-                  showInformDialog(context,
-                      title: 'Success',
-                      message:
-                          'Printer IP changed successfully to $newIp. Please reconnect to the printer.');
+                  TunaiDialog.showInform(
+                    title: 'Success',
+                    message:
+                        'Printer IP changed successfully to $newIp. Please reconnect to the printer.',
+                  );
                 } catch (e) {
-                  print('Failed to setup xprinter : $e');
+                  TunaiLogger.log('Failed to setup xprinter : $e');
                   if (e is XPrinterNotFoundException) {
-                    showInformDialog(context,
+                    TunaiDialog.showInform(
                         title: 'Printer not found',
                         message:
                             'Please make sure your device is in the same subnet as the printer.');
                   } else if (e is XPrinterFailedToChangeIpException) {
-                    showInformDialog(context,
+                    TunaiDialog.showInform(
                         title: 'Failed to change IP', message: '');
                   }
                 }
@@ -608,13 +610,13 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                                 autocorrect: false,
                                 enableSuggestions: false,
                                 textAlign: TextAlign.center,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   fillColor: Colors.white,
                                   hintText: '192.168.1.1',
                                   hintStyle: TextStyle(
                                       color: Colors
                                           .grey), // Set hint text color to grey
-                                  contentPadding: const EdgeInsets.symmetric(
+                                  contentPadding: EdgeInsets.symmetric(
                                       vertical: 10, horizontal: 15),
                                 ),
                                 onChanged: (value) {
@@ -640,7 +642,7 @@ class _PrinterSettingPageState extends State<PrinterSettingPage> {
                                 ),
                                 onPressed: () {
                                   if (ipAddress.isEmpty) {
-                                    showInformDialog(context,
+                                    TunaiDialog.showInform(
                                         title: 'Empty IP Address', message: '');
                                     return;
                                   }
