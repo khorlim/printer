@@ -9,10 +9,12 @@ class BitmapTextHelper {
   final PaperSize paperSize;
   late int _maxWidth = _getMaxWidth();
   BitmapTextHelper({required this.printerType, required this.paperSize}) {}
-  String text(String text,
-      {PosAlign alignment = PosAlign.left,
-      int linesAfter = 0,
-      FontSizeType fontSizeType = FontSizeType.normal}) {
+  String text(
+    String text, {
+    PosAlign alignment = PosAlign.left,
+    int linesAfter = 0,
+    FontSizeType fontSizeType = FontSizeType.normal,
+  }) {
     _maxWidth = _getMaxWidth(fontSizeType: fontSizeType);
 
     String formatText = text;
@@ -115,9 +117,34 @@ class BitmapTextHelper {
     return ' ' * ((_maxWidth - line.length) ~/ 2) + line;
   }
 
-  int _getMaxWidth(
-      {FontSizeType fontSizeType = FontSizeType.normal, bool bold = false}) {
+  int _getMaxWidth({
+    FontSizeType fontSizeType = FontSizeType.normal,
+    bool bold = false,
+  }) {
     if (printerType == PType.starPrinter) {
+      if (paperSize == PaperSize.mm58) {
+        switch (fontSizeType) {
+          case FontSizeType.normal:
+            // if (bold) {
+            //   return 38;
+            // }
+
+            return 58;
+          case FontSizeType.big:
+            return 36;
+        }
+      } else {
+        switch (fontSizeType) {
+          case FontSizeType.normal:
+            // if (bold) {
+            //   return 38;
+            // }
+
+            return 39;
+          case FontSizeType.big:
+            return 23;
+        }
+      }
       switch (fontSizeType) {
         case FontSizeType.normal:
           // if (bold) {
@@ -128,7 +155,9 @@ class BitmapTextHelper {
         case FontSizeType.big:
           return 23;
       }
-    } else if (paperSize == PaperSize.mm58) {
+    }
+
+    if (paperSize == PaperSize.mm58) {
       return 32;
     } else {
       return 48;
