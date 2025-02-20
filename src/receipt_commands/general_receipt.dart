@@ -27,11 +27,15 @@ class GeneralReceipt extends AbstractReceipt {
       addMultiLine(receiptData.shopAddress, linesAfter: 1);
     }
 
-    printCommand.addTextLine(receiptData.title,
+    if (receiptData.title.isNotEmpty) {
+      printCommand.addTextLine(
+        receiptData.title,
         fontSizeType: FontSizeType.big,
         alignment: PosAlign.center,
         bold: true,
-        linesAfter: 2);
+        linesAfter: 2,
+      );
+    }
 
     printCommand.addTextLine('Name : ${receiptData.customerName}');
 

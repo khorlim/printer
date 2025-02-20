@@ -104,6 +104,7 @@ class SuperPrintCommander {
     int linesAfter = 0,
     FontSizeType fontSizeType = FontSizeType.normal,
   }) {
+    if (text.isEmpty) return;
     _printCommands.appendBitmapText(
       fontSize: _getFontSize(fontSizeType),
       text: _textHelper.text(
