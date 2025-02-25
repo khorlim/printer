@@ -82,6 +82,7 @@ class GeneralReceipt extends AbstractReceipt {
 
   void addFieldLines(List<RField> fields, {int linesAfter = 0}) {
     for (var field in fields) {
+      if (field.title == 'Timezone' || field.title == 'Issued Date') continue;
       printCommand.addTextLine('${field.title} : ${field.value}');
     }
     if (linesAfter > 0) {
