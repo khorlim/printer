@@ -6,6 +6,7 @@ import 'package:tunaipro/engine/receipt/model/sub_models/r_payment.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
 import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 
+import '../../../../core/core_extension/double_extension.dart';
 import 'abstract_receipt.dart';
 
 class GeneralReceipt extends AbstractReceipt {
@@ -46,10 +47,26 @@ class GeneralReceipt extends AbstractReceipt {
     addFieldLines(receiptData.field);
 
     if (receiptData.customerDetail != null) {
-      printCommand
-          .addTextLine('Car Model : ${receiptData.customerDetail!.carModel}');
-      printCommand
-          .addTextLine('Car Plate : ${receiptData.customerDetail!.carPlate}');
+      if (receiptData.customerDetail!.hasCarModel) {
+        printCommand
+            .addTextLine('Car Model : ${receiptData.customerDetail!.carModel}');
+      }
+      if (receiptData.customerDetail!.hasCarPlate) {
+        printCommand
+            .addTextLine('Car Plate : ${receiptData.customerDetail!.carPlate}');
+      }
+      if (receiptData.customerDetail!.hasCredit) {
+        printCommand.addTextLine(
+            'Credit : ${receiptData.customerDetail!.credit.format()}');
+      }
+      if (receiptData.customerDetail!.hasPoint) {
+        printCommand.addTextLine(
+            'Point : ${receiptData.customerDetail!.point.format()}');
+      }
+      if (receiptData.customerDetail!.hasOutstanding) {
+        printCommand.addTextLine(
+            'Outstanding : ${receiptData.customerDetail!.outstanding.format()}');
+      }
     }
 
     printCommand.addEmptyLine();
