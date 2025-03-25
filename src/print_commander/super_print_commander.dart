@@ -1,15 +1,15 @@
-import 'dart:io';
-import 'dart:typed_data';
+// import 'dart:io';
+// import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// import 'package:flutter_image_compress/flutter_image_compress.dart';
 // import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 
-import 'package:image/image.dart' as img;
-import 'package:http/http.dart' as http;
+// import 'package:image/image.dart' as img;
+// import 'package:http/http.dart' as http;
 
 import '../model/custom_printer_model.dart';
 import '../utils/text_column.dart';
@@ -180,53 +180,53 @@ class SuperPrintCommander {
     // _bytes += _generator!.drawer();
   }
 
-  Future<img.Image> _getImageFromUrl(String path) async {
-    try {
-      img.Image? image;
+  // Future<img.Image> _getImageFromUrl(String path) async {
+  //   try {
+  //     img.Image? image;
 
-      final response = await http.get(Uri.parse(path));
+  //     final response = await http.get(Uri.parse(path));
 
-      if (response.statusCode == 200) {
-        final Uint8List bytes = response.bodyBytes;
+  //     if (response.statusCode == 200) {
+  //       final Uint8List bytes = response.bodyBytes;
 
-        final Uint8List compressedImage = Platform.isWindows
-            ? bytes
-            : await FlutterImageCompress.compressWithList(
-                bytes,
-                minHeight: 558 ~/ 2,
-                minWidth: 558 ~/ 2,
-              );
+  //       final Uint8List compressedImage = Platform.isWindows
+  //           ? bytes
+  //           : await FlutterImageCompress.compressWithList(
+  //               bytes,
+  //               minHeight: 558 ~/ 2,
+  //               minWidth: 558 ~/ 2,
+  //             );
 
-        image = img.decodeImage(Uint8List.fromList(compressedImage));
-        if (Platform.isWindows) {
-          image = img.copyResize(image!, width: 558 ~/ 2, height: 558 ~/ 2);
-        }
-      } else {
-        debugPrint('-----Failed to load image from url.');
-      }
+  //       image = img.decodeImage(Uint8List.fromList(compressedImage));
+  //       if (Platform.isWindows) {
+  //         image = img.copyResize(image!, width: 558 ~/ 2, height: 558 ~/ 2);
+  //       }
+  //     } else {
+  //       debugPrint('-----Failed to load image from url.');
+  //     }
 
-      return image!;
-    } catch (e) {
-      debugPrint('-----Failed to get image from url. $e.');
-      rethrow;
-    }
-  }
+  //     return image!;
+  //   } catch (e) {
+  //     debugPrint('-----Failed to get image from url. $e.');
+  //     rethrow;
+  //   }
+  // }
 
-  int _getFontSize(FontSizeType fontSizeType) {
-    switch (fontSizeType) {
-      case FontSizeType.big:
-        return 20;
-      case FontSizeType.normal:
-        return 12;
-    }
-  }
+  // int _getFontSize(FontSizeType fontSizeType) {
+  //   switch (fontSizeType) {
+  //     case FontSizeType.big:
+  //       return 20;
+  //     case FontSizeType.normal:
+  //       return 12;
+  //   }
+  // }
 
-  PosTextSize _getFontPosTextSize(FontSizeType fontSizeType) {
-    switch (fontSizeType) {
-      case FontSizeType.big:
-        return PosTextSize.size2;
-      case FontSizeType.normal:
-        return PosTextSize.size1;
-    }
-  }
+  // PosTextSize _getFontPosTextSize(FontSizeType fontSizeType) {
+  //   switch (fontSizeType) {
+  //     case FontSizeType.big:
+  //       return PosTextSize.size2;
+  //     case FontSizeType.normal:
+  //       return PosTextSize.size1;
+  //   }
+  // }
 }
