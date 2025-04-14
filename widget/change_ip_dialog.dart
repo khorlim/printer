@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../../../share_code/custom_dialog/dialog_manager/dialog_manager.dart';
 import '../../../share_code/shared_widgets/text_field/my_text_field.dart';
-import '../../../tunai_style/old/theme/style_imports.dart';
+import '../../../tunai_style//style_imports.dart';
 
 Future<void> showChangePrinterIpDialog({
   String? initialIP,
@@ -39,10 +39,9 @@ class _ChangeIpPageState extends State<ChangeIpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: getDeviceType(context) == DeviceType.mobile,
-      appBar: CustomAppBar(
+      appBar: TunaiAppBar(
         elevation: 0,
-        backgroundColor: primaryBackgroundColor,
-        title: 'Change Printer Ip',
+        title: Text('Change Ip Address'),
         leading: CloseButt(),
         actions: [
           if (canConfirm)

@@ -17,7 +17,7 @@
 // import 'package:tunaipro/share_code/widget/dialog/show_inform_dialog.dart';
 // import 'package:tunaipro/shared/shared_widgets/custom_popup_menu/custom_popup_menu.dart';
 // import 'package:tunaipro/theme/responsive/device_type.dart';
-// import 'package:tunaipro/tunai_style/old/theme/style_imports.dart';
+// import 'package:tunaipro/tunai_style//style_imports.dart';
 
 // import '../super_printer.dart';
 // import 'change_ip_dialog.dart';
@@ -335,7 +335,7 @@
 //                         //       child: Row(
 //                         //         mainAxisAlignment: MainAxisAlignment.center,
 //                         //         children: [
-//                         //           TText(
+//                         //           Text(
 //                         //             'Search for star printer',
 //                         //             color: searchingStarPrinter
 //                         //                 ? MyColor.grey
@@ -391,7 +391,7 @@
 //               ),
 //               Padding(
 //                 padding: const EdgeInsets.only(left: 5.0),
-//                 child: TText(
+//                 child: Text(
 //                   'USB Printer',
 //                   color: MyColor.grey,
 //                 ),
@@ -420,7 +420,7 @@
 //         child: Row(
 //           crossAxisAlignment: CrossAxisAlignment.center,
 //           children: [
-//             TText(
+//             Text(
 //               'Change Printer IP',
 //               color: MyColor.grey,
 //             ),
@@ -485,7 +485,7 @@
 //             padding: const EdgeInsets.only(top: 10.0, left: 5),
 //             child: Row(
 //               children: [
-//                 const TText(
+//                 const Text(
 //                   'Star Printer',
 //                   color: MyColor.grey,
 //                 ),
@@ -550,7 +550,7 @@
 //               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
 //               child: const Row(
 //                 children: [
-//                   TText(
+//                   Text(
 //                     'Manual Connect',
 //                     color: MyColor.grey,
 //                   ),
@@ -574,7 +574,7 @@
 //                         children: [
 //                           const Padding(
 //                             padding: EdgeInsets.all(15.0),
-//                             child: TText(
+//                             child: Text(
 //                               'Manual Connect',
 //                               size: TextSize.px15,
 //                             ),
@@ -607,11 +607,11 @@
 //                             padding: const EdgeInsets.symmetric(
 //                                 horizontal: 15, vertical: 10),
 //                             child: CupertinoButton(
-//                                 color: MyColor.blue.color,
+//                                 color: context.colorScheme.primary,
 //                                 padding: const EdgeInsets.symmetric(
 //                                     horizontal: 15, vertical: 11),
 //                                 borderRadius: BorderRadius.circular(8),
-//                                 child: const TText(
+//                                 child: const Text(
 //                                   'Connect',
 //                                   color: MyColor.white,
 //                                 ),
@@ -668,14 +668,14 @@
 // //             child: Row(
 // //               children: [
 // //                 Expanded(
-// //                   child: TText(
+// //                   child: Text(
 // //                     selectedPrinter?.name ?? 'None',
 // //                     color: reconnect ? MyColor.red : MyColor.grey,
 // //                   ),
 // //                 ),
 // //                 connecting
 // //                     ? const CupertinoActivityIndicator()
-// //                     : TText(
+// //                     : Text(
 // //                         trailingText,
 // //                         color: reconnect || connected
 // //                             ? MyColor.blue
@@ -721,7 +721,7 @@
 // //                 crossAxisAlignment: CrossAxisAlignment.start,
 // //                 mainAxisAlignment: MainAxisAlignment.center,
 // //                 children: [
-// //                   const TText(
+// //                   const Text(
 // //                     'Receipt size',
 // //                     color: MyColor.grey,
 // //                   ),
@@ -730,7 +730,7 @@
 // //                   ),
 // //                   Builder(builder: (context) {
 // //                     targetCtxt = context;
-// //                     return TText(
+// //                     return Text(
 // //                       getPaperSizeString(selectedPaperSize),
 // //                       color: MyColor.black,
 // //                     );
@@ -759,7 +759,7 @@
 // //         ),
 // //         Padding(
 // //           padding: const EdgeInsets.only(top: 10.0, left: 5),
-// //           child: TText(
+// //           child: Text(
 // //             title,
 // //             color: MyColor.grey,
 // //           ),
@@ -804,7 +804,7 @@
 // //         borderRadius: BorderRadius.circular(8),
 // //         child: Align(
 // //           alignment: Alignment.centerLeft,
-// //           child: TText(
+// //           child: Text(
 // //             printer.name,
 // //             color: MyColor.blue,
 // //           ),

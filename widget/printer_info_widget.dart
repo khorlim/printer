@@ -1,5 +1,5 @@
 // import 'package:flutter/material.dart';
-// import 'package:tunaipro/tunai_style/old/theme/style_imports.dart';
+// import 'package:tunaipro/tunai_style//style_imports.dart';
 
 // import '../super_printer.dart';
 
@@ -35,14 +35,14 @@
 //           if (snapshot.connectionState == ConnectionState.done) {
 //             CustomPrinter? printer = snapshot.data;
 //             if (snapshot.hasError || printer == null) {
-//               return const TText(
+//               return const Text(
 //                 'None',
 //                 color: MyColor.grey,
 //               );
 //             } else {
 //               return Row(
 //                 children: [
-//                   TText(
+//                   Text(
 //                     printer.name,
 //                     color: MyColor.blue,
 //                   ),
