@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../model/custom_printer_model.dart';
-import '../../../../tunai_style/old/theme/style_imports.dart';
 
 class BtPlusPrintManager {
   static final BtPlusPrintManager _instance = BtPlusPrintManager._internal();
