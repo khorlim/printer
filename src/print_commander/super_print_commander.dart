@@ -44,7 +44,8 @@ class SuperPrintCommander {
     for (var command in tempCommands) {
       if (command is ImageCommand) {
         img.Image image = await _getImageFromUrl(command.imagePath);
-        bytes += generator.image(image);
+         bytes += generator.image(image);
+       
       } else if (command is EmptyLineCommand) {
         bytes += generator.feed(command.line);
       } else if (command is TextCommand) {
@@ -214,12 +215,32 @@ class SuperPrintCommander {
         image = img.decodeImage(Uint8List.fromList(compressedImage));
         if (Platform.isWindows) {
           image = img.copyResize(image!, width: 558 ~/ 2, height: 558 ~/ 2);
+          image = img.grayscale(image);
         }
       } else {
         debugPrint('-----Failed to load image from url.');
       }
 
       return image!;
+    } catch (e) {
+      debugPrint('-----Failed to get image from url. $e.');
+      rethrow;
+    }
+  }
+
+   Future<Uint8List?> _getImageBytes(String path) async {
+    try {
+
+      final response = await http.get(Uri.parse(path));
+
+      if (response.statusCode == 200) {
+        final Uint8List bytes = response.bodyBytes;
+
+        return bytes;
+      } else {
+        debugPrint('-----Failed to load image from url.');
+      }
+return null;
     } catch (e) {
       debugPrint('-----Failed to get image from url. $e.');
       rethrow;
