@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../../../share_code/custom_dialog/dialog_manager/dialog_manager.dart';
 import '../../../share_code/shared_widgets/text_field/my_text_field.dart';
-import '../../../tunai_style//style_imports.dart';
+import '../../../tunai_style/style_imports.dart';
+import '../../../tunai_style/common_widgets/common_widgets.dart';
 
 Future<void> showChangePrinterIpDialog({
   String? initialIP,
