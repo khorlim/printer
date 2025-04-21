@@ -20,13 +20,13 @@ class BitmapTextHelper {
     String formatText = text;
     switch (alignment) {
       case PosAlign.left:
-        formatText = '$text';
+        formatText = text;
         break;
       case PosAlign.center:
-        formatText = '${_centerText(text)}';
+        formatText = _centerText(text);
         break;
       case PosAlign.right:
-        formatText = '${_rightAlignText(text)}';
+        formatText = _rightAlignText(text);
         break;
     }
     return formatText + ('\n' * (linesAfter - 1));
@@ -93,7 +93,7 @@ class BitmapTextHelper {
       print(row.length);
     }
 
-    return '$row' + ('\n' * (linesAfter));
+    return row + ('\n' * (linesAfter));
   }
 
   List<String> _divideTextIntoLines(String text) {
@@ -144,16 +144,6 @@ class BitmapTextHelper {
           case FontSizeType.big:
             return 23;
         }
-      }
-      switch (fontSizeType) {
-        case FontSizeType.normal:
-          // if (bold) {
-          //   return 38;
-          // }
-
-          return 39;
-        case FontSizeType.big:
-          return 23;
       }
     }
 
