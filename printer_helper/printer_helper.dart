@@ -1,4 +1,5 @@
 import '../../../engine/receipt/model/receipt_data.dart';
+import '../../../general_module/home_module/printer_setting_screen/utils/receipt_icon_size_storage.dart';
 import '../src/print_commander/abstract_print_commander.dart';
 import '../super_printer.dart';
 
@@ -12,16 +13,20 @@ class PrinterHelper {
     ReceiptType receiptType = ReceiptType.beauty,
     bool openDrawer = false,
   }) async {
+    final ReceiptIconSizeStorage iconSizeStorage = ReceiptIconSizeStorage();
+    final iconSize = iconSizeStorage.fetch() ?? ReceiptIconSize.medium;
     bool success = await superPrinter.printReceipt(
       receiptData: receiptData,
       receiptType: receiptType,
       openDrawer: openDrawer,
+      iconSize: iconSize.size,
     );
     return success;
   }
 
   static Future<bool> printCustomCommand(
-      AbstractPrintCommander commander) async {
+    AbstractPrintCommander commander,
+  ) async {
     return superPrinter.printCustomCommand(commander);
   }
 

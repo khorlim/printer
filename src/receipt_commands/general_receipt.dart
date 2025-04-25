@@ -11,17 +11,19 @@ import 'abstract_receipt.dart';
 
 class GeneralReceipt extends AbstractReceipt {
   final ReceiptData receiptData;
+  double? iconSize;
   GeneralReceipt({
     required super.printerType,
     required super.paperSize,
     required this.receiptData,
+    this.iconSize,
   });
 
   @override
   SuperPrintCommander getPrintCommand({bool openDrawer = false}) {
     final imagePath = receiptData.icon;
 
-    printCommand.addImage(imagePath);
+    printCommand.addImage(imagePath, iconSize: iconSize);
     printCommand.addEmptyLine();
 
     if (receiptData.shopAddress.isNotEmpty) {

@@ -14,6 +14,7 @@ class ReceiptFactory {
     required PaperSize paperSize,
     bool openDrawer = false,
     PType printerType = PType.btPrinter,
+    double? iconSize,
   }) {
     switch (receiptType) {
       case ReceiptType.workslip:
@@ -28,6 +29,7 @@ class ReceiptFactory {
           printerType: printerType,
           receiptData: receiptData,
           paperSize: paperSize,
+          iconSize: iconSize,
         ).getPrintCommand(openDrawer: openDrawer);
     }
   }

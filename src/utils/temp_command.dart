@@ -13,8 +13,11 @@ class TextCommand extends TempCommand {
 
 class ImageCommand extends TempCommand {
   final String imagePath;
-
-  ImageCommand(this.imagePath);
+  double? imageSize;
+  ImageCommand(
+    this.imagePath, {
+    this.imageSize,
+  });
 }
 
 class EmptyLineCommand extends TempCommand {

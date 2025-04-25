@@ -43,9 +43,11 @@ class SuperPrintCommander {
     List<int> bytes = [];
     for (var command in tempCommands) {
       if (command is ImageCommand) {
-        img.Image image = await _getImageFromUrl(command.imagePath);
-         bytes += generator.image(image);
-       
+        img.Image image = await _getImageFromUrl(
+          command.imagePath,
+          imageSize: command.imageSize,
+        );
+        bytes += generator.image(image);
       } else if (command is EmptyLineCommand) {
         bytes += generator.feed(command.line);
       } else if (command is TextCommand) {
@@ -81,14 +83,26 @@ class SuperPrintCommander {
     return _printCommands;
   }
 
-  void addImage(String imagePath) {
+  void addImage(String imagePath, {double? iconSize}) {
+    if (iconSize != null && iconSize == 0) return;
+    const int paperWidth = 576;
+    int centerPosition = (paperWidth ~/ 2);
+
+    if (iconSize != null) {
+      centerPosition = (paperWidth ~/ 2) - iconSize ~/ 2;
+    }
+
     _printCommands.appendBitmap(
       path: imagePath,
-      width: 576 ~/ 2,
-      absolutePosition: (576 ~/ 2) ~/ 2,
+      width: iconSize?.toInt() ?? (paperWidth ~/ 2),
+      absolutePosition: centerPosition,
       bothScale: true,
     );
-    tempCommands.add(ImageCommand(imagePath));
+
+    tempCommands.add(ImageCommand(
+      imagePath,
+      imageSize: iconSize,
+    ));
   }
 
   void addEmptyLine({int line = 1}) {
@@ -195,11 +209,15 @@ class SuperPrintCommander {
     // _bytes += _generator!.drawer();
   }
 
-  Future<img.Image> _getImageFromUrl(String path) async {
+  Future<img.Image> _getImageFromUrl(String path, {double? imageSize}) async {
     try {
       img.Image? image;
 
       final response = await http.get(Uri.parse(path));
+
+      final int size = (imageSize ?? (558 ~/ 2)).toInt();
+
+      print("receipt image size : $size");
 
       if (response.statusCode == 200) {
         final Uint8List bytes = response.bodyBytes;
@@ -208,13 +226,13 @@ class SuperPrintCommander {
             ? bytes
             : await FlutterImageCompress.compressWithList(
                 bytes,
-                minHeight: 558 ~/ 2,
-                minWidth: 558 ~/ 2,
+                minHeight: size,
+                minWidth: size,
               );
 
         image = img.decodeImage(Uint8List.fromList(compressedImage));
         if (Platform.isWindows) {
-          image = img.copyResize(image!, width: 558 ~/ 2, height: 558 ~/ 2);
+          image = img.copyResize(image!, width: size, height: size);
           image = img.grayscale(image);
         }
       } else {
@@ -228,9 +246,8 @@ class SuperPrintCommander {
     }
   }
 
-   Future<Uint8List?> _getImageBytes(String path) async {
+  Future<Uint8List?> _getImageBytes(String path) async {
     try {
-
       final response = await http.get(Uri.parse(path));
 
       if (response.statusCode == 200) {
@@ -240,7 +257,7 @@ class SuperPrintCommander {
       } else {
         debugPrint('-----Failed to load image from url.');
       }
-return null;
+      return null;
     } catch (e) {
       debugPrint('-----Failed to get image from url. $e.');
       rethrow;

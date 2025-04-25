@@ -321,6 +321,7 @@ class SuperPrinter {
     required ReceiptType receiptType,
     required ReceiptData receiptData,
     bool openDrawer = false,
+    double? iconSize,
   }) async {
     SuperPrintCommander printCommand = ReceiptFactory.getReceipt(
       receiptType: receiptType,
@@ -328,6 +329,7 @@ class SuperPrinter {
       printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
       openDrawer: openDrawer,
       paperSize: _paperSize,
+      iconSize: iconSize,
     );
 
     return await startPrint(printCommand);
