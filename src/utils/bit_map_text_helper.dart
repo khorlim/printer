@@ -67,48 +67,144 @@ class BitmapTextHelper {
     int totalR = textColumns.fold(0, (total, text) => total += text.ratio);
 
     String row = '';
-
-    int countingSpace = 0;
+    int remainingWidth = _maxWidth;
+    int totalColumns = textColumns.length;
 
     for (int i = 0; i < textColumns.length; i++) {
       final TextColumn textColumn = textColumns[i];
-      String content = textColumns[i].text;
-      int addSpace = (textColumn.ratio / totalR * _maxWidth).ceil();
+      String content = textColumn.text;
 
-      if (countingSpace + addSpace >= _maxWidth) {
-        addSpace = _maxWidth - countingSpace;
+      // Calculate space for this column, ensuring we don't exceed remaining width
+      int addSpace = i == totalColumns - 1
+          ? remainingWidth
+          : (textColumn.ratio / totalR * _maxWidth).floor();
+
+      remainingWidth -= addSpace;
+
+      // Handle text overflow based on column's overflow setting
+      if (content.length > addSpace) {
+        switch (textColumn.overflow) {
+          case ColumnOverflow.truncate:
+            content = content.substring(0, addSpace - 3) + '...';
+            break;
+          case ColumnOverflow.wrap:
+            List<String> wrappedLines = _wrapText(content, addSpace);
+            if (wrappedLines.length > 1) {
+              // If text wraps to multiple lines, we need to handle the entire row differently
+              return _handleWrappedRow(
+                  textColumns, i, wrappedLines, addSpace, bold, linesAfter);
+            }
+            content = wrappedLines[0];
+            break;
+        }
       }
-      countingSpace += addSpace;
+
       if (textColumn.alignment == PosAlign.right) {
         row += content.padLeft(addSpace);
       } else if (textColumn.alignment == PosAlign.left) {
         row += content.padRight(addSpace);
       } else if (textColumn.alignment == PosAlign.center) {
-        int spaceLeft = (addSpace - content.length) ~/ 2;
-        row += (' ' * spaceLeft) + content + (' ' * spaceLeft);
+        int totalSpace = addSpace - content.length;
+        int spaceLeft = totalSpace ~/ 2;
+        int spaceRight = totalSpace - spaceLeft; // Handle odd spaces
+        row += (' ' * spaceLeft) + content + (' ' * spaceRight);
       }
-    }
-
-    if (bold) {
-      print(row.length);
     }
 
     return row + ('\n' * (linesAfter));
   }
 
-  List<String> _divideTextIntoLines(String text) {
-    // Logic to divide the text into lines based on _maxWidth
-    // You can implement this based on your requirements
-    // For example, you can split the text into lines of length _maxWidth
-    int startIndex = 0;
-    List<String> lines = [];
-    while (startIndex < text.length) {
-      int endIndex = startIndex + _maxWidth;
-      String line = text.substring(
-          startIndex, (endIndex > text.length ? text.length : endIndex));
-      lines.add(line);
-      startIndex += _maxWidth;
+  String _handleWrappedRow(List<TextColumn> textColumns, int wrappedColumnIndex,
+      List<String> wrappedLines, int columnWidth, bool bold, int linesAfter) {
+    String result = '';
+    int totalR = textColumns.fold(0, (total, text) => total += text.ratio);
+    int remainingWidth = _maxWidth;
+
+    // Process each wrapped line
+    for (int lineIndex = 0; lineIndex < wrappedLines.length; lineIndex++) {
+      String row = '';
+      remainingWidth = _maxWidth;
+
+      for (int i = 0; i < textColumns.length; i++) {
+        final TextColumn textColumn = textColumns[i];
+        String content;
+        int addSpace;
+
+        if (i == wrappedColumnIndex) {
+          // This is the wrapped column
+          content =
+              lineIndex < wrappedLines.length ? wrappedLines[lineIndex] : '';
+          addSpace = columnWidth;
+        } else {
+          // For other columns, only show content in the first line
+          content = lineIndex == 0 ? textColumn.text : '';
+          addSpace = i == textColumns.length - 1
+              ? remainingWidth
+              : (textColumn.ratio / totalR * _maxWidth).floor();
+        }
+
+        remainingWidth -= addSpace;
+
+        if (textColumn.alignment == PosAlign.right) {
+          row += content.padLeft(addSpace);
+        } else if (textColumn.alignment == PosAlign.left) {
+          row += content.padRight(addSpace);
+        } else if (textColumn.alignment == PosAlign.center) {
+          int totalSpace = addSpace - content.length;
+          int spaceLeft = totalSpace ~/ 2;
+          int spaceRight = totalSpace - spaceLeft;
+          row += (' ' * spaceLeft) + content + (' ' * spaceRight);
+        }
+      }
+      result += row + '\n';
     }
+
+    return result + ('\n' * (linesAfter));
+  }
+
+  List<String> _wrapText(String text, int maxWidth) {
+    List<String> words = text.split(' ');
+    List<String> lines = [];
+    String currentLine = '';
+
+    for (String word in words) {
+      if (currentLine.isEmpty) {
+        currentLine = word;
+      } else if (currentLine.length + word.length + 1 <= maxWidth) {
+        currentLine += ' ' + word;
+      } else {
+        lines.add(currentLine);
+        currentLine = word;
+      }
+    }
+
+    if (currentLine.isNotEmpty) {
+      lines.add(currentLine);
+    }
+
+    return lines;
+  }
+
+  List<String> _divideTextIntoLines(String text) {
+    List<String> lines = [];
+    List<String> words = text.split(' ');
+    String currentLine = '';
+
+    for (String word in words) {
+      if (currentLine.isEmpty) {
+        currentLine = word;
+      } else if (currentLine.length + word.length + 1 <= _maxWidth) {
+        currentLine += ' ' + word;
+      } else {
+        lines.add(currentLine);
+        currentLine = word;
+      }
+    }
+
+    if (currentLine.isNotEmpty) {
+      lines.add(currentLine);
+    }
+
     return lines;
   }
 
