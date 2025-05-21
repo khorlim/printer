@@ -1,5 +1,5 @@
 import '../../../engine/receipt/model/receipt_data.dart';
-import '../../../general_module/home_module/printer_setting_screen/utils/receipt_icon_size_storage.dart';
+import '../printer_setting_screen/utils/receipt_icon_size_storage.dart';
 import '../src/print_commander/abstract_print_commander.dart';
 import '../super_printer.dart';
 
