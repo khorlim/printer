@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:imin_printer/imin_printer.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -206,6 +208,18 @@ class SuperPrintCommander {
     _printCommands.openCashDrawer(1);
 
     tempCommands.add(OpenCashDrawerCommand());
+
+    if (Platform.isAndroid) {
+      () async {
+        try {
+          final iminPrinter = IminPrinter();
+          await iminPrinter.initPrinter();
+          await iminPrinter.openCashBox();
+        } catch (e) {
+          debugPrint('Failed to open imin cash drawer. $e.');
+        }
+      }();
+    }
     // _bytes += _generator!.drawer();
   }
 
