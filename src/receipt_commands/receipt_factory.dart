@@ -1,9 +1,10 @@
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
-import 'package:tunaipro/extra_utils/printer/src/model/custom_printer_model.dart';
-import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
-import 'package:tunaipro/extra_utils/printer/src/receipt_commands/general_receipt.dart';
-import 'package:tunaipro/extra_utils/printer/src/receipt_commands/workslip_receipt.dart';
+
+import '../../../../data/engine/receipt/model/receipt_data.dart';
+import '../model/custom_printer_model.dart';
+import '../print_commander/super_print_commander.dart';
+import 'general_receipt.dart';
+import 'workslip_receipt.dart';
 
 enum ReceiptType { beauty, car, optic, spa, workslip }
 

@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:thermal_printer/thermal_printer.dart';
-import 'package:tunaipro/engine/receipt/model/receipt_data.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_commander/abstract_print_commander.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
 import 'package:tunaipro/extra_utils/printer/src/printer_managers/bt_print_manager.dart';
@@ -17,6 +16,7 @@ import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_factor
 import 'package:thermal_printer/printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../data/engine/receipt/model/receipt_data.dart';
 import 'printer_managers/bt_plus_print_manager.dart';
 import 'printer_managers/usb_print_manager.dart';
 
