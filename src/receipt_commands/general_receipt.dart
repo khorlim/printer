@@ -1,8 +1,8 @@
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-import '../../../../engine/receipt/model/receipt_data.dart';
-import '../../../../engine/receipt/model/sub_models/r_field.dart';
-import '../../../../engine/receipt/model/sub_models/r_item.dart';
-import '../../../../engine/receipt/model/sub_models/r_payment.dart';
+import '../../../../data/engine/receipt/model/receipt_data.dart';
+import '../../../../data/engine/receipt/model/sub_models/r_field.dart';
+import '../../../../data/engine/receipt/model/sub_models/r_item.dart';
+import '../../../../data/engine/receipt/model/sub_models/r_payment.dart';
 import '../print_commander/super_print_commander.dart';
 import '../utils/text_column.dart';
 
@@ -18,7 +18,6 @@ class GeneralReceipt extends AbstractReceipt {
 
   @override
   SuperPrintCommander getPrintCommand({bool openDrawer = false}) {
-
     // printCommand.addImage(imagePath);
     printCommand.addEmptyLine();
 

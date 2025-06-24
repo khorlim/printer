@@ -1,4 +1,4 @@
-import '../../../engine/receipt/model/receipt_data.dart';
+import '../../../data/engine/receipt/model/receipt_data.dart';
 import '../src/print_commander/abstract_print_commander.dart';
 import '../super_printer.dart';
 
