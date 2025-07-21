@@ -42,9 +42,12 @@ class StarPrintManager {
         emulation: emulationFor(port.modelName!),
       );
 
+      print('star printer status: ${response.toJson()}');
+
       bool connected = !response.offline;
       return connected;
     } catch (e) {
+      print('star printer status error: $e');
       return false;
     }
   }

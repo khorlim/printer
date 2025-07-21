@@ -35,4 +35,9 @@ class TextRowCommand extends TempCommand {
   TextRowCommand(this.textList, {required this.style});
 }
 
+class QRCodeCommand extends TempCommand {
+  final String qrCode;
+  QRCodeCommand(this.qrCode);
+}
+
 class OpenCashDrawerCommand extends TempCommand {}

@@ -26,6 +26,24 @@ class GeneralReceipt extends AbstractReceipt {
     printCommand.addImage(imagePath, iconSize: iconSize);
     printCommand.addEmptyLine();
 
+    if (receiptData.outletName.isNotEmpty) {
+      printCommand.addTextLine(
+        receiptData.outletName,
+        fontSizeType: FontSizeType.normal,
+        alignment: PosAlign.center,
+        bold: true,
+      );
+    }
+
+    if (receiptData.bizName.isNotEmpty) {
+      printCommand.addTextLine(
+        receiptData.bizName,
+        fontSizeType: FontSizeType.normal,
+        alignment: PosAlign.center,
+        linesAfter: 1,
+      );
+    }
+
     if (receiptData.shopAddress.isNotEmpty) {
       addMultiLine(receiptData.shopAddress, linesAfter: 1);
     }
@@ -80,6 +98,18 @@ class GeneralReceipt extends AbstractReceipt {
     printCommand.addEmptyLine(line: 2);
 
     addMultiLine(receiptData.footer);
+
+    if (receiptData.eInvoiceUrl.isNotEmpty) {
+      printCommand.addEmptyLine(line: 2);
+      printCommand.addQRCode(receiptData.eInvoiceUrl);
+      printCommand.addEmptyLine(line: 1);
+      printCommand.addTextLine(
+        'Scan here to view e-invoice',
+        fontSizeType: FontSizeType.normal,
+        alignment: PosAlign.center,
+        linesAfter: 1,
+      );
+    }
 
     if (openDrawer) {
       printCommand.openCashDrawer();

@@ -43,6 +43,7 @@ class SuperPrintCommander {
     CapabilityProfile profile = await CapabilityProfile.load();
     Generator generator = Generator(paperSize, profile);
     List<int> bytes = [];
+
     for (var command in tempCommands) {
       if (command is ImageCommand) {
         img.Image image = await _getImageFromUrl(
@@ -60,7 +61,7 @@ class SuperPrintCommander {
           linesAfter: command.linesAfter,
         );
       } else if (command is LineCommand) {
-        bytes += generator.text(_textHelper.line());
+        bytes += generator.hr();
       } else if (command is TextRowCommand) {
         bytes += generator.text(
           _textHelper.row(command.textList),
@@ -69,6 +70,11 @@ class SuperPrintCommander {
         );
       } else if (command is OpenCashDrawerCommand) {
         bytes += generator.drawer();
+      } else if (command is QRCodeCommand) {
+        bytes += generator.qrcode(
+          command.qrCode,
+          size: QRSize.size8,
+        );
       }
     }
     if (cutPaper) {
@@ -108,8 +114,9 @@ class SuperPrintCommander {
   }
 
   void addEmptyLine({int line = 1}) {
-    // _printCommands.appendBitmapText(text: _textHelper.emptyLine(line: line));
-    _printCommands.push({'appendLineSpace': line});
+    _printCommands.push({
+      'append': '\n',
+    });
 
     tempCommands.add(EmptyLineCommand(line));
   }
@@ -221,6 +228,15 @@ class SuperPrintCommander {
       }();
     }
     // _bytes += _generator!.drawer();
+  }
+
+  void addQRCode(String qrCode) {
+    _printCommands.push({
+      'appendQrCode': qrCode,
+      'absolutePosition': paperSize == PaperSize.mm80 ? 200 : 100,
+    });
+
+    tempCommands.add(QRCodeCommand(qrCode));
   }
 
   Future<img.Image> _getImageFromUrl(String path, {double? imageSize}) async {
