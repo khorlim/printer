@@ -1,0 +1,100 @@
+# Changelog
+
+## [v1.0.1] - 2025-07-23 11:21:41 +0800
+
+- up
+- Add QR code support to printing commands and enhance receipt formatting-e 
+
+## [v1.0.0] - 2025-06-24 16:14:20 +0800
+
+- fix imports
+- up
+- up
+- up
+- up
+- refactor import paths and simplify string formatting in BitmapTextHelper
+- fix winwdows icon
+- up
+- fix
+- fix
+- fix
+- up
+- up
+- delete old files
+- later
+- boom
+- up
+- push
+- push
+- push
+- up
+- up
+- up
+- revamp
+- change import path
+- done
+- up
+- bt printer
+- hehe
+- up
+- push push
+- new
+- print
+- doing printer
+- update widget
+- usb printer
+- fix
+- fix
+- usb hurray
+- fix
+- fix star printer nill
+- fix bt printer
+- fix
+- i hope it won't broke
+- ok
+- change printer syntax
+- fix printer
+- done
+- done
+- hehe
+- added manual connect option
+- changed color
+- update
+- okay
+- new workslip
+- fix fix
+- done
+- automatically update gateway
+- new printer setting page
+- drawer option
+- can open drawer liao
+- update
+- fix paper size setting
+- added papersize option for printer
+- update printer
+- add one more export
+- change structure
+- fix
+- stupid
+- completed
+- fix path
+- lets'goooo
+- good enough
+- new
+- fxi path
+- hopefully done
+- fix local print
+- fix footer prob with star prnt
+- kk
+- added customizeable footer
+- location alignment receipt
+- fix alignment
+- yes
+- update car receipt nullable type
+- update example
+- fix import path
+- added car receipt
+- remove unnecessary code
+- added work slip, reorganize code
+- Create blueprint.dart
+- created new repository
