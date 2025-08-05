@@ -9,7 +9,7 @@ import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../../../data/base/core_extension/num_extension.dart';
 import '../../../tunai_style/widgets/custom_dialog/src/custom_dialog.dart';
 import '../../../tunai_style/widgets/shared_widgets/popup_menu/tunai_popup_menu/tunai_popup_menu.dart';
-import '../../../tunai_style/widgets/shared_widgets/tunai_animated_widget/tunai_animated_list.dart';
+import '../../../tunai_style/widgets/shared_widgets/tunai_list_view/tunai_animated_list_view.dart';
 import '../src/printer_managers/xprinter_manager.dart';
 
 import '../super_printer.dart';
@@ -514,7 +514,7 @@ class _PrinterListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TunaiAnimatedList<CustomPrinter>(
+    return TunaiAnimatedListView<CustomPrinter>(
       items: printers,
       itemBuilder: (printer) {
         bool isFirst = printers.first == printer;
