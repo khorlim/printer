@@ -15,6 +15,7 @@ import 'package:tunaipro/extra_utils/printer/src/printer_managers/star_print_man
 import 'package:tunaipro/extra_utils/printer/src/receipt_commands/receipt_factory.dart';
 import 'package:thermal_printer/printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tunaipro/extra_utils/printer/src/print_queue.dart';
 
 import '../../../data/engine/receipt/model/receipt_data.dart';
 import 'printer_managers/bt_plus_print_manager.dart';
@@ -30,6 +31,9 @@ class SuperPrinter {
   }
 
   SuperPrinter._internal() {
+    // Initialize print queue with the print executor callback
+    _printQueue = PrintQueue(_executePrintCommand);
+
     () async {
       sharedPrefs = await SharedPreferences.getInstance();
       // await  sharedPrefs.setString('printer', '');
@@ -168,6 +172,8 @@ class SuperPrinter {
   List<CustomPrinter> _starPrinterList = [];
   // List<CustomPrinter> _btPrinterList = [];
   // List<CustomPrinter> _networkPrinterList = [];
+
+  late final PrintQueue _printQueue;
 
   Future<void> searchPrinter(
       {bool searchForStarPrinter = true, String? manualGateway}) async {
@@ -345,14 +351,14 @@ class SuperPrinter {
     return await startPrint(printCommand);
   }
 
-  Future<void> openDrawer() async {
+  Future<bool> openDrawer() async {
     SuperPrintCommander printCommand = SuperPrintCommander(
       printerType: _selectedPrinter?.printerType ?? PType.networkPrinter,
       paperSize: _paperSize,
       cutPaper: false,
     );
     printCommand.openCashDrawer();
-    startPrint(printCommand);
+    return await startPrint(printCommand);
   }
 
   Future<bool> startPrint(SuperPrintCommander commands) async {
@@ -365,7 +371,39 @@ class SuperPrinter {
       return false;
     }
 
-    debugPrint('Printing... [${_selectedPrinter}] [${_paperSize.name}]');
+    // Create a unique job ID
+    final String jobId = _generateJobId();
+
+    // Create a print job and add it to the queue
+    final PrintJob printJob = PrintJob(
+      id: jobId,
+      commands: commands,
+      completer: Completer<bool>(),
+      createdAt: DateTime.now(),
+    );
+
+    debugPrint('Adding print job to queue: $jobId');
+    return await _printQueue.addJob(printJob);
+  }
+
+  /// Generate a unique job ID for print jobs
+  String _generateJobId() {
+    return 'print_${DateTime.now().millisecondsSinceEpoch}_${_printQueue.queueLength}';
+  }
+
+  /// Execute print command - used by the print queue
+  Future<bool> _executePrintCommand(SuperPrintCommander commands) async {
+    if (_selectedPrinter == null) {
+      debugPrint('No printer selected.');
+      return false;
+    }
+    if (_status != PStatus.connected) {
+      debugPrint('No connected printer');
+      return false;
+    }
+
+    debugPrint(
+        'Executing print command... [${_selectedPrinter}] [${_paperSize.name}]');
     List<int> printBytes = await commands.getBytes();
 
     bool printSuccess = false;
@@ -407,6 +445,32 @@ class SuperPrinter {
     }
     return printSuccess;
   }
+
+  /// Get print queue status
+  Map<String, dynamic> getPrintQueueStatus() {
+    return _printQueue.getStatus();
+  }
+
+  /// Clear all pending print jobs
+  void clearPrintQueue() {
+    _printQueue.clearQueue();
+  }
+
+  /// Remove a specific print job from the queue
+  bool removePrintJob(String jobId) {
+    try {
+      return _printQueue.removeJob(jobId);
+    } catch (e) {
+      debugPrint('Failed to remove print job $jobId: $e');
+      return false;
+    }
+  }
+
+  /// Get the number of jobs in the print queue
+  int get printQueueLength => _printQueue.queueLength;
+
+  /// Check if the print queue is currently processing
+  bool get isPrintQueueProcessing => _printQueue.isProcessing;
 
   void changePaperSize(PaperSize paperSize) {
     _paperSize = paperSize;
