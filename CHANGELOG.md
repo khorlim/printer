@@ -1,9 +1,18 @@
 # Changelog
 
+## [v1.0.3] - 2025-08-13 14:27:04 +0800
+
+- feat: added queue system when printing-e 
+
+## [v1.0.2] - 2025-08-05 16:43:11 +0800
+
+- fix: update import for animated list widget and adjust usage in PrinterListView
+
 ## [v1.0.1] - 2025-07-23 11:21:41 +0800
 
+- chore: update changelog for v1.0.1
 - up
-- Add QR code support to printing commands and enhance receipt formatting-e 
+- Add QR code support to printing commands and enhance receipt formatting
 
 ## [v1.0.0] - 2025-06-24 16:14:20 +0800
 
