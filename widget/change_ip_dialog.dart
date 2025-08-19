@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../../../tunai_style/widgets/custom_dialog/dialog_manager/dialog_manager.dart';
-import '../../../tunai_style/widgets/shared_widgets/text_field/my_text_field.dart';
 import '../../../tunai_style/style_imports.dart';
-import '../../../tunai_style/common_widgets/common_widgets.dart';
 
 Future<void> showChangePrinterIpDialog({
   String? initialIP,
@@ -81,7 +79,7 @@ class _ChangeIpPageState extends State<ChangeIpPage> {
 
   Widget buildTextField(
       {required String hint, required TextEditingController controller}) {
-    return MyTextField(
+    return TunaiTextField(
       controller: controller,
       hintText: hint,
       inputFormatters: [
