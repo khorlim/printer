@@ -167,6 +167,7 @@ class SuperPrinter {
   PaperSize _paperSize = PaperSize.mm80;
   PaperSize get paperSize => _paperSize;
   PStatus _status = PStatus.none;
+  PStatus get status => _status;
 
   //PrintStatus? _printStatus;
   List<CustomPrinter> _starPrinterList = [];
