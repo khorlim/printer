@@ -16,6 +16,7 @@ import 'package:tunaipro/extra_utils/printer/src/utils/text_column.dart';
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 
+import '../../printer_setting_screen/utils/receipt_icon_size_storage.dart';
 import '../utils/temp_command.dart';
 
 enum FontSizeType { normal, big }
@@ -97,24 +98,26 @@ class SuperPrintCommander {
   }
 
   void addImage(String imagePath, {double? iconSize}) {
-    if (iconSize != null && iconSize == 0) return;
-    const int paperWidth = 576;
-    int centerPosition = (paperWidth ~/ 2);
+    final ReceiptIconSizeStorage iconSizeStorage = ReceiptIconSizeStorage();
+    final settingIconSize = iconSizeStorage.fetch() ?? ReceiptIconSize.medium;
 
-    if (iconSize != null) {
-      centerPosition = (paperWidth ~/ 2) - iconSize ~/ 2;
-    }
+    final realIconSize = iconSize ?? settingIconSize.size;
+
+    if (realIconSize == 0) return;
+
+    const int paperWidth = 576;
+    int centerPosition = (paperWidth ~/ 2) - realIconSize ~/ 2;
 
     if (imagePath.isNotEmpty) {
       _printCommands.appendBitmap(
         path: imagePath,
-        width: iconSize?.toInt() ?? (paperWidth ~/ 2),
+        width: realIconSize.toInt(),
         absolutePosition: centerPosition,
         bothScale: true,
       );
       tempCommands.add(ImageCommand(
         imagePath,
-        imageSize: iconSize,
+        imageSize: realIconSize,
       ));
     }
   }
