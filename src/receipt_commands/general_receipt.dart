@@ -50,7 +50,7 @@ class GeneralReceipt extends AbstractReceipt {
 
     if (receiptData.title.isNotEmpty) {
       printCommand.addTextLine(
-        receiptData.title,
+        '${receiptData.title}',
         fontSizeType: FontSizeType.big,
         alignment: PosAlign.center,
         bold: true,

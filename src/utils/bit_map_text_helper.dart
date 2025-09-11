@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import '../model/custom_printer_model.dart';
 import '../print_commander/super_print_commander.dart';
@@ -227,7 +229,7 @@ class BitmapTextHelper {
 
             return 58;
           case FontSizeType.big:
-            return 36;
+            return 29;
         }
       } else {
         switch (fontSizeType) {
@@ -236,9 +238,9 @@ class BitmapTextHelper {
             //   return 38;
             // }
 
-            return 39;
+            return Platform.isAndroid ? 41 : 39;
           case FontSizeType.big:
-            return 23;
+            return Platform.isAndroid ? 24 : 23; //ori 23
         }
       }
     }

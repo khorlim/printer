@@ -24,14 +24,13 @@ class SuperPrintCommander {
   final PType printerType;
   final PaperSize paperSize;
   final bool cutPaper;
+
   SuperPrintCommander({
     required this.printerType,
     this.paperSize = PaperSize.mm80,
     this.cutPaper = true,
-  }) {
-    _printCommands.push({'enableEmphasis': true});
-    _printCommands.push({'appendFontStyle': 'Menlo'});
-  }
+  });
+
   late final BitmapTextHelper _textHelper =
       BitmapTextHelper(printerType: printerType, paperSize: paperSize);
 
@@ -121,7 +120,7 @@ class SuperPrintCommander {
   }
 
   void addEmptyLine({int line = 1}) {
-    _printCommands.push({'appendLineSpace': line});
+    _printCommands.appendLineFeed(line);
 
     tempCommands.add(EmptyLineCommand(line));
   }
@@ -171,7 +170,10 @@ class SuperPrintCommander {
   }
 
   void addLine() {
-    _printCommands.appendBitmapText(text: _textHelper.line());
+    _printCommands.appendBitmapText(
+      fontSize: _getFontSize(FontSizeType.normal),
+      text: _textHelper.line(),
+    );
 
     tempCommands.add(LineCommand());
 
