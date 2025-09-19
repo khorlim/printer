@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:shared_pref_helper/shared_pref_helper.dart';
 
-import '../../../../tunai_style/translation/strings.g.dart';
+import '../../../../translation/strings.g.dart';
 
 enum ReceiptIconSize {
   none,
