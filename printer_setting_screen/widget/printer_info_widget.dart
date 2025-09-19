@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../../tunai_style/extension/build_context_extension.dart';
-import '../../../../tunai_style/translation/strings.g.dart';
+import '../../../../translation/strings.g.dart';
 
 class PrinterInfoWidget extends StatelessWidget {
   const PrinterInfoWidget({super.key});
