@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:imin_printer/imin_printer.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_commander/abstract_print_commander.dart';
 import 'package:tunaipro/extra_utils/printer/src/print_commander/super_print_commander.dart';
@@ -19,6 +20,7 @@ import 'package:tunaipro/extra_utils/printer/src/print_queue.dart';
 
 import '../../../data/engine/receipt/model/receipt_data.dart';
 import 'printer_managers/bt_plus_print_manager.dart';
+import 'printer_managers/imin_printer_helper.dart';
 import 'printer_managers/usb_print_manager.dart';
 
 part 'extension/paper_size_extension.dart';
@@ -35,6 +37,14 @@ class SuperPrinter {
     _printQueue = PrintQueue(_executePrintCommand);
 
     () async {
+      unawaited(
+        iminPrinter.initPrinter().then((result) {
+          debugPrint('Init imin printer result : $result');
+        }).onError((e, st) async {
+          debugPrint('Error while initializing iMin printer support: $e\n$st');
+        }),
+      );
+
       sharedPrefs = await SharedPreferences.getInstance();
       // await  sharedPrefs.setString('printer', '');
       final String? savedPrinterJsonString = sharedPrefs.getString('printer');
@@ -114,6 +124,8 @@ class SuperPrinter {
     });
   }
 
+  final IminPrinter iminPrinter = IminPrinter();
+
   late final StreamSubscription<List<PrinterDevice>> _btDeviceSubscription;
   late final StreamSubscription<List<PrinterDevice>> _networkDeviceSubscription;
   late final StreamSubscription<List<ScanResult>> _btPlusDeviceSubscription;
@@ -176,8 +188,10 @@ class SuperPrinter {
 
   late final PrintQueue _printQueue;
 
-  Future<void> searchPrinter(
-      {bool searchForStarPrinter = true, String? manualGateway}) async {
+  Future<void> searchPrinter({
+    bool searchForStarPrinter = true,
+    String? manualGateway,
+  }) async {
     if (Platform.isWindows) {
       _bluePrintManager.searchPrinter();
     } else {
@@ -248,6 +262,10 @@ class SuperPrinter {
 
       case PType.btPlusPrinter:
         connected = await _btPlusPrintManager.connectPrinter(printer);
+        break;
+      case PType.imin:
+        connected = await IminPrinterHelper.checkStatus();
+        break;
     }
     if (connected) {
       debugPrint('----> Successfully connected printer. Ready to print.');
@@ -275,6 +293,9 @@ class SuperPrinter {
 
       case PType.btPlusPrinter:
         await _btPlusPrintManager.disconnect();
+        break;
+      case PType.imin:
+        break;
     }
     _clearPrinterSetting();
     _selectedPrinter = null;
@@ -311,6 +332,9 @@ class SuperPrinter {
       case PType.btPlusPrinter:
         status = await _btPlusPrintManager.getStatus(_selectedPrinter!);
         break;
+      case PType.imin:
+        status = await IminPrinterHelper.checkStatus();
+        break;
     }
 
     if (status) {
@@ -322,6 +346,10 @@ class SuperPrinter {
       _printerStatusController.add(_status);
       return false;
     }
+  }
+
+  Future<CustomPrinter?> searchForIminPrinter() {
+    return IminPrinterHelper.searchForIminPrinter();
   }
 
   Future<bool> printReceipt({
@@ -436,6 +464,12 @@ class SuperPrinter {
             _selectedPrinter!,
             printBytes,
           );
+          break;
+
+        case PType.imin:
+          IminPrinterHelper.startPrint(commands);
+          printSuccess = true;
+
           break;
       }
     } catch (e) {

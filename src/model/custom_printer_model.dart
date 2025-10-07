@@ -2,7 +2,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_star_prnt/flutter_star_prnt.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 
-enum PType { btPrinter, starPrinter, networkPrinter, usbPrinter, btPlusPrinter }
+enum PType {
+  btPrinter,
+  starPrinter,
+  networkPrinter,
+  usbPrinter,
+  btPlusPrinter,
+  imin
+}
 
 enum PStatus { connected, connecting, none }
 
@@ -13,8 +20,11 @@ class CustomPrinter extends Equatable {
   final String address;
   final PType printerType;
 
-  CustomPrinter(
-      {required this.name, required this.address, required this.printerType});
+  const CustomPrinter({
+    required this.name,
+    required this.address,
+    required this.printerType,
+  });
 
   factory CustomPrinter.fromPrinterDevice(PrinterDevice printerDevice,
       {required PType printerType}) {

@@ -161,6 +161,20 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
     setState(() {
       isSearching = true;
     });
+
+    final iminPrinter = await superPrinter.searchForIminPrinter();
+
+    if (iminPrinter != null) {
+      bool confirm = await TunaiDialog.showAlertDialog(
+        title: 'Imin Printer Found',
+        message: 'Do you want to connect to the Imin Printer?',
+        action: 'Connect',
+      );
+      if (confirm) {
+        superPrinter.connect(iminPrinter);
+      }
+    }
+
     await superPrinter.searchPrinter(
       searchForStarPrinter: selectedPrinterType == PrinterType.starMicro,
       manualGateway: manualGateway,
