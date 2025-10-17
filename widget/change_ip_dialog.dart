@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
-import '../../../tunai_style/widgets/custom_dialog/dialog_manager/dialog_manager.dart';
+import '../../../tunai_style/widgets/dialog/custom_dialog/dialog_manager/dialog_manager.dart';
 import '../../../tunai_style/style_imports.dart';
 
 Future<void> showChangePrinterIpDialog({
