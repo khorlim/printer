@@ -75,9 +75,9 @@ class StarPrintManager {
     return emulation;
   }
 
-  void _updatePrinterStatus(String status) {
-    _printerStatusController.add(status);
-  }
+  // void _updatePrinterStatus(String status) {
+  //   _printerStatusController.add(status);
+  // }
 
   void dispose() {
     _printerStatusController.close();

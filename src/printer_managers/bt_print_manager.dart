@@ -62,7 +62,7 @@ class BluetoothPrintManager {
       // bool disconnected = await PrinterManager.instance.disconnect(
       //   type: PrinterType.bluetooth,
       // );
-      bool connected = await PrinterManager.instance.connect(
+      await PrinterManager.instance.connect(
           type: PrinterType.bluetooth,
           model: BluetoothPrinterInput(
             name: selectedPrinter.name,

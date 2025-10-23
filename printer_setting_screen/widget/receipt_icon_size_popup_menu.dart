@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
-import '../../../../tunai_style/widgets/custom_dialog/src/custom_dialog.dart';
-import '../../../../tunai_style/widgets/shared_widgets/popup_menu/tunai_popup_menu/tunai_popup_menu.dart';
+import '../../../../tunai_style/widgets/dialog/custom_dialog/src/custom_dialog.dart';
+import '../../../../tunai_style/widgets/dialog/popup_menu/tunai_popup_menu/tunai_popup_menu.dart';
 import '../utils/receipt_icon_size_storage.dart';
 
 class ReceiptIconSizePopupMenu {

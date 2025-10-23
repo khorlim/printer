@@ -280,24 +280,6 @@ class SuperPrintCommander {
     return image!;
   }
 
-  Future<Uint8List?> _getImageBytes(String path) async {
-    try {
-      final response = await http.get(Uri.parse(path));
-
-      if (response.statusCode == 200) {
-        final Uint8List bytes = response.bodyBytes;
-
-        return bytes;
-      } else {
-        debugPrint('-----Failed to load image from url.');
-      }
-      return null;
-    } catch (e) {
-      debugPrint('-----Failed to get image from url. $e.');
-      rethrow;
-    }
-  }
-
   int _getFontSize(FontSizeType fontSizeType) {
     if (paperSize == PaperSize.mm80) {
       switch (fontSizeType) {

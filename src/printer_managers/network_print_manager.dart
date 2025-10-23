@@ -14,7 +14,7 @@ class NetworkPrintManager {
     return _instance;
   }
 
-  NetworkPrintManager._internal() {}
+  NetworkPrintManager._internal();
 
   Stream<TCPStatus> get statusStream => _networkDeviceStatusController.stream;
   Stream<List<PrinterDevice>> get networkDevicesStream =>
@@ -23,14 +23,14 @@ class NetworkPrintManager {
   TCPStatus _tCPStatus = TCPStatus.none;
 
   String _ipAddress = '';
-  int _port = 9100;
+  final int _port = 9100;
   String _subnet = '192.168.0';
   final Duration _timeout = const Duration(seconds: 5);
   Socket? _socket;
 
-  StreamController<List<PrinterDevice>> _networkDevicesController =
+  final StreamController<List<PrinterDevice>> _networkDevicesController =
       StreamController<List<PrinterDevice>>();
-  StreamController<TCPStatus> _networkDeviceStatusController =
+  final StreamController<TCPStatus> _networkDeviceStatusController =
       StreamController<TCPStatus>();
 
   final NetworkInfo _networkInfo = NetworkInfo();
@@ -57,8 +57,8 @@ class NetworkPrintManager {
       }
 
       List<PrinterDevice> networkDevicesList = [];
-      final stream =
-          PortScanner.discover(_subnet, _port, timeout: Duration(seconds: 7));
+      final stream = PortScanner.discover(_subnet, _port,
+          timeout: const Duration(seconds: 7));
       stream.listen((networkAddress) {
         networkDevicesList.add(PrinterDevice(
             name: 'Local device (${networkAddress.ip} : $_port)',
@@ -130,7 +130,7 @@ class NetworkPrintManager {
   Future<bool> sendPrintCommand(List<int> bytes) async {
     // bool connected = checkStatus();
     try {
-      bool connected = await realConnect(
+      await realConnect(
           PrinterDevice(name: 'Local Device', address: _ipAddress));
 
       _socket!.add(Uint8List.fromList(bytes));
