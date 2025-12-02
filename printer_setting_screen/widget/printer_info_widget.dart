@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import '../../../../tunai_style/extension/build_context_extension.dart';
 import '../../../../translation/strings.g.dart';
 
 class PrinterInfoWidget extends StatelessWidget {
@@ -10,9 +9,6 @@ class PrinterInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       t.noPrinter,
-      style: context.text.primary.copyWith(
-        color: context.colorScheme.onSurfaceVariant,
-      ),
     );
   }
 }

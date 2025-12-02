@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tunai_widget/tunai_text_field.dart';
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
+import '../../../translation/strings.g.dart';
+import '../../../tunai_style/common_widgets/input/butt/appbar_butt/close_butt.dart';
+import '../../../tunai_style/common_widgets/input/butt/appbar_butt/text_butt.dart';
+import '../../../tunai_style/common_widgets/scaffold/appbar/tunai_app_bar.dart';
+import '../../../tunai_style/extension/build_context_extension.dart';
 import '../../../tunai_style/widgets/dialog/custom_dialog/dialog_manager/dialog_manager.dart';
-import '../../../tunai_style/style_imports.dart';
 
 Future<void> showChangePrinterIpDialog({
   String? initialIP,
@@ -37,15 +42,15 @@ class _ChangeIpPageState extends State<ChangeIpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: getDeviceType(context) == DeviceType.mobile,
+      resizeToAvoidBottomInset: context.deviceType.isMobile,
       appBar: TunaiAppBar(
         elevation: 0,
         title: Text('Change Ip Address'),
         leading: CloseButt(),
         actions: [
           if (canConfirm)
-            AppBarButt(
-                title: t.confirm,
+            TextButt(
+                text: t.confirm,
                 onPressed: () async {
                   try {
                     await widget.onConfirm(
