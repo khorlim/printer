@@ -1,19 +1,27 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tunai_widget/tunai_text_field.dart';
+import 'package:tunai_widget/tunai_widget.dart';
 import '../../../core_utils/tunai_dialog/tunai_dialog.dart';
 import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
-import '../../../data/base/core_extension/num_extension.dart';
+import '../../../translation/strings.g.dart';
+import '../../../tunai_style/common_widgets/input/butt/appbar_butt/text_butt.dart';
+import '../../../tunai_style/common_widgets/layout/always_scrollable_center_widget/always_scrollable_center_widget.dart';
 import '../../../tunai_style/common_widgets/layout/list_view/tunai_list_view/tunai_animated_list_view.dart';
+import '../../../tunai_style/common_widgets/scaffold/appbar/tunai_app_bar.dart';
+import '../../../tunai_style/common_widgets/scaffold/tunai_scaffold.dart';
+import '../../../tunai_style/common_widgets/typo/default_icon/chevron/default_chevron_down.dart';
+import '../../../tunai_style/extension/build_context_extension.dart';
 import '../../../tunai_style/widgets/dialog/custom_dialog/src/custom_dialog.dart';
 import '../../../tunai_style/widgets/dialog/popup_menu/tunai_popup_menu/tunai_popup_menu.dart';
 import '../src/printer_managers/xprinter_manager.dart';
 
 import '../super_printer.dart';
-import '../../../tunai_style/style_imports.dart';
 import 'utils/printer_type_storage.dart';
 import 'utils/receipt_icon_size_storage.dart';
 import 'widget/paper_size_option_menu.dart';
@@ -227,14 +235,13 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: getDeviceType(context) == DeviceType.mobile,
+    return TunaiScaffold(
+      resizeToAvoidBottomInset: context.deviceType.isMobile,
       appBar: TunaiAppBar(
         title: Text(t.device),
         actions: [
           if (selectedPrinterType == PrinterType.manual)
-            AppBarButt(
-              title: t.connect,
+            TextButt(
               onPressed: () {
                 superPrinter.connect(
                   CustomPrinter(
@@ -244,7 +251,8 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
                   ),
                 );
               },
-            )
+              text: t.connect,
+            ),
         ],
       ),
       body: Padding(
@@ -265,7 +273,7 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
                 ).show();
               },
             ),
-            15.sizedBoxHeight,
+            const TunaiSpace.medium(),
             _LabelButt(
               icon: CupertinoIcons.doc_plaintext,
               title: t.paperSize,
@@ -279,7 +287,7 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
                 ).show();
               },
             ),
-            15.sizedBoxHeight,
+            const TunaiSpace.medium(),
             _LabelButt(
               icon: CupertinoIcons.doc_text,
               title: t.iconSize,
@@ -296,7 +304,7 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
                 ).show(trailingContext);
               },
             ),
-            15.sizedBoxHeight,
+            const TunaiSpace.medium(),
             Builder(builder: (context) {
               bool connecting = printerStatus == PStatus.connecting;
               // bool connected = printerStatus == PStatus.connected;
@@ -309,15 +317,15 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
                 title: t.device,
                 trailing: Row(
                   children: [
-                    Text(
+                    TunaiText(
                       selectedPrinter?.name ?? t.none,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: failedToConnect ? Colors.red : TunaiColor.black,
-                      ),
+                      color: failedToConnect
+                          ? context.color.error
+                          : context.color.onBackground,
                     ),
                     if (connecting)
                       const Padding(
-                        padding: EdgeInsets.only(left: 5),
+                        padding: EdgeInsets.only(left: TunaiSpacing.small),
                         child: CupertinoActivityIndicator(),
                       ),
                   ],
@@ -328,7 +336,9 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
                     return;
                   }
                   if (selectedPrinter == null ||
-                      selectedPrinter?.printerType == PType.starPrinter) return;
+                      selectedPrinter?.printerType == PType.starPrinter) {
+                    return;
+                  }
 
                   bool confirm = await TunaiDialog.showAlertDialog(
                     title: t.forgetDevice,
@@ -343,25 +353,17 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
             }),
             selectedPrinterType == PrinterType.manual
                 ? Padding(
-                    padding: const EdgeInsets.only(top: 15.0),
+                    padding: const EdgeInsets.only(top: TunaiSpacing.medium),
                     child: _LabelButt(
                       icon: CupertinoIcons.globe,
                       title: t.manual,
                       trailing: SizedBox(
                         // height: 50,
                         width: 100,
-                        child: TextField(
-                          style: context.textTheme.bodyMedium,
+                        child: TunaiTextField(
                           controller: manualIpController,
                           textAlign: TextAlign.right,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            border: InputBorder.none,
-                            hintText: '0.0.0.0',
-                            hintStyle: context.textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
+                          hintText: '0.0.0.0',
                         ),
                       ),
                     ),
@@ -377,7 +379,7 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
                           ),
                           child: Row(
                             children: [
-                              Text(t.nearbyDevices),
+                              TunaiText(t.nearbyDevices),
                               if (isSearching)
                                 const CupertinoActivityIndicator(),
                             ],
@@ -401,12 +403,9 @@ class _PrinterSettingScreenState extends State<PrinterSettingScreen> {
 
                                 if (printers.isEmpty) {
                                   return AlwaysScrollableCentered(
-                                    child: Text(
+                                    child: TunaiText(
                                       t.empty,
-                                      style: context.textTheme.bodyMedium
-                                          ?.copyWith(
-                                        color: Colors.grey,
-                                      ),
+                                      color: context.color.onBackgroundLow,
                                     ),
                                   );
                                 }
@@ -450,22 +449,24 @@ class _LabelButt extends StatelessWidget {
   final void Function(BuildContext context, BuildContext trailingContext)?
       onPressed;
   final BorderRadius? borderRadius;
+
   const _LabelButt({
     required this.icon,
     required this.title,
     required this.trailing,
-    this.borderRadius,
     this.onPressed,
+    this.borderRadius,
   });
 
   @override
   Widget build(BuildContext context) {
     BuildContext trailingContext = context;
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      borderRadius: borderRadius ?? BorderRadius.circular(TunaiBr.normal),
-      color: context.colorScheme.secondary,
-      disabledColor: context.colorScheme.secondary,
+    return TunaiContainer(
+      padding: const EdgeInsets.symmetric(
+        horizontal: TunaiSpacing.medium,
+        vertical: TunaiSpacing.normal,
+      ),
+      borderRadius: borderRadius,
       onPressed: onPressed == null
           ? null
           : () => onPressed?.call(context, trailingContext),
@@ -474,16 +475,11 @@ class _LabelButt extends StatelessWidget {
           Icon(
             icon,
             size: 18,
-            color: context.colorScheme.primary,
+            color: context.color.primary,
           ),
-          10.sizedBoxWidth,
+          const TunaiSpace.normal(),
           Expanded(
-            child: Text(
-              title,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: TunaiColor.black,
-              ),
-            ),
+            child: TunaiText(title),
           ),
           Builder(builder: (context) {
             trailingContext = context;
@@ -505,13 +501,8 @@ class _DropDownLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          title,
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: TunaiColor.black,
-          ),
-        ),
-        5.sizedBoxWidth,
+        TunaiText(title),
+        const TunaiSpace.small(),
         const DefaultChevronDown(),
       ],
     );
@@ -536,19 +527,9 @@ class _PrinterListView extends StatelessWidget {
         return Column(
           children: [
             _LabelButt(
-              borderRadius: BorderRadius.only(
-                topLeft: isFirst
-                    ? const Radius.circular(TunaiBr.normal)
-                    : Radius.zero,
-                topRight: isFirst
-                    ? const Radius.circular(TunaiBr.normal)
-                    : Radius.zero,
-                bottomLeft: isLast
-                    ? const Radius.circular(TunaiBr.normal)
-                    : Radius.zero,
-                bottomRight: isLast
-                    ? const Radius.circular(TunaiBr.normal)
-                    : Radius.zero,
+              borderRadius: BorderRadius.vertical(
+                top: isFirst ? const TunaiRadius.normal() : Radius.zero,
+                bottom: isLast ? const TunaiRadius.normal() : Radius.zero,
               ),
               icon: CupertinoIcons.printer_fill,
               title: printer.name.isEmpty ? printer.address : printer.name,

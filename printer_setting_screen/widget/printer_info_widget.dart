@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:tunai_widget/tunai_widget.dart';
+
+import '../../../../tunai_style/common_widgets/typo/text/empty_label_text.dart';
 import '../../super_printer.dart';
-import '../../../../tunai_style/style_imports.dart';
 
 class PrinterInfoWidget extends StatefulWidget {
   const PrinterInfoWidget({super.key});
@@ -42,18 +44,16 @@ class _PrinterInfoWidgetState extends State<PrinterInfoWidget> {
           } else {
             return Row(
               children: [
-                Text(
+                TunaiText(
                   printer.name,
-                  style: context.text.primary.copyWith(
-                    color: context.colorScheme.primary,
-                  ),
+                  color: context.color.primary,
                 ),
                 if (failedToConnect)
                   Icon(
                     CupertinoIcons.xmark,
-                    color: Colors.red,
+                    color: context.color.error,
                     size: 18,
-                  )
+                  ),
               ],
             );
           }

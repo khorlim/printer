@@ -1,10 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 
 import '../../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../../../../tunai_style/widgets/dialog/custom_dialog/src/custom_dialog.dart';
 import '../../../../tunai_style/widgets/dialog/popup_menu/tunai_popup_menu/tunai_popup_menu.dart';
 import '../../super_printer.dart';
-import '../../../../tunai_style/style_imports.dart';
 
 class PaperSizeOptionMenu {
   final BuildContext context;
