@@ -38,7 +38,7 @@ class PrinterHelper {
     return superPrinter.openDrawer();
   }
 
-  static Future<File> getPdfFile(ReceiptData receiptData) async {
+  static Future<File?> getPdfFile(ReceiptData receiptData) async {
     final ReceiptIconSizeStorage iconSizeStorage = ReceiptIconSizeStorage();
     final iconSize = iconSizeStorage.fetch() ?? ReceiptIconSize.medium;
     final printCommand = ReceiptFactory.getReceipt(
