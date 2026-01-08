@@ -432,7 +432,7 @@ class SuperPrinter {
     }
 
     debugPrint(
-        'Executing print command... [${_selectedPrinter}] [${_paperSize.name}]');
+        'Executing print command... [$_selectedPrinter] [${_paperSize.name}]');
     List<int> printBytes = await commands.getBytes();
 
     bool printSuccess = false;
