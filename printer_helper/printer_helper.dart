@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+
 import '../../../data/engine/receipt/model/receipt_data.dart';
 import '../printer_setting_screen/utils/receipt_icon_size_storage.dart';
 import '../src/print_commander/abstract_print_commander.dart';
@@ -32,5 +36,22 @@ class PrinterHelper {
 
   static Future<void> openDrawer() {
     return superPrinter.openDrawer();
+  }
+
+  static Future<File> getPdfFile(ReceiptData receiptData) async {
+    final ReceiptIconSizeStorage iconSizeStorage = ReceiptIconSizeStorage();
+    final iconSize = iconSizeStorage.fetch() ?? ReceiptIconSize.medium;
+    final printCommand = ReceiptFactory.getReceipt(
+      receiptType: ReceiptType.beauty,
+      receiptData: receiptData,
+      paperSize: PaperSize.mm80,
+      openDrawer: false,
+      iconSize: iconSize.size,
+    );
+
+    // Generate PDF
+    return printCommand.generatePdfFile(
+      fileName: 'physical_receipt_preview',
+    );
   }
 }
