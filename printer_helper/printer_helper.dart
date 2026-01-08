@@ -35,6 +35,6 @@ class PrinterHelper {
   }
 
   static Future<File?> getPdfFile(ReceiptData receiptData) async {
-    return File('physical_receipt_preview.pdf');
+    return null;
   }
 }
