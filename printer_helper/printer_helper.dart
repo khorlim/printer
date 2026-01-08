@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../../data/engine/receipt/model/receipt_data.dart';
 import '../src/print_commander/abstract_print_commander.dart';
 import '../super_printer.dart';
@@ -30,5 +32,9 @@ class PrinterHelper {
   static Future<void> openDrawer() {
     return Future.value();
     // return superPrinter.openDrawer();
+  }
+
+  static Future<File?> getPdfFile(ReceiptData receiptData) async {
+    return File('physical_receipt_preview.pdf');
   }
 }
