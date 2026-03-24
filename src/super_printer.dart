@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:universal_ble/universal_ble.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:imin_printer/imin_printer.dart';
 import 'package:thermal_printer/thermal_printer.dart';
@@ -109,18 +109,16 @@ class SuperPrinter {
     });
 
     _btPlusDeviceSubscription =
-        _btPlusPrintManager.scanStream.listen((btPlusDevices) {
-      // print('last devices : ${btPlusDevices.lastOrNull}');
-      List<CustomPrinter> btPlusDeviceList = btPlusDevices
-          .where(
-              (btDevice) => btDevice.advertisementData.serviceUuids.isNotEmpty)
-          .map((device) => CustomPrinter(
-                name: device.device.platformName,
-                address: device.device.remoteId.str,
-                printerType: PType.btPlusPrinter,
-              ))
-          .toList();
-      _btPlusPrinterListController.add(btPlusDeviceList);
+        _btPlusPrintManager.scanStream.listen((bleDevice) {
+      if (bleDevice.services.isEmpty) return;
+      debugPrint(
+          'bt plus scan found: ${bleDevice.name} deviceID: ${bleDevice.deviceId}');
+      _btPlusScanById[bleDevice.deviceId] = CustomPrinter(
+        name: bleDevice.name ?? bleDevice.rawName ?? '',
+        address: bleDevice.deviceId,
+        printerType: PType.btPlusPrinter,
+      );
+      _btPlusPrinterListController.add(_btPlusScanById.values.toList());
     });
   }
 
@@ -128,7 +126,7 @@ class SuperPrinter {
 
   late final StreamSubscription<List<PrinterDevice>> _btDeviceSubscription;
   late final StreamSubscription<List<PrinterDevice>> _networkDeviceSubscription;
-  late final StreamSubscription<List<ScanResult>> _btPlusDeviceSubscription;
+  late final StreamSubscription<BleDevice> _btPlusDeviceSubscription;
   late final StreamSubscription<BTStatus> _btDeviceStatusSubs;
   late final StreamSubscription<TCPStatus> _networkDeviceStatusSubs;
 
@@ -183,6 +181,7 @@ class SuperPrinter {
 
   //PrintStatus? _printStatus;
   List<CustomPrinter> _starPrinterList = [];
+  final Map<String, CustomPrinter> _btPlusScanById = {};
   // List<CustomPrinter> _btPrinterList = [];
   // List<CustomPrinter> _networkPrinterList = [];
 
@@ -195,6 +194,8 @@ class SuperPrinter {
     if (Platform.isWindows) {
       _bluePrintManager.searchPrinter();
     } else {
+      _btPlusScanById.clear();
+      _btPlusPrinterListController.add([]);
       _btPlusPrintManager.startScan();
     }
 

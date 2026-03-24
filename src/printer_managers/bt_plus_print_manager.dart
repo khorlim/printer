@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:universal_ble/universal_ble.dart';
 import '../model/custom_printer_model.dart';
+import 'universal_ble_print_chunks.dart';
 
 class BtPlusPrintManager {
   static final BtPlusPrintManager _instance = BtPlusPrintManager._internal();
@@ -11,100 +11,88 @@ class BtPlusPrintManager {
   factory BtPlusPrintManager() {
     return _instance;
   }
-  late StreamSubscription<List<ScanResult>> _scanSubscription;
-  Stream<List<ScanResult>> get scanStream => FlutterBluePlus.onScanResults;
-  BluetoothDevice? connectedDevice;
+
+  /// One device per emission (unlike flutter_blue_plus aggregated lists).
+  Stream<BleDevice> get scanStream => UniversalBle.scanStream;
+
+  String? connectedDeviceId;
 
   Future<bool> getStatus(CustomPrinter printer) async {
-    bool isConnected = FlutterBluePlus.connectedDevices
-        .any((d) => d.remoteId.str == printer.address);
-
-    return isConnected;
+    final state = await UniversalBle.getConnectionState(printer.address);
+    return state == BleConnectionState.connected;
   }
 
-  void init() {
-    _scanSubscription = FlutterBluePlus.onScanResults.listen(
-      (results) {
-        // print('scanned results : $results');
-        if (results.isNotEmpty) {
-          ScanResult r = results.last; // the most recently found device
-          r.device.connect();
-          // print(
-          //     'newest : ${r.device.remoteId}: "${r.advertisementData.advName}" found!');
+  Future<void> startScan() async {
+    debugPrint('bt plus start scan...');
+    try {
+      await UniversalBle.requestPermissions(withAndroidFineLocation: true);
+      await UniversalBle.startScan(
+        platformConfig: PlatformConfig(
+          android: AndroidOptions(requestLocationPermission: true),
+        ),
+      );
+      unawaited(Future<void>.delayed(const Duration(seconds: 8), () async {
+        try {
+          await UniversalBle.stopScan();
+          debugPrint('bt plus stopped scan');
+        } catch (e) {
+          debugPrint('bt plus stop scan error: $e');
         }
-      },
-      onError: (e) => print(e),
-    );
-  }
-
-  void startScan() async {
-    print('bt plus start scan...');
-    return await FlutterBluePlus.startScan(
-      androidUsesFineLocation: true,
-      // withMsd: [
-      //   MsdFilter(manufacturerId)
-      // ],
-      // withServices: [Guid("180D")], // match any of the specified services
-      // withNames: ["Bluno"], // *or* any of the specified names
-      timeout: Duration(seconds: 5),
-    );
+      }));
+    } catch (e) {
+      debugPrint('bt plus start scan error: $e');
+    }
   }
 
   Future<void> disconnect() async {
-    await connectedDevice?.disconnect();
+    final id = connectedDeviceId;
+    if (id != null) {
+      await UniversalBle.disconnect(id);
+      connectedDeviceId = null;
+    }
   }
 
   Future<bool> connectPrinter(CustomPrinter btDevice) async {
     try {
-      await BluetoothDevice.fromId(btDevice.address).connect();
+      await UniversalBle.connect(btDevice.address);
+      connectedDeviceId = btDevice.address;
       return true;
     } catch (e) {
-      print('bt plus failed to connect printer : $e');
+      debugPrint('bt plus failed to connect printer : $e');
       return false;
-      //   throw Exception('Failed to connect to bluetooth device. $e');
     }
   }
 
   Future<bool> sendPrintCommand(CustomPrinter printer, List<int> bytes) async {
     try {
-      BluetoothDevice foundConnectedDevice =
-          BluetoothDevice.fromId(printer.address);
+      final device = BleDevice(deviceId: printer.address, name: printer.name);
+      await device.connect();
+      final maxPayload = await negotiatedMaxWritePayload(device);
+      final services = await device.discoverServices();
 
-      await foundConnectedDevice.connect();
-      await foundConnectedDevice.discoverServices(
-          subscribeToServicesChanged: false);
-
-      print(
-          'foundconnecteddevice : ${foundConnectedDevice.servicesList.firstOrNull?.characteristics}');
-
-      // print('max Mtu : $maxMtu');
-      final BluetoothCharacteristic? character = foundConnectedDevice
-          .servicesList
-          .firstWhereOrNull((service) =>
-              service.characteristics.any((c) => c.properties.write))
-          ?.characteristics
-          .firstWhereOrNull((element) => element.properties.write);
-
-      if (character != null) {
-        int maxWrite = 97;
-        int totalBytes = bytes.length;
-        int totalChunks = (totalBytes / maxWrite).ceil();
-
-        for (int i = 0; i < totalChunks; i++) {
-          int start = i * maxWrite;
-          int end = (i + 1) * maxWrite;
-          if (end > totalBytes) {
-            end = totalBytes;
-          }
-          List<int> chunk = bytes.sublist(start, end);
-          await character.write(chunk);
-        }
+      final target = pickThermalBleWriteTarget(services);
+      if (target == null) {
+        throw StateError(
+          'No writable GATT characteristic on ${printer.name}. '
+          'Firmware may use a non-standard BLE layout.',
+        );
       }
+      debugPrint(
+        'BLE print: service=${target.serviceUuid} char=${target.characteristicUuid} '
+        'withResponse=${target.withResponse} (${bytes.length} bytes)',
+      );
+      await writeBytesInAttChunks(
+        target.characteristic,
+        bytes,
+        withResponse: target.withResponse,
+        maxPayload: maxPayload,
+        delayBetweenChunks: const Duration(milliseconds: 20),
+      );
 
       return true;
-    } catch (e) {
-      debugPrintStack(maxFrames: 2);
-      print(e);
+    } catch (e, st) {
+      debugPrintStack(stackTrace: st, maxFrames: 2);
+      debugPrint('Failed to send command to printer. $e');
       throw Exception('Failed to send command to printer. $e');
     }
   }

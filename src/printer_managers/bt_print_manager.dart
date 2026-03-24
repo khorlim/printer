@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:thermal_printer/thermal_printer.dart';
+import 'package:universal_ble/universal_ble.dart';
 import '../model/custom_printer_model.dart';
+import 'universal_ble_print_chunks.dart';
 
 class BluetoothPrintManager {
   static final BluetoothPrintManager _instance =
@@ -59,9 +60,6 @@ class BluetoothPrintManager {
 
   Future<bool> connectPrinter(PrinterDevice selectedPrinter) async {
     try {
-      // bool disconnected = await PrinterManager.instance.disconnect(
-      //   type: PrinterType.bluetooth,
-      // );
       await PrinterManager.instance.connect(
           type: PrinterType.bluetooth,
           model: BluetoothPrinterInput(
@@ -73,7 +71,6 @@ class BluetoothPrintManager {
       return _btStatus == BTStatus.connected;
     } catch (e) {
       return false;
-      //   throw Exception('Failed to connect to bluetooth device. $e');
     }
   }
 
@@ -85,47 +82,41 @@ class BluetoothPrintManager {
 
   Future<bool> sendPrintCommand(CustomPrinter printer, List<int> bytes) async {
     try {
-      final List<BluetoothDevice> connectedDevices =
-          await FlutterBluePlus.systemDevices;
+      final systemDevices = await UniversalBle.getSystemDevices();
+      BleDevice? foundConnectedDevice = systemDevices
+          .firstWhereOrNull((d) => d.deviceId == printer.address);
 
-      BluetoothDevice? foundConnectedDevice = connectedDevices
-          .firstWhereOrNull((d) => d.remoteId.str == printer.address);
-
-      if (foundConnectedDevice != null &&
-          foundConnectedDevice.servicesList.isEmpty) {
-        await foundConnectedDevice.connect();
-        await foundConnectedDevice.discoverServices(
-            subscribeToServicesChanged: false);
-      }
-
-      // print('max Mtu : $maxMtu');
-      final BluetoothCharacteristic? character = foundConnectedDevice
-          ?.servicesList.firstOrNull?.characteristics
-          .firstWhereOrNull((element) => element.properties.write);
-
-      if (character != null) {
-        int maxWrite = 97;
-        int totalBytes = bytes.length;
-        int totalChunks = (totalBytes / maxWrite).ceil();
-
-        for (int i = 0; i < totalChunks; i++) {
-          int start = i * maxWrite;
-          int end = (i + 1) * maxWrite;
-          if (end > totalBytes) {
-            end = totalBytes;
-          }
-          List<int> chunk = bytes.sublist(start, end);
-          await character.write(chunk);
+      if (foundConnectedDevice != null) {
+        if (!await foundConnectedDevice.isConnected) {
+          await foundConnectedDevice.connect();
         }
-      } else {
-        bool sendSuccess = await _printerManager.send(
-            type: PrinterType.bluetooth, bytes: bytes);
-        return sendSuccess;
+        final maxPayload = await negotiatedMaxWritePayload(
+          foundConnectedDevice,
+        );
+        final services = await foundConnectedDevice.discoverServices();
+
+        final target = pickThermalBleWriteTarget(services);
+        if (target != null) {
+          debugPrint(
+            'BLE print (classic BT path): service=${target.serviceUuid} '
+            'char=${target.characteristicUuid} withResponse=${target.withResponse}',
+          );
+          await writeBytesInAttChunks(
+            target.characteristic,
+            bytes,
+            withResponse: target.withResponse,
+            maxPayload: maxPayload,
+            delayBetweenChunks: const Duration(milliseconds: 20),
+          );
+          return true;
+        }
       }
 
-      return true;
-    } catch (e) {
-      debugPrintStack(maxFrames: 2);
+      final bool sendSuccess = await _printerManager.send(
+          type: PrinterType.bluetooth, bytes: bytes);
+      return sendSuccess;
+    } catch (e, st) {
+      debugPrintStack(stackTrace: st, maxFrames: 2);
       print(e);
       throw Exception('Failed to send command to printer. $e');
     }
