@@ -43,11 +43,13 @@ class UsbPrintManager {
   Future<bool> checkConnection(PrinterDevice device) async {
     try {
       bool connected = await printerManager.connect(
-          type: PrinterType.usb,
-          model: UsbPrinterInput(
-              name: device.name,
-              productId: device.productId,
-              vendorId: device.vendorId));
+        type: PrinterType.usb,
+        model: UsbPrinterInput(
+          name: device.name,
+          productId: device.productId,
+          vendorId: device.vendorId,
+        ),
+      );
 
       return connected;
     } catch (e) {

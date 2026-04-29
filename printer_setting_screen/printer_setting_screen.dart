@@ -455,7 +455,7 @@ class _LabelButt extends StatelessWidget {
     required this.title,
     required this.trailing,
     this.onPressed,
-    this.borderRadius,
+    this.borderRadius = TunaiBorderRadius.normal,
   });
 
   @override
