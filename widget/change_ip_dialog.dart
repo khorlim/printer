@@ -45,8 +45,8 @@ class _ChangeIpPageState extends State<ChangeIpPage> {
       resizeToAvoidBottomInset: context.deviceType.isMobile,
       appBar: TunaiAppBar(
         elevation: 0,
-        title: Text('Change Ip Address'),
-        leading: CloseButt(),
+        title: const Text('Change Ip Address'),
+        leading: const CloseButt(),
         actions: [
           if (canConfirm)
             TextButt(

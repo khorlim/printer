@@ -15,8 +15,11 @@ class CustomPrinter extends Equatable {
   final String address;
   final PType printerType;
 
-  CustomPrinter(
-      {required this.name, required this.address, required this.printerType});
+  const CustomPrinter({
+    required this.name,
+    required this.address,
+    required this.printerType,
+  });
 
   // factory CustomPrinter.fromPrinterDevice(PrinterDevice printerDevice,
   //     {required PType printerType}) {
