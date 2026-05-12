@@ -1,9 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:tunai_widget/tunai_option_menu.dart';
 
-import '../../../../core_utils/tunai_navigator/tunai_navigator.dart';
-import '../../../../tunai_style/widgets/dialog/custom_dialog/src/custom_dialog.dart';
-import '../../../../tunai_style/widgets/dialog/popup_menu/tunai_popup_menu/tunai_popup_menu.dart';
 import '../../super_printer.dart';
 
 class PaperSizeOptionMenu {
@@ -16,21 +14,16 @@ class PaperSizeOptionMenu {
   });
 
   Future<void> show() async {
-    late final List<TunaiPopupMenuItem> items = allPaperSizes
-        .map((paperSize) => TunaiPopupMenuItem(
+    late final List<TunaiOptionMenuButton> items = allPaperSizes
+        .map((paperSize) => TunaiOptionMenuButton(
             title: paperSize.name,
             onPressed: () {
-              TunaiNavigator.pop();
               onSizeChanged(paperSize);
             }))
         .toList();
 
-    return TunaiPopupMenu(
+    return TunaiOptionMenu(
       items: items,
-      alignTargetWidget: AlignTargetWidget.centerBottomRight,
-    ).show(
-      context,
-      navigatorContext: TunaiNavigator.currentContext,
-    );
+    ).show(context: context);
   }
 }

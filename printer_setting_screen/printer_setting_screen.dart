@@ -1,14 +1,14 @@
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tunai_widget/tunai_option_menu.dart';
 import 'package:tunai_widget/tunai_text_field.dart';
 import 'package:tunai_widget/tunai_widget.dart';
+
 import '../../../core_utils/tunai_dialog/tunai_dialog.dart';
-import '../../../core_utils/tunai_navigator/tunai_navigator.dart';
 import '../../../translation/strings.g.dart';
 import '../../../tunai_style/common_widgets/input/butt/appbar_butt/text_butt.dart';
 import '../../../tunai_style/common_widgets/layout/always_scrollable_center_widget/always_scrollable_center_widget.dart';
@@ -17,8 +17,6 @@ import '../../../tunai_style/common_widgets/scaffold/appbar/tunai_app_bar.dart';
 import '../../../tunai_style/common_widgets/scaffold/tunai_scaffold.dart';
 import '../../../tunai_style/common_widgets/typo/default_icon/chevron/default_chevron_down.dart';
 import '../../../tunai_style/extension/build_context_extension.dart';
-import '../../../tunai_style/widgets/dialog/custom_dialog/src/custom_dialog.dart';
-import '../../../tunai_style/widgets/dialog/popup_menu/tunai_popup_menu/tunai_popup_menu.dart';
 import '../src/printer_managers/xprinter_manager.dart';
 
 import '../super_printer.dart';
@@ -553,21 +551,16 @@ class PrinterTypeOptionMenu {
   });
 
   Future<void> show() async {
-    late final List<TunaiPopupMenuItem> items = PrinterType.values
-        .map((type) => TunaiPopupMenuItem(
+    late final List<TunaiOptionMenuButton> items = PrinterType.values
+        .map((type) => TunaiOptionMenuButton(
             title: type.name,
             onPressed: () {
-              TunaiNavigator.pop();
               onTypeChanged(type);
             }))
         .toList();
 
-    return TunaiPopupMenu(
+    return TunaiOptionMenu(
       items: items,
-      alignTargetWidget: AlignTargetWidget.centerBottomRight,
-    ).show(
-      context,
-      navigatorContext: TunaiNavigator.currentContext,
-    );
+    ).show(context: context);
   }
 }

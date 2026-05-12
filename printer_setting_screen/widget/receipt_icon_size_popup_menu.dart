@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:tunai_widget/tunai_option_menu.dart';
 
-import '../../../../tunai_style/widgets/dialog/custom_dialog/src/custom_dialog.dart';
-import '../../../../tunai_style/widgets/dialog/popup_menu/tunai_popup_menu/tunai_popup_menu.dart';
 import '../utils/receipt_icon_size_storage.dart';
 
 class ReceiptIconSizePopupMenu {
@@ -13,27 +12,22 @@ class ReceiptIconSizePopupMenu {
     required this.onSelected,
   });
 
-  void show(
-    BuildContext context, {
-    AlignTargetWidget alignTargetWidget = AlignTargetWidget.centerBottomRight,
-  }) {
+  void show(BuildContext context) {
     final items = ReceiptIconSize.values
         .map(
-          (e) => TunaiPopupMenuItem(
+          (e) => TunaiOptionMenuSelection(
             isSelected: e == selectedSize,
             title: e.displayName,
-            iconData: CupertinoIcons.doc_text,
+            icon: const Icon(CupertinoIcons.doc_text),
             onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop();
               onSelected(e);
             },
           ),
         )
         .toList();
 
-    TunaiPopupMenu(
+    TunaiOptionMenu(
       items: items,
-      alignTargetWidget: alignTargetWidget,
-    ).show(context);
+    ).show(context: context);
   }
 }
